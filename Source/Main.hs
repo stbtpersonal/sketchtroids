@@ -1,8 +1,10 @@
 module Main where
 
-import Haste.DOM as Dom
+import Haste.DOM as DOM
+import Other
 
 main :: IO ()
 main = do
-    textElement <- Dom.newTextElem "Hello World!!!"
-    Dom.appendChild Dom.documentBody textElement
+    let number = Other.calculate 12
+    textElement <- DOM.newTextElem $ "Hello World!!! " ++ show number
+    DOM.appendChild DOM.documentBody textElement
