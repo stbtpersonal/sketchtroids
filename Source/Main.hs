@@ -1,8 +1,9 @@
 module Main where
 
 import Haste.DOM as DOM
-import Other
 import Haste.Graphics.AnimationFrame as AnimationFrame
+import GameState
+import Fps
 
 main :: IO ()
 main = do
@@ -10,16 +11,21 @@ main = do
     DOM.setAttr divElement "id" "text"
     DOM.appendChild DOM.documentBody divElement
 
-    AnimationFrame.requestAnimationFrame mainLoop
+    let initialState = GameState.defaultValue
+    AnimationFrame.requestAnimationFrame $ mainLoop initialState
     return ()
 
-
-mainLoop :: AnimationFrame.HRTimeStamp -> IO ()
-mainLoop timestamp = do
+mainLoop :: GameState -> AnimationFrame.HRTimeStamp -> IO ()
+mainLoop state timestamp = do
     Just divElement <- DOM.elemById "text"
+
     DOM.clearChildren divElement
-    let number = Other.calculate $ round timestamp
-    textElement <- DOM.newTextElem $ "Hello World!!! " ++ show number
+
+    let counter = GameState.getCounter state
+    textElement <- DOM.newTextElem $ "Hello World!!! " ++ show counter
     DOM.appendChild divElement textElement
-    AnimationFrame.requestAnimationFrame mainLoop
+
+    let newState = GameState.setCounter state $ counter + 150
+
+    AnimationFrame.requestAnimationFrame $ mainLoop newState
     return ()
