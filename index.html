@@ -1,12 +1,57 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Sketchtroids!</title>
-  <link rel="stylesheet" href="stylesheet.css" type="text/css">
-  </head>
-  <body>
-  
-  <script src="sketchtroids.js" type="text/javascript"></script>
-  </body>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Sketchtroids!</title>
+	<style>
+		body {
+			background-color: black;
+			margin: 0;
+		}
+		
+		.container {
+			width: 100vw;
+			height: 100vh;
+		}
+		
+		.content {
+			width: 99vw;
+			height: 99vh;
+			position: relative;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+		}
+		
+		.content > canvas {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+		}
+		
+		noscript {
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+
+			color: white;
+			font-family: Arial, Helvetica, sans-serif;
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div id="content" class="content">
+			<noscript>JavaScript must be enabled</noscript>
+		</div>
+	</div>
+
+	<script src="sketchtroids.js" type="text/javascript"></script>
+</body>
+
 </html>
