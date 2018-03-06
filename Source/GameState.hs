@@ -2,17 +2,9 @@ module GameState where
 
 import Haste.Graphics.Canvas as Canvas
 import Fps
+import Entity
 
-data GameState = GameState { _fps :: Fps, _canvas :: Canvas, _rotation :: Double }
-
-getFps :: GameState -> Fps
-getFps (GameState { _fps = fps }) = fps
-
-getCanvas :: GameState -> Canvas
-getCanvas (GameState { _canvas = canvas }) = canvas
-
-getRotation :: GameState -> Double
-getRotation (GameState { _rotation = rotation }) = rotation
+data GameState = GameState { fps :: Fps, canvas :: Canvas, rotation :: Double, entities :: [Entity] }
 
 new :: Canvas -> GameState
-new canvas = GameState { _fps = Fps.defaultValue, _canvas = canvas, _rotation = 0 }
+new canvas = GameState { fps = Fps.new, canvas = canvas, rotation = 0, entities = [] }

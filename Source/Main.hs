@@ -6,6 +6,9 @@ import Haste.Graphics.AnimationFrame as AnimationFrame
 import Haste.Graphics.Canvas as Canvas
 import GameState
 import Fps
+import SpinningRectangle
+import Point
+import Entity
 
 nativeWidth :: Double
 nativeWidth = 800
@@ -23,8 +26,11 @@ main = do
     Just contentElement <- DOM.elemById "content"
     DOM.appendChild contentElement canvas
 
-    let initialState = GameState.new canvas
-    AnimationFrame.requestAnimationFrame $ Main.mainLoop initialState
+    let spinningRectangle1 = Entity $ SpinningRectangle.new { SpinningRectangle.position = Point.Point { Point.x = 50, Point.y = 50 }, SpinningRectangle.speed = 0.001 }
+    let spinningRectangle2 = Entity $ SpinningRectangle.new { SpinningRectangle.position = Point.Point { Point.x = 150, Point.y = 50 }, SpinningRectangle.speed = 0.002 }
+    let spinningRectangle3 = Entity $ SpinningRectangle.new { SpinningRectangle.position = Point.Point { Point.x = 50, Point.y = 150 }, SpinningRectangle.speed = 0.003 }
+    let initialState = GameState.new canvas 
+    AnimationFrame.requestAnimationFrame $ Main.mainLoop $ initialState { GameState.entities = [spinningRectangle1, spinningRectangle2, spinningRectangle3] }
     return ()
 
 createCanvas :: IO Canvas
@@ -38,16 +44,19 @@ createCanvas = do
 
 mainLoop :: GameState -> AnimationFrame.HRTimeStamp -> IO ()
 mainLoop state timestamp = do
-    let fps = GameState.getFps state
+    let fps = GameState.fps state
     let (updatedFps, deltaTime, fpsToDisplay) = Main.updateFps fps timestamp
 
-    let rotation = GameState.getRotation state
+    let rotation = GameState.rotation state
     let updatedRotation = rotation + (0.0001 * deltaTime)
 
-    when (fpsToDisplay >= 0) $ do
-        Main.render (GameState.getCanvas state) fpsToDisplay updatedRotation
+    Main.render (GameState.canvas state) fpsToDisplay updatedRotation
 
-    let newState = state { _fps = updatedFps, _rotation = updatedRotation }
+    let entities = GameState.entities state
+    let updatedEntities = map (\entity -> Entity.update entity deltaTime) entities
+    Canvas.render (GameState.canvas state) $ mapM Entity.render updatedEntities
+
+    let newState = state { GameState.fps = updatedFps, GameState.rotation = updatedRotation, GameState.entities = updatedEntities }
 
     AnimationFrame.requestAnimationFrame $ Main.mainLoop newState
     return ()
@@ -55,14 +64,14 @@ mainLoop state timestamp = do
 updateFps :: Fps -> Double -> (Fps, Double, Integer)
 updateFps fps timestamp =
     let
-        previousTimestamp = Fps.getTimestamp fps
+        previousTimestamp = Fps.timestamp fps
         deltaTime = timestamp - previousTimestamp
-        candidateTimeCount = Fps.getTimeCount fps + deltaTime
-        candidateFrameCount = Fps.getFrameCount fps + 1
+        candidateTimeCount = Fps.timeCount fps + deltaTime
+        candidateFrameCount = Fps.frameCount fps + 1
         (updatedTimeCount, updatedFrameCount, fpsToDisplay)
             | candidateTimeCount < 1000 = (candidateTimeCount, candidateFrameCount, -1)
             | otherwise                 = (candidateTimeCount - 1000, 1, candidateFrameCount)
-        updatedFps = Fps { _timeCount = updatedTimeCount, _frameCount = updatedFrameCount, _timestamp = timestamp }
+        updatedFps = Fps { Fps.timeCount = updatedTimeCount, Fps.frameCount = updatedFrameCount, Fps.timestamp = timestamp }
     in
         (updatedFps, deltaTime, fpsToDisplay)
 
