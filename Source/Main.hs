@@ -4,6 +4,8 @@ module Main where
     import Game
     import Entity
     import Renderer
+    import Haste
+    import Foreign.Keyboard as Keyboard
 
     nativeWidth :: Double
     nativeWidth = 800
@@ -13,10 +15,15 @@ module Main where
 
     main :: IO ()
     main = do
+        isADown <- Keyboard.isKeyDown "a"
+        isBDown <- Keyboard.isKeyDown "b"
+        isCDown <- Keyboard.isKeyDown "c"
+        Haste.writeLog $ Haste.toJSString ("Is a down: " ++ show isADown)
+        Haste.writeLog $ Haste.toJSString ("Is b down: " ++ show isBDown)
+        Haste.writeLog $ Haste.toJSString ("Is c down: " ++ show isCDown)
+
         canvas <- Renderer.initialize nativeWidth nativeHeight
-
         let game = Game.new canvas nativeWidth nativeHeight
-
         AnimationFrame.requestAnimationFrame $ Main.mainLoop game
         return ()
 
