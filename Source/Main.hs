@@ -1,12 +1,7 @@
 module Main where
 
-    import Control.Monad
     import Haste.Graphics.AnimationFrame as AnimationFrame
     import Game
-    import Entities.Background as Background
-    import Entities.Fps as Fps
-    import Entities.SpinningRectangle as SpinningRectangle
-    import Point
     import Entity
     import Renderer
 
@@ -20,13 +15,7 @@ module Main where
     main = do
         canvas <- Renderer.initialize nativeWidth nativeHeight
 
-        let background = Entity $ Background.new nativeWidth nativeHeight
-        let spinningRectangle1 = Entity $ SpinningRectangle.new { SpinningRectangle.position = Point.Point { Point.x = 50, Point.y = 50 }, SpinningRectangle.speed = 0.001 }
-        let spinningRectangle2 = Entity $ SpinningRectangle.new { SpinningRectangle.position = Point.Point { Point.x = 150, Point.y = 50 }, SpinningRectangle.speed = 0.002 }
-        let spinningRectangle3 = Entity $ SpinningRectangle.new { SpinningRectangle.position = Point.Point { Point.x = 50, Point.y = 150 }, SpinningRectangle.speed = 0.003 }
-        let fps = Entity $ Fps.new
-
-        let game = (Game.new canvas) { Game.entities = [background, spinningRectangle1, spinningRectangle2, spinningRectangle3, fps] }
+        let game = Game.new canvas nativeWidth nativeHeight
 
         AnimationFrame.requestAnimationFrame $ Main.mainLoop game
         return ()
