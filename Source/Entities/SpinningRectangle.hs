@@ -1,4 +1,4 @@
-module SpinningRectangle where
+module Entities.SpinningRectangle where
 
     import Point
     import Entity
@@ -13,16 +13,16 @@ module SpinningRectangle where
 
         update spinningRectangle deltaTime =
             let
-                rotation = SpinningRectangle.rotation spinningRectangle
-                speed = SpinningRectangle.speed spinningRectangle
+                rotation = Entities.SpinningRectangle.rotation spinningRectangle
+                speed = Entities.SpinningRectangle.speed spinningRectangle
                 updatedRotation = rotation + (speed * deltaTime)
             in
                 Entity $ spinningRectangle { rotation = updatedRotation }
 
         render spinningRectangle =
             let
-                rotation = SpinningRectangle.rotation spinningRectangle
-                position = SpinningRectangle.position spinningRectangle
+                rotation = Entities.SpinningRectangle.rotation spinningRectangle
+                position = Entities.SpinningRectangle.position spinningRectangle
 
                 shape = Canvas.rect (-25, -25) (25, 25)
                 stroked = Canvas.stroke shape

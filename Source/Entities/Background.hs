@@ -1,4 +1,4 @@
-module Background where
+module Entities.Background where
 
     import Entity
     import Haste.Graphics.Canvas as Canvas
@@ -14,8 +14,8 @@ module Background where
 
         render background = 
             let
-                width = Background.width background
-                height = Background.height background
+                width = Entities.Background.width background
+                height = Entities.Background.height background
 
                 shape = Canvas.rect (0, 0) (width, height)
                 filled = Canvas.fill shape

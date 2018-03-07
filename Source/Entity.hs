@@ -13,3 +13,9 @@ module Entity where
     instance EntityClass Entity where
         update (Entity a) = Entity.update a
         render (Entity a) = Entity.render a
+
+    updateAll :: [Entity] -> Double -> [Entity]
+    updateAll entities deltaTime = map (\entity -> Entity.update entity deltaTime) entities
+
+    renderAll :: [Entity] -> Canvas.Picture ()
+    renderAll entities = mapM_ Entity.render entities

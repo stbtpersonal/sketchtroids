@@ -1,4 +1,4 @@
-module Fps where
+module Entities.Fps where
     
     import Haste.Graphics.Canvas as Canvas
     import Entity
@@ -12,17 +12,17 @@ module Fps where
 
         update fps deltaTime =
             let
-                addedTimeCount = Fps.timeCount fps + deltaTime
-                addedFrameCount = Fps.frameCount fps + 1
+                addedTimeCount = Entities.Fps.timeCount fps + deltaTime
+                addedFrameCount = Entities.Fps.frameCount fps + 1
                 (updatedTimeCount, updatedFrameCount, updatedFpsToDisplay)
-                    | addedTimeCount < 1000 = (addedTimeCount, addedFrameCount, Fps.fpsToDisplay fps)
+                    | addedTimeCount < 1000 = (addedTimeCount, addedFrameCount, Entities.Fps.fpsToDisplay fps)
                     | otherwise             = (addedTimeCount - 1000, 1, show addedFrameCount)
             in
                 Entity $ fps { timeCount = updatedTimeCount, frameCount = updatedFrameCount, fpsToDisplay = updatedFpsToDisplay }
 
         render fps =
             let
-                fpsToDisplay = Fps.fpsToDisplay fps
+                fpsToDisplay = Entities.Fps.fpsToDisplay fps
                 text = Canvas.text (5, 22.5) $ "FPS: " ++ fpsToDisplay
                 fonted = Canvas.font "20px sans-serif" text
             in

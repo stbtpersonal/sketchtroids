@@ -3,9 +3,9 @@ module Main where
     import Control.Monad
     import Haste.Graphics.AnimationFrame as AnimationFrame
     import Game
-    import Background
-    import Fps
-    import SpinningRectangle
+    import Entities.Background as Background
+    import Entities.Fps as Fps
+    import Entities.SpinningRectangle as SpinningRectangle
     import Point
     import Entity
     import Renderer
@@ -36,9 +36,8 @@ module Main where
         let previousTimestamp = Game.timestamp game
         let deltaTime = timestamp - previousTimestamp
 
-        let entities = Game.entities game
-        let updatedEntities = map (\entity -> Entity.update entity deltaTime) entities
-        Renderer.render (Game.canvas game) $ mapM Entity.render updatedEntities
+        let updatedEntities = Entity.updateAll (Game.entities game) deltaTime
+        Renderer.render (Game.canvas game) (Entity.renderAll updatedEntities)
 
         let updatedGame = game { Game.timestamp = timestamp, Game.entities = updatedEntities }
 
