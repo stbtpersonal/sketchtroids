@@ -2,6 +2,7 @@ module Entities.Fps where
     
     import Haste.Graphics.Canvas as Canvas
     import Entity
+    import Input
 
     data Fps = Fps { timeCount :: Double, frameCount :: Integer, fpsToDisplay :: String }
 
@@ -10,8 +11,9 @@ module Entities.Fps where
 
     instance EntityClass Fps where
 
-        update fps deltaTime =
+        update fps input =
             let
+                deltaTime = Input.deltaTime input
                 addedTimeCount = Entities.Fps.timeCount fps + deltaTime
                 addedFrameCount = Entities.Fps.frameCount fps + 1
                 (updatedTimeCount, updatedFrameCount, updatedFpsToDisplay)

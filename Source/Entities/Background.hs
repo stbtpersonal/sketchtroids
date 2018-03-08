@@ -10,7 +10,7 @@ module Entities.Background where
 
     instance EntityClass Background where
 
-        update background deltaTime = Entity $ background
+        update background input = Entity $ background
 
         render background = 
             let

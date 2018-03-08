@@ -4,6 +4,7 @@ module Entities.SpinningRectangles where
     import Entity
     import Entities.SpinningRectangle as SpinningRectangle
     import Haste.Graphics.Canvas as Canvas
+    import Input
 
     data SpinningRectangles = SpinningRectangles { position :: Point.Point, rotation :: Double, speed :: Double, children :: [Entity] }
 
@@ -19,17 +20,30 @@ module Entities.SpinningRectangles where
                                , Entities.SpinningRectangles.speed = 0
                                , Entities.SpinningRectangles.children = [spinningRectangle1, spinningRectangle2, spinningRectangle3] }
 
+    getValue :: (Input -> Bool) -> Input -> Double
+    getValue keyGetter input = if keyGetter input then 0.5 * (Input.deltaTime input) else 0
+
     instance EntityClass SpinningRectangles where
 
-        update spinningRectangles deltaTime = 
+        update spinningRectangles input = 
             let
+                deltaTime = Input.deltaTime input
+                position = Entities.SpinningRectangles.position spinningRectangles
                 rotation = Entities.SpinningRectangles.rotation spinningRectangles
                 speed = Entities.SpinningRectangles.speed spinningRectangles
                 updatedRotation = rotation + (speed * deltaTime)
 
-                updatedChildren = Entity.updateAll (Entities.SpinningRectangles.children spinningRectangles) deltaTime
+                leftValue = getValue Input.left input
+                rightValue = getValue Input.right input
+                upValue = getValue Input.up input
+                downValue = getValue Input.down input
+                horizontalDelta = rightValue - leftValue
+                verticalDelta = downValue - upValue
+                updatedPosition = Point.Point { x = (Point.x position) + horizontalDelta, y = (Point.y position) + verticalDelta }
+
+                updatedChildren = Entity.updateAll (Entities.SpinningRectangles.children spinningRectangles) input
             in
-                Entity $ spinningRectangles { Entities.SpinningRectangles.rotation = updatedRotation, Entities.SpinningRectangles.children = updatedChildren }
+                Entity $ spinningRectangles { Entities.SpinningRectangles.rotation = updatedRotation, Entities.SpinningRectangles.children = updatedChildren, Entities.SpinningRectangles.position = updatedPosition }
 
         render spinningRectangles = 
             let

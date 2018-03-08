@@ -3,6 +3,7 @@ module Entities.SpinningRectangle where
     import Point
     import Entity
     import Haste.Graphics.Canvas as Canvas
+    import Input
 
     data SpinningRectangle = SpinningRectangle { rotation :: Double, speed :: Double, position :: Point.Point }
 
@@ -11,8 +12,9 @@ module Entities.SpinningRectangle where
 
     instance EntityClass SpinningRectangle where
 
-        update spinningRectangle deltaTime =
+        update spinningRectangle input =
             let
+                deltaTime = Input.deltaTime input
                 rotation = Entities.SpinningRectangle.rotation spinningRectangle
                 speed = Entities.SpinningRectangle.speed spinningRectangle
                 updatedRotation = rotation + (speed * deltaTime)
