@@ -1,42 +1,39 @@
-module Resources where
+module Resources (loadResources, areResourcesLoaded, getResources, images) where
 
     import Haste.DOM as DOM
     import Haste.Graphics.Canvas as Canvas
     import Foreign.ImageLoader as ImageLoader
+    import Data.Map as Map
+    import ResourceKeys
 
-    data Resources = Resources { images :: [(String, Canvas.Bitmap)] }
+    data Resources = Resources { images :: Map ResourceKeys.ResourceKey Canvas.Bitmap }
 
-    imageKeysToPaths :: [(String, String)]
-    imageKeysToPaths = [ ("Spaceship", "Resources/Spaceship.png")
-                       , ("Bullet", "Resources/Bullet.png")
+    imageKeysToPaths :: [(ResourceKeys.ResourceKey, String)]
+    imageKeysToPaths = [ (ResourceKeys.Spaceship, "Resources/Spaceship.png")
+                       , (ResourceKeys.Bullet, "Resources/Bullet.png")
                        ]
 
     loadResources :: IO ()
     loadResources = mapM_ loadResource imageKeysToPaths
 
-    loadResource :: (String, String) -> IO ()
-    loadResource keyToPath = do
-        let path = snd keyToPath
-        ImageLoader.loadImage path
+    loadResource :: (ResourceKeys.ResourceKey, String) -> IO ()
+    loadResource (_, path) = ImageLoader.loadImage path
 
     areResourcesLoaded :: IO Bool
     areResourcesLoaded = do
         results <- mapM isResourceLoaded imageKeysToPaths 
         return $ or results
 
-    isResourceLoaded :: (String, String) -> IO Bool
-    isResourceLoaded keyToPath = do
-        let path = snd keyToPath
-        ImageLoader.isImageLoaded path
+    isResourceLoaded :: (ResourceKeys.ResourceKey, String) -> IO Bool
+    isResourceLoaded (_, path) = ImageLoader.isImageLoaded path
 
     getResources :: IO Resources
     getResources = do
         keysToBitmaps <- mapM getResource imageKeysToPaths
-        return Resources { images = keysToBitmaps }
+        let keysToBitmapsMap = Map.fromList keysToBitmaps
+        return Resources { images = keysToBitmapsMap }
 
-    getResource :: (String, String) -> IO (String, Bitmap)
-    getResource keyToPath = do
-        let key = fst keyToPath
-        let path = snd keyToPath
+    getResource :: (ResourceKeys.ResourceKey, String) -> IO (ResourceKeys.ResourceKey, Bitmap)
+    getResource (key, path) = do
         bitmap <- ImageLoader.getLoadedImage path
         return (key, bitmap)
