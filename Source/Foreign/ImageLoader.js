@@ -22,6 +22,10 @@
             }
         },
 
+        "isImageLoaded" : function(path) {
+            return path in loadedImages && loadedImages[path] !== null;
+        },
+
         "getLoadedImage" : function(path) {
             return loadedImages[path];
         },

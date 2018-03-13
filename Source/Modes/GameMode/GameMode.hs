@@ -14,6 +14,7 @@ module Modes.GameMode.GameMode where
     imageKeysToPaths :: Resources.ImageKeysToPaths
     imageKeysToPaths = [ (ResourceKeys.Spaceship, "Resources/Spaceship.png")
                        , (ResourceKeys.Bullet, "Resources/Bullet.png")
+                       , (ResourceKeys.Big, "Resources/Big.bmp")
                        ]
 
     data GameMode = GameMode { children :: [Entity] }

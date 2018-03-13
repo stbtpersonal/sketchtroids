@@ -7,6 +7,7 @@ module Resources (Resources, Resources.empty, ImageKeysToPaths, loadResources, a
     import Foreign.ImageLoader as ImageLoader
     import Data.Map as Map
     import ResourceKeys
+    import Control.Monad
 
     data Resources = Resources { images :: Map ResourceKeys.ResourceKey Canvas.Bitmap }
 
@@ -24,7 +25,8 @@ module Resources (Resources, Resources.empty, ImageKeysToPaths, loadResources, a
     appendResources :: ImageKeysToPaths -> Resources -> IO Resources
     appendResources imageKeysToPaths resources@Resources{..} = do
         let missingImageKeysToPaths = excludeLoadedResources imageKeysToPaths resources
-        keysToBitmaps <- mapM getResource missingImageKeysToPaths
+        availableImageKeysToPaths <- excludeUnavailableResources missingImageKeysToPaths
+        keysToBitmaps <- mapM getResource availableImageKeysToPaths
         let keysToBitmapsMap = Map.fromList keysToBitmaps
         return Resources { images = Map.union images keysToBitmapsMap }
 
@@ -34,6 +36,9 @@ module Resources (Resources, Resources.empty, ImageKeysToPaths, loadResources, a
             existingKeys = Map.keys images
         in
             Prelude.filter (\(key, _) -> not $ elem key existingKeys) imageKeysToPaths
+
+    excludeUnavailableResources :: ImageKeysToPaths -> IO ImageKeysToPaths
+    excludeUnavailableResources imageKeysToPaths = filterM (\(_, path) -> ImageLoader.isImageLoaded path) imageKeysToPaths
 
     getResource :: (ResourceKeys.ResourceKey, String) -> IO (ResourceKeys.ResourceKey, Bitmap)
     getResource (key, path) = do
