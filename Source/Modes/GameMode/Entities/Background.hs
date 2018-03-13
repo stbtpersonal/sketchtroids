@@ -13,8 +13,6 @@ module Modes.GameMode.Entities.Background where
 
     instance EntityClass Background where
 
-        update background input = Entity $ background
-
         render background@Background{..} = 
             let
                 shape = Canvas.rect (0, 0) (width, height)

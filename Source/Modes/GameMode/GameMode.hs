@@ -8,6 +8,13 @@ module Modes.GameMode.GameMode where
     import Modes.GameMode.Entities.SpinningRectangles as SpinningRectangles
     import Point
     import Input
+    import Resources
+    import ResourceKeys
+
+    imageKeysToPaths :: Resources.ImageKeysToPaths
+    imageKeysToPaths = [ (ResourceKeys.Spaceship, "Resources/Spaceship.png")
+                       , (ResourceKeys.Bullet, "Resources/Bullet.png")
+                       ]
 
     data GameMode = GameMode { children :: [Entity] }
 

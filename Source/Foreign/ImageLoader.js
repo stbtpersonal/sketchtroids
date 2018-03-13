@@ -4,22 +4,22 @@
 
     window["IMAGE_LOADER"] = {
         "loadImage" : function (path) {
-            var imageElement = new Image();
+            if (!(path in loadedImages)) {
+                loadedImages[path] = null;
 
-            imageElement.onload = function() {
-                loadedImages[path] = imageElement;
-            };
+                var imageElement = new Image();
 
-            imageElement.onerror = function(error) {
-                console.error(error);
-                hadErrorOccured = true;
-            };
+                imageElement.onload = function() {
+                    loadedImages[path] = imageElement;
+                };
 
-            imageElement.src = path;
-        },
+                imageElement.onerror = function(error) {
+                    console.error(error);
+                    hadErrorOccured = true;
+                };
 
-        "isImageLoaded" : function(path) {
-            return path in loadedImages;
+                imageElement.src = path;
+            }
         },
 
         "getLoadedImage" : function(path) {

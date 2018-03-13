@@ -1,8 +1,9 @@
 module Input where
 
+    import Resources
     import Foreign.Keyboard as Keyboard
 
-    data Input = Input { deltaTime :: Double, left :: Bool, right :: Bool, up :: Bool, down :: Bool }
+    data Input = Input { deltaTime :: Double, resources :: Resources, left :: Bool, right :: Bool, up :: Bool, down :: Bool }
 
     leftKeys :: [String]
     leftKeys = ["KeyA", "ArrowLeft", "Numpad4", "KeyJ"]
@@ -16,13 +17,13 @@ module Input where
     downKeys :: [String]
     downKeys = ["KeyS", "ArrowDown", "Numpad5", "Numpad2", "KeyK"]
 
-    poll :: Double -> IO Input
-    poll deltaTime = do
+    poll :: Double -> Resources -> IO Input
+    poll deltaTime resources = do
         left <- pollKeys leftKeys
         right <- pollKeys rightKeys
         up <- pollKeys upKeys
         down <- pollKeys downKeys
-        return Input { deltaTime = deltaTime, left = left, right = right, up = up, down = down }
+        return Input { deltaTime = deltaTime, resources = resources, left = left, right = right, up = up, down = down }
 
     pollKeys :: [String] -> IO Bool
     pollKeys keys = do

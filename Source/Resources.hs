@@ -1,4 +1,6 @@
-module Resources (loadResources, areResourcesLoaded, getResources, images) where
+{-# LANGUAGE RecordWildCards #-}
+
+module Resources (Resources, Resources.empty, ImageKeysToPaths, loadResources, appendResources, images) where
 
     import Haste.DOM as DOM
     import Haste.Graphics.Canvas as Canvas
@@ -8,30 +10,30 @@ module Resources (loadResources, areResourcesLoaded, getResources, images) where
 
     data Resources = Resources { images :: Map ResourceKeys.ResourceKey Canvas.Bitmap }
 
-    imageKeysToPaths :: [(ResourceKeys.ResourceKey, String)]
-    imageKeysToPaths = [ (ResourceKeys.Spaceship, "Resources/Spaceship.png")
-                       , (ResourceKeys.Bullet, "Resources/Bullet.png")
-                       ]
+    empty :: Resources
+    empty = Resources { images = Map.empty }
 
-    loadResources :: IO ()
-    loadResources = mapM_ loadResource imageKeysToPaths
+    type ImageKeysToPaths = [(ResourceKeys.ResourceKey, String)]
+
+    loadResources :: ImageKeysToPaths -> IO ()
+    loadResources imageKeysToPaths = mapM_ loadResource imageKeysToPaths
 
     loadResource :: (ResourceKeys.ResourceKey, String) -> IO ()
     loadResource (_, path) = ImageLoader.loadImage path
 
-    areResourcesLoaded :: IO Bool
-    areResourcesLoaded = do
-        results <- mapM isResourceLoaded imageKeysToPaths 
-        return $ or results
-
-    isResourceLoaded :: (ResourceKeys.ResourceKey, String) -> IO Bool
-    isResourceLoaded (_, path) = ImageLoader.isImageLoaded path
-
-    getResources :: IO Resources
-    getResources = do
-        keysToBitmaps <- mapM getResource imageKeysToPaths
+    appendResources :: ImageKeysToPaths -> Resources -> IO Resources
+    appendResources imageKeysToPaths resources@Resources{..} = do
+        let missingImageKeysToPaths = excludeLoadedResources imageKeysToPaths resources
+        keysToBitmaps <- mapM getResource missingImageKeysToPaths
         let keysToBitmapsMap = Map.fromList keysToBitmaps
-        return Resources { images = keysToBitmapsMap }
+        return Resources { images = Map.union images keysToBitmapsMap }
+
+    excludeLoadedResources :: ImageKeysToPaths -> Resources -> ImageKeysToPaths
+    excludeLoadedResources imageKeysToPaths resources@Resources{..} =
+        let
+            existingKeys = Map.keys images
+        in
+            Prelude.filter (\(key, _) -> not $ elem key existingKeys) imageKeysToPaths
 
     getResource :: (ResourceKeys.ResourceKey, String) -> IO (ResourceKeys.ResourceKey, Bitmap)
     getResource (key, path) = do

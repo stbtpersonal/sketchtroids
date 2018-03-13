@@ -2,27 +2,19 @@
 
 module Main where
 
-    import Control.Monad
     import Haste.Graphics.AnimationFrame as AnimationFrame
     import Modes.GameMode.GameMode as GameMode
     import Entity
     import Renderer
     import Input
-    import Haste
     import Resources
     import Haste.Graphics.Canvas as Canvas
-    import Data.Map as Map
-    import ResourceKeys
-
-    data FrameData = FrameData { canvas :: Canvas, timestamp :: Double, mode :: Entity }
+    import FrameData
 
     main :: IO ()
     main = do
-        -- Remember: loadResources should be called only once, at the beginning of the loading state
-        Resources.loadResources
-
         canvas <- Renderer.initialize
-        let initialFrameData = FrameData { canvas = canvas, timestamp = 0, mode = Entity GameMode.new }
+        let initialFrameData = FrameData { canvas = canvas, timestamp = 0, resources = Resources.empty, mode = Entity GameMode.new }
         AnimationFrame.requestAnimationFrame $ Main.mainLoop initialFrameData
         return ()
 
@@ -30,20 +22,13 @@ module Main where
     mainLoop frameData@FrameData{..} nextTimestamp = do
         let deltaTime = nextTimestamp - timestamp
 
-        input <- Input.poll deltaTime
+        Resources.loadResources $ Entity.load mode
+        updatedResources <- Resources.appendResources imageKeysToPaths resources
+
+        input <- Input.poll deltaTime updatedResources
         let updatedMode = Entity.update mode input
         Renderer.render canvas (Entity.render updatedMode)
 
-        -- Remember: getResources should be called only once, at the end of the loading state
-        areResourcesLoaded <- Resources.areResourcesLoaded
-        when areResourcesLoaded $ do
-            resources <- Resources.getResources
-            let images = Resources.images resources
-            let spaceshipBitmap = images ! ResourceKeys.Spaceship
-            Canvas.renderOnTop canvas (Canvas.draw spaceshipBitmap (50, 50))
-            let bulletBitmap = images ! ResourceKeys.Bullet
-            Canvas.renderOnTop canvas (Canvas.draw bulletBitmap (150, 50))
-
-        let updatedFrameData = frameData { timestamp = nextTimestamp, mode = updatedMode }
+        let updatedFrameData = frameData { timestamp = nextTimestamp, FrameData.resources = updatedResources, mode = updatedMode }
         AnimationFrame.requestAnimationFrame $ Main.mainLoop updatedFrameData
         return ()
