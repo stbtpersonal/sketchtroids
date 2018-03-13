@@ -1,4 +1,6 @@
-module Entities.Fps where
+{-# LANGUAGE RecordWildCards #-}
+
+module Modes.GameMode.Entities.Fps where
     
     import Haste.Graphics.Canvas as Canvas
     import Entity
@@ -11,20 +13,18 @@ module Entities.Fps where
 
     instance EntityClass Fps where
 
-        update fps input =
+        update fps@Fps{..} input@Input{..} =
             let
-                deltaTime = Input.deltaTime input
-                addedTimeCount = Entities.Fps.timeCount fps + deltaTime
-                addedFrameCount = Entities.Fps.frameCount fps + 1
+                addedTimeCount = timeCount + deltaTime
+                addedFrameCount = frameCount + 1
                 (updatedTimeCount, updatedFrameCount, updatedFpsToDisplay)
-                    | addedTimeCount < 1000 = (addedTimeCount, addedFrameCount, Entities.Fps.fpsToDisplay fps)
+                    | addedTimeCount < 1000 = (addedTimeCount, addedFrameCount, fpsToDisplay)
                     | otherwise             = (addedTimeCount - 1000, 1, show addedFrameCount)
             in
                 Entity $ fps { timeCount = updatedTimeCount, frameCount = updatedFrameCount, fpsToDisplay = updatedFpsToDisplay }
 
-        render fps =
+        render fps@Fps{..} =
             let
-                fpsToDisplay = Entities.Fps.fpsToDisplay fps
                 text = Canvas.text (5, 22.5) $ "FPS: " ++ fpsToDisplay
                 fonted = Canvas.font "20px sans-serif" text
             in

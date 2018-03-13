@@ -4,7 +4,7 @@ module Main where
 
     import Control.Monad
     import Haste.Graphics.AnimationFrame as AnimationFrame
-    import GameMode
+    import Modes.GameMode.GameMode as GameMode
     import Entity
     import Renderer
     import Input

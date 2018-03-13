@@ -1,4 +1,6 @@
-module Entities.SpinningRectangle where
+{-# LANGUAGE RecordWildCards #-}
+
+module Modes.GameMode.Entities.SpinningRectangle where
 
     import Point
     import Entity
@@ -12,20 +14,14 @@ module Entities.SpinningRectangle where
 
     instance EntityClass SpinningRectangle where
 
-        update spinningRectangle input =
+        update spinningRectangle@SpinningRectangle{..} input@Input{..} =
             let
-                deltaTime = Input.deltaTime input
-                rotation = Entities.SpinningRectangle.rotation spinningRectangle
-                speed = Entities.SpinningRectangle.speed spinningRectangle
                 updatedRotation = rotation + (speed * deltaTime)
             in
                 Entity $ spinningRectangle { rotation = updatedRotation }
 
-        render spinningRectangle =
+        render spinningRectangle@SpinningRectangle{..} =
             let
-                rotation = Entities.SpinningRectangle.rotation spinningRectangle
-                position = Entities.SpinningRectangle.position spinningRectangle
-
                 shape = Canvas.rect (-25, -25) (25, 25)
                 stroked = Canvas.stroke shape
                 colored = Canvas.color (Canvas.RGB 255 0 0) stroked

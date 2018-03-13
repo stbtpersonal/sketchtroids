@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Entities.Background where
+module Modes.GameMode.Entities.Background where
 
     import Entity
     import Haste.Graphics.Canvas as Canvas

@@ -1,10 +1,10 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Entities.SpinningRectangles where
+module Modes.GameMode.Entities.SpinningRectangles where
 
     import Point
     import Entity
-    import Entities.SpinningRectangle as SpinningRectangle
+    import Modes.GameMode.Entities.SpinningRectangle as SpinningRectangle
     import Haste.Graphics.Canvas as Canvas
     import Input
 
@@ -17,10 +17,10 @@ module Entities.SpinningRectangles where
             spinningRectangle2 = Entity $ SpinningRectangle.new { SpinningRectangle.position = Point.Point { Point.x = 150, Point.y = 50 }, SpinningRectangle.speed = 0.002 }
             spinningRectangle3 = Entity $ SpinningRectangle.new { SpinningRectangle.position = Point.Point { Point.x = 50, Point.y = 150 }, SpinningRectangle.speed = 0.003 }
         in
-            SpinningRectangles { Entities.SpinningRectangles.position = Point { x = 0, y = 0 }
-                               , Entities.SpinningRectangles.rotation = 0
-                               , Entities.SpinningRectangles.speed = 0
-                               , Entities.SpinningRectangles.children = [spinningRectangle1, spinningRectangle2, spinningRectangle3] }
+            SpinningRectangles { position = Point { x = 0, y = 0 }
+                               , rotation = 0
+                               , speed = 0
+                               , children = [spinningRectangle1, spinningRectangle2, spinningRectangle3] }
 
     getValue :: (Input -> Bool) -> Input -> Double
     getValue keyGetter input@Input{..} = if keyGetter input then 0.5 * deltaTime else 0
@@ -41,7 +41,9 @@ module Entities.SpinningRectangles where
 
                 updatedChildren = Entity.updateAll children input
             in
-                Entity $ spinningRectangles { Entities.SpinningRectangles.rotation = updatedRotation, Entities.SpinningRectangles.children = updatedChildren, Entities.SpinningRectangles.position = updatedPosition }
+                Entity $ spinningRectangles { Modes.GameMode.Entities.SpinningRectangles.rotation = updatedRotation
+                                            , Modes.GameMode.Entities.SpinningRectangles.children = updatedChildren
+                                            , Modes.GameMode.Entities.SpinningRectangles.position = updatedPosition }
 
         render spinningRectangles@SpinningRectangles{..} = 
             let
