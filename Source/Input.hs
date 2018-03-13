@@ -1,4 +1,4 @@
-module Input(Input, poll, deltaTime, left, right, up, down) where
+module Input where
 
     import Foreign.Keyboard as Keyboard
 

@@ -1,3 +1,5 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Entities.SpinningRectangles where
 
     import Point
@@ -21,16 +23,12 @@ module Entities.SpinningRectangles where
                                , Entities.SpinningRectangles.children = [spinningRectangle1, spinningRectangle2, spinningRectangle3] }
 
     getValue :: (Input -> Bool) -> Input -> Double
-    getValue keyGetter input = if keyGetter input then 0.5 * (Input.deltaTime input) else 0
+    getValue keyGetter input@Input{..} = if keyGetter input then 0.5 * deltaTime else 0
 
     instance EntityClass SpinningRectangles where
 
-        update spinningRectangles input = 
+        update spinningRectangles@SpinningRectangles{..} input@Input{..} = 
             let
-                deltaTime = Input.deltaTime input
-                position = Entities.SpinningRectangles.position spinningRectangles
-                rotation = Entities.SpinningRectangles.rotation spinningRectangles
-                speed = Entities.SpinningRectangles.speed spinningRectangles
                 updatedRotation = rotation + (speed * deltaTime)
 
                 leftValue = getValue Input.left input
@@ -41,16 +39,13 @@ module Entities.SpinningRectangles where
                 verticalDelta = downValue - upValue
                 updatedPosition = Point.Point { x = (Point.x position) + horizontalDelta, y = (Point.y position) + verticalDelta }
 
-                updatedChildren = Entity.updateAll (Entities.SpinningRectangles.children spinningRectangles) input
+                updatedChildren = Entity.updateAll children input
             in
                 Entity $ spinningRectangles { Entities.SpinningRectangles.rotation = updatedRotation, Entities.SpinningRectangles.children = updatedChildren, Entities.SpinningRectangles.position = updatedPosition }
 
-        render spinningRectangles = 
+        render spinningRectangles@SpinningRectangles{..} = 
             let
-                rotation = Entities.SpinningRectangles.rotation spinningRectangles
-                position = Entities.SpinningRectangles.position spinningRectangles
-
-                renderedChildren = Entity.renderAll (Entities.SpinningRectangles.children spinningRectangles)
+                renderedChildren = Entity.renderAll children
                 rotatedChildren = Canvas.rotate rotation renderedChildren
                 translatedChildren = Canvas.translate (Point.x position, Point.y position) rotatedChildren
             in
