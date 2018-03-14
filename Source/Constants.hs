@@ -1,7 +1,7 @@
 module Constants where
 
     nativeWidth :: Double
-    nativeWidth = 800
+    nativeWidth = 2560
 
     nativeHeight :: Double
-    nativeHeight = 600
+    nativeHeight = 1600

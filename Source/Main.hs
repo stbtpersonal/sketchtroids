@@ -28,7 +28,10 @@ module Main where
 
         input <- Input.poll deltaTime updatedResources
         let updatedMode = Entity.update mode input
-        Renderer.render canvas (Entity.render updatedMode)
+
+        scale <- Renderer.resize canvas
+        let scaledPicture = Canvas.scale (scale, scale) (Entity.render updatedMode)
+        Renderer.render canvas scaledPicture
 
         let updatedFrameData = frameData { timestamp = nextTimestamp, FrameData.resources = updatedResources, mode = updatedMode }
         AnimationFrame.requestAnimationFrame $ Main.mainLoop updatedFrameData
