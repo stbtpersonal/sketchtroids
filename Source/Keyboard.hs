@@ -1,35 +1,38 @@
-module Keyboard (initialize, Keyboard(..)) where
+{-# LANGUAGE RecordWildCards #-}
+
+module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down)) where
 
     import Data.IORef as IORef
     import Haste.DOM as DOM
     import Haste.Events as Events
     import Haste
+    import Data.Set as Set
 
-    data Keyboard = Keyboard { left :: Bool, right :: Bool, up :: Bool, down :: Bool }
+    data Keyboard = Keyboard { left :: Bool, right :: Bool, up :: Bool, down :: Bool, keysDown :: Set Int }
 
     keyA = 65
     arrowLeft = 37
     numpad4 = 100
     keyJ = 74
 
-    leftKeys :: [Int]
-    leftKeys = [keyA, arrowLeft, numpad4, keyJ]
+    leftKeys :: Set Int
+    leftKeys = Set.fromList [keyA, arrowLeft, numpad4, keyJ]
 
     keyD = 68
     arrowRight = 39
     numpad6 = 102
     keyL = 76
 
-    rightKeys :: [Int]
-    rightKeys = [keyD, arrowRight, numpad6, keyL]
+    rightKeys :: Set Int
+    rightKeys = Set.fromList [keyD, arrowRight, numpad6, keyL]
 
     keyW = 87
     arrowUp = 38
     numpad8 = 104
     keyI = 73
 
-    upKeys :: [Int]
-    upKeys = [keyW, arrowUp, numpad8, keyI]
+    upKeys :: Set Int
+    upKeys = Set.fromList [keyW, arrowUp, numpad8, keyI]
 
     keyS = 83
     arrowDown = 40
@@ -37,12 +40,12 @@ module Keyboard (initialize, Keyboard(..)) where
     numpad2 = 98
     keyK = 75
 
-    downKeys :: [Int]
-    downKeys = [keyS, arrowDown, numpad5, numpad2, keyK]
+    downKeys :: Set Int
+    downKeys = Set.fromList [keyS, arrowDown, numpad5, numpad2, keyK]
 
     initialize :: IO (IORef Keyboard)
     initialize = do
-        keyboardRef <- IORef.newIORef $ Keyboard { left = False, right = False, up = False, down = False }
+        keyboardRef <- IORef.newIORef $ Keyboard { left = False, right = False, up = False, down = False, keysDown = Set.empty }
         registerKeyboardEvent keyboardRef Events.KeyDown True
         registerKeyboardEvent keyboardRef Events.KeyUp False
         return keyboardRef
@@ -60,9 +63,13 @@ module Keyboard (initialize, Keyboard(..)) where
         return ()
 
     processKeyCode :: Keyboard -> Int -> Bool -> Keyboard
-    processKeyCode keyboard keyCode isDown
-        | elem keyCode leftKeys  = keyboard { left = isDown }
-        | elem keyCode rightKeys = keyboard { right = isDown }
-        | elem keyCode upKeys    = keyboard { up = isDown }
-        | elem keyCode downKeys  = keyboard { down = isDown }
-        | otherwise              = keyboard
+    processKeyCode keyboard@Keyboard{..} keyCode isDown =
+        let
+            updatedKeysDown = if isDown then Set.insert keyCode keysDown else Set.delete keyCode keysDown
+            isKeyDown keys = not (Set.null $ Set.intersection updatedKeysDown keys)
+            updatedLeft = isKeyDown leftKeys
+            updatedRight = isKeyDown rightKeys
+            updatedUp = isKeyDown upKeys
+            updatedDown = isKeyDown downKeys
+        in
+            Keyboard { left = updatedLeft, right = updatedRight, up = updatedUp, down = updatedDown, keysDown = updatedKeysDown }
