@@ -3,7 +3,7 @@
 set target="sketchtroids.js"
 set sourceDir="Source"
 set generatedDir="Generated"
-set javascriptFiles="Source/Foreign/Keyboard.js,Source/Foreign/ImageLoader.js"
+set javascriptFiles="Source/Foreign/ImageLoader.js"
  
 if exist %target% del /f %target%
 hastec %sourceDir%/Main.hs -i%sourceDir% --outdir=%generatedDir% --out=%target% --with-js=%javascriptFiles% %*

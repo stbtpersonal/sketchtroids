@@ -10,11 +10,14 @@ module Main where
     import Haste.Graphics.Canvas as Canvas
     import FrameData
     import Modes.LoadingMode.LoadingMode as LoadingMode
+    import Keyboard
+    import Data.IORef as IORef
 
     main :: IO ()
     main = do
+        keyboardRef <- Keyboard.initialize
         canvas <- Renderer.initialize
-        let initialFrameData = FrameData { canvas = canvas, timestamp = 0, resources = Resources.empty, mode = Entity LoadingMode.new }
+        let initialFrameData = FrameData { canvas = canvas, timestamp = 0, resources = Resources.empty, keyboardRef = keyboardRef, mode = Entity LoadingMode.new }
         AnimationFrame.requestAnimationFrame $ Main.mainLoop initialFrameData
         return ()
 
@@ -26,7 +29,8 @@ module Main where
         Resources.loadResources imageKeysToPaths 
         updatedResources <- Resources.appendResources imageKeysToPaths resources
 
-        input <- Input.poll deltaTime updatedResources
+        keyboard <- IORef.readIORef keyboardRef
+        let input = Input { deltaTime = deltaTime, resources = updatedResources, keyboard = keyboard }
         let updatedMode = Entity.update mode input
 
         scale <- Renderer.resize canvas

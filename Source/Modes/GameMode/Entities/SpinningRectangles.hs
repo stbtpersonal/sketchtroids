@@ -7,6 +7,7 @@ module Modes.GameMode.Entities.SpinningRectangles where
     import Modes.GameMode.Entities.SpinningRectangle as SpinningRectangle
     import Haste.Graphics.Canvas as Canvas
     import Input
+    import Keyboard
 
     data SpinningRectangles = SpinningRectangles { position :: Point.Point, rotation :: Double, speed :: Double, children :: [Entity] }
 
@@ -22,8 +23,8 @@ module Modes.GameMode.Entities.SpinningRectangles where
                                , speed = 0
                                , children = [spinningRectangle1, spinningRectangle2, spinningRectangle3] }
 
-    getValue :: (Input -> Bool) -> Input -> Double
-    getValue keyGetter input@Input{..} = if keyGetter input then 0.5 * deltaTime else 0
+    getValue :: (Keyboard -> Bool) -> Keyboard -> Double -> Double
+    getValue keyGetter keyboard@Keyboard{..} deltaTime = if keyGetter keyboard then 0.5 * deltaTime else 0
 
     instance EntityClass SpinningRectangles where
 
@@ -31,10 +32,10 @@ module Modes.GameMode.Entities.SpinningRectangles where
             let
                 updatedRotation = rotation + (speed * deltaTime)
 
-                leftValue = getValue Input.left input
-                rightValue = getValue Input.right input
-                upValue = getValue Input.up input
-                downValue = getValue Input.down input
+                leftValue = getValue Keyboard.left keyboard deltaTime
+                rightValue = getValue Keyboard.right keyboard deltaTime
+                upValue = getValue Keyboard.up keyboard deltaTime
+                downValue = getValue Keyboard.down keyboard deltaTime
                 horizontalDelta = rightValue - leftValue
                 verticalDelta = downValue - upValue
                 updatedPosition = Point.Point { x = (Point.x position) + horizontalDelta, y = (Point.y position) + verticalDelta }
