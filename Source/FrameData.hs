@@ -6,4 +6,4 @@ module FrameData where
     import Data.IORef as IORef
     import Keyboard
     
-    data FrameData = FrameData { canvas :: Canvas, timestamp :: Double, resources :: Resources, keyboardRef :: IORef Keyboard, mode :: Entity }
+    data FrameData = FrameData { canvas :: Canvas, timestamp :: Double, resourcesRef :: IORef Resources, keyboardRef :: IORef Keyboard, mode :: Entity }

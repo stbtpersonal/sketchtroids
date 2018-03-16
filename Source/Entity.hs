@@ -8,7 +8,7 @@ module Entity where
 
     class EntityClass a where
 
-        load :: a -> Resources.ImageKeysToPaths
+        load :: a -> Resources.ResourceKeysToPaths
         load _ = []
 
         update :: a -> Input -> Entity

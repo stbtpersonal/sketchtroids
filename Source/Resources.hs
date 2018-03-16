@@ -1,46 +1,43 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
-module Resources (Resources, Resources.empty, ImageKeysToPaths, loadResources, appendResources, images) where
+module Resources (ResourceKeysToPaths, Resources(images), initialize, loadImages) where
 
-    import Haste.DOM as DOM
-    import Haste.Graphics.Canvas as Canvas
-    import Foreign.ImageLoader as ImageLoader
     import Data.Map as Map
-    import ResourceKeys
-    import Control.Monad
+    import ResourceKey
+    import Data.Set as Set
+    import Data.IORef as IORef
+    import Haste.Graphics.Canvas as Canvas
+    import Haste
+    import Haste.Events as Events
+    import Haste.DOM as DOM
 
-    data Resources = Resources { images :: Map ResourceKeys.ResourceKey Canvas.Bitmap }
+    type ResourceKeysToPaths = [(ResourceKey, String)]
 
-    empty :: Resources
-    empty = Resources { images = Map.empty }
+    data Resources = Resources { images :: Map ResourceKey Canvas.Bitmap, requestedKeys :: Set ResourceKey }
 
-    type ImageKeysToPaths = [(ResourceKeys.ResourceKey, String)]
+    initialize :: IO (IORef Resources)
+    initialize = IORef.newIORef $ Resources { images = Map.empty, requestedKeys = Set.empty }
 
-    loadResources :: ImageKeysToPaths -> IO ()
-    loadResources imageKeysToPaths = mapM_ loadResource imageKeysToPaths
+    loadImages :: IORef Resources -> ResourceKeysToPaths -> IO ()
+    loadImages resourcesRef keysToPaths = do
+        resources@Resources{requestedKeys} <- IORef.readIORef resourcesRef
+        let unrequestedKeysToPaths = Prelude.filter (\(key, _) -> Set.notMember key requestedKeys) keysToPaths
+        mapM_ (loadImage resourcesRef) unrequestedKeysToPaths
 
-    loadResource :: (ResourceKeys.ResourceKey, String) -> IO ()
-    loadResource (_, path) = ImageLoader.loadImage path
+    loadImage :: IORef Resources -> (ResourceKey, String) -> IO ()
+    loadImage resourcesRef (key, path) = do
+        resources@Resources{requestedKeys} <- IORef.readIORef resourcesRef
+        let updatedRequestedKeys = Set.insert key requestedKeys
+        IORef.writeIORef resourcesRef $ resources { requestedKeys = updatedRequestedKeys }
 
-    appendResources :: ImageKeysToPaths -> Resources -> IO Resources
-    appendResources imageKeysToPaths resources@Resources{..} = do
-        let missingImageKeysToPaths = excludeLoadedResources imageKeysToPaths resources
-        availableImageKeysToPaths <- excludeUnavailableResources missingImageKeysToPaths
-        keysToBitmaps <- mapM getResource availableImageKeysToPaths
-        let keysToBitmapsMap = Map.fromList keysToBitmaps
-        return Resources { images = Map.union images keysToBitmapsMap }
+        bitmap <- Canvas.loadBitmap $ Haste.toJSString path
+        let bitmapElement = DOM.elemOf bitmap
+        Events.onEvent bitmapElement Events.Load $ (\_ -> finishLoadingImage resourcesRef key bitmap)
+        return ()
 
-    excludeLoadedResources :: ImageKeysToPaths -> Resources -> ImageKeysToPaths
-    excludeLoadedResources imageKeysToPaths resources@Resources{..} =
-        let
-            existingKeys = Map.keys images
-        in
-            Prelude.filter (\(key, _) -> not $ elem key existingKeys) imageKeysToPaths
-
-    excludeUnavailableResources :: ImageKeysToPaths -> IO ImageKeysToPaths
-    excludeUnavailableResources imageKeysToPaths = filterM (\(_, path) -> ImageLoader.isImageLoaded path) imageKeysToPaths
-
-    getResource :: (ResourceKeys.ResourceKey, String) -> IO (ResourceKeys.ResourceKey, Bitmap)
-    getResource (key, path) = do
-        bitmap <- ImageLoader.getLoadedImage path
-        return (key, bitmap)
+    finishLoadingImage :: IORef Resources -> ResourceKey -> Canvas.Bitmap -> IO ()
+    finishLoadingImage resourcesRef key bitmap = do
+        resources@Resources{images} <- IORef.readIORef resourcesRef
+        let updatedImages = Map.insert key bitmap images
+        IORef.writeIORef resourcesRef $ resources { images = updatedImages }
+        return ()

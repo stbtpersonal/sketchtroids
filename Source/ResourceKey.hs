@@ -1,4 +1,4 @@
-module ResourceKeys where
+module ResourceKey where
 
     data ResourceKey = Spaceship
                      | Bullet
