@@ -9,7 +9,7 @@ module Main where
     import Resources
     import Haste.Graphics.Canvas as Canvas
     import FrameData
-    import Modes.LoadingMode.LoadingMode as LoadingMode
+    import Modes.PreloadingMode.PreloadingMode as PreloadingMode
     import Keyboard
     import Data.IORef as IORef
 
@@ -18,7 +18,7 @@ module Main where
         resourcesRef <- Resources.initialize
         keyboardRef <- Keyboard.initialize
         canvas <- Renderer.initialize
-        let initialFrameData = FrameData { canvas = canvas, timestamp = 0, resourcesRef = resourcesRef, keyboardRef = keyboardRef, mode = Entity LoadingMode.new }
+        let initialFrameData = FrameData { canvas = canvas, timestamp = 0, resourcesRef = resourcesRef, keyboardRef = keyboardRef, mode = Entity PreloadingMode.new }
         AnimationFrame.requestAnimationFrame $ Main.mainLoop initialFrameData
         return ()
 

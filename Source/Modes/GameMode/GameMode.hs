@@ -11,11 +11,11 @@ module Modes.GameMode.GameMode where
     import Resources
     import ResourceKey
 
-    imageKeysToPaths :: Resources.ResourceKeysToPaths
-    imageKeysToPaths = [ (ResourceKey.Spaceship, "Resources/Spaceship.png")
-                       , (ResourceKey.Bullet, "Resources/Bullet.png")
-                       , (ResourceKey.Big, "Resources/Big.bmp")
-                       ]
+    imageResources :: Resources.ResourceKeysToPaths
+    imageResources = [ (ResourceKey "Spaceship", "Resources/Spaceship.png")
+                     , (ResourceKey "Bullet", "Resources/Bullet.png")
+                     , (ResourceKey "Big", "Resources/Big.bmp")
+                     ]
 
     data GameMode = GameMode { children :: [Entity] }
 
