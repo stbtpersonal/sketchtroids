@@ -20,7 +20,7 @@ module Modes.GameMode.Entities.SpinningRectangle where
             in
                 Entity $ spinningRectangle { rotation = updatedRotation }
 
-        render spinningRectangle@SpinningRectangle{..} =
+        render spinningRectangle@SpinningRectangle{..} _ =
             let
                 shape = Canvas.rect (-25, -25) (25, 25)
                 stroked = Canvas.stroke shape

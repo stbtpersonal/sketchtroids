@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Modes.GameMode.Entities.Background where
+module CommonEntities.Background where
 
     import Entity
     import Haste.Graphics.Canvas as Canvas
@@ -13,7 +13,7 @@ module Modes.GameMode.Entities.Background where
 
     instance EntityClass Background where
 
-        render background@Background{..} = 
+        render background@Background{..} _ = 
             let
                 shape = Canvas.rect (0, 0) (width, height)
                 filled = Canvas.fill shape

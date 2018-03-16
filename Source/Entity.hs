@@ -8,14 +8,14 @@ module Entity where
 
     class EntityClass a where
 
-        load :: a -> Resources.ResourceKeysToPaths
+        load :: a -> [Resources.ResourceDef]
         load _ = []
 
         update :: a -> Input -> Entity
         update a _ = Entity a
 
-        render :: a -> Canvas.Picture ()
-        render _ = Canvas.setStrokeColor $ Canvas.RGB 0 0 0
+        render :: a -> Resources -> Canvas.Picture ()
+        render _ _ = Canvas.setStrokeColor $ Canvas.RGB 0 0 0
 
     data Entity = forall a . EntityClass a => Entity a
 
@@ -24,8 +24,11 @@ module Entity where
         update (Entity a) = Entity.update a
         render (Entity a) = Entity.render a
 
+    loadAll :: [Entity] -> [Resources.ResourceDef]
+    loadAll entities = concat $ map Entity.load entities
+
     updateAll :: [Entity] -> Input -> [Entity]
     updateAll entities input = map (\entity -> Entity.update entity input) entities
 
-    renderAll :: [Entity] -> Canvas.Picture ()
-    renderAll entities = mapM_ Entity.render entities
+    renderAll :: [Entity] -> Resources -> Canvas.Picture ()
+    renderAll entities resources = mapM_ (\entity -> Entity.render entity resources) entities

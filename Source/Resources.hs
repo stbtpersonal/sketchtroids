@@ -1,9 +1,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Resources (ResourceKeysToPaths, Resources(images), initialize, loadImages) where
+module Resources (ResourceKey(ResourceKey), ResourceDef, Resources(Resources, images), initialize, loadImages) where
 
     import Data.Map as Map
-    import ResourceKey
     import Data.Set as Set
     import Data.IORef as IORef
     import Haste.Graphics.Canvas as Canvas
@@ -11,20 +10,23 @@ module Resources (ResourceKeysToPaths, Resources(images), initialize, loadImages
     import Haste.Events as Events
     import Haste.DOM as DOM
 
-    type ResourceKeysToPaths = [(ResourceKey, String)]
+    newtype ResourceKey = ResourceKey String deriving (Eq, Ord, Show)
 
-    data Resources = Resources { images :: Map ResourceKey Canvas.Bitmap, requestedKeys :: Set ResourceKey }
+    type ResourceDef = (ResourceKey, String)
+    type BitmapData = (Bitmap, (Double, Double))
+
+    data Resources = Resources { images :: Map ResourceKey BitmapData, requestedKeys :: Set ResourceKey }
 
     initialize :: IO (IORef Resources)
     initialize = IORef.newIORef $ Resources { images = Map.empty, requestedKeys = Set.empty }
 
-    loadImages :: IORef Resources -> ResourceKeysToPaths -> IO ()
+    loadImages :: IORef Resources -> [ResourceDef] -> IO ()
     loadImages resourcesRef keysToPaths = do
         resources@Resources{requestedKeys} <- IORef.readIORef resourcesRef
         let unrequestedKeysToPaths = Prelude.filter (\(key, _) -> Set.notMember key requestedKeys) keysToPaths
         mapM_ (loadImage resourcesRef) unrequestedKeysToPaths
 
-    loadImage :: IORef Resources -> (ResourceKey, String) -> IO ()
+    loadImage :: IORef Resources -> ResourceDef -> IO ()
     loadImage resourcesRef (key, path) = do
         resources@Resources{requestedKeys} <- IORef.readIORef resourcesRef
         let updatedRequestedKeys = Set.insert key requestedKeys
@@ -37,7 +39,17 @@ module Resources (ResourceKeysToPaths, Resources(images), initialize, loadImages
 
     finishLoadingImage :: IORef Resources -> ResourceKey -> Canvas.Bitmap -> IO ()
     finishLoadingImage resourcesRef key bitmap = do
+        sprite <- buildBitmapData bitmap
         resources@Resources{images} <- IORef.readIORef resourcesRef
-        let updatedImages = Map.insert key bitmap images
+        let updatedImages = Map.insert key sprite images
         IORef.writeIORef resourcesRef $ resources { images = updatedImages }
         return ()
+
+    buildBitmapData :: Canvas.Bitmap -> IO BitmapData
+    buildBitmapData bitmap = do
+        let bitmapElement = DOM.elemOf bitmap
+        widthProperty <- DOM.getProp bitmapElement "width"
+        heightProperty <- DOM.getProp bitmapElement "height"
+        let width = read widthProperty
+        let height = read heightProperty
+        return (bitmap, (width, height))

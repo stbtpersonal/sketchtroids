@@ -1,32 +1,48 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.LoadingMode.LoadingMode where
+module Modes.LoadingMode.LoadingMode(
+    LoadingMode(LoadingMode),
+    Modes.LoadingMode.LoadingMode.new,
+    Modes.LoadingMode.LoadingMode.imageDefs) where
 
     import Entity
     import Resources
     import Modes.GameMode.GameMode as GameMode
     import Data.Map as Map
     import Input
-    import ResourceKey
+    import CommonEntities.Background as Background
+    import CommonEntities.Fps as Fps
+    import Modes.LoadingMode.Entities.Loading as Loading
 
-    data LoadingMode = LoadingMode
+    data LoadingMode = LoadingMode { children :: [Entity] }
 
     new :: LoadingMode
-    new = LoadingMode
+    new = LoadingMode { children = [ Entity $ Background.new
+                                   , Entity $ Fps.new
+                                   , Entity $ Loading.new
+                                   ] }
 
-    imageResources :: Resources.ResourceKeysToPaths
-    imageResources = [ (ResourceKey "Loading", "Resources/Loading.png") ]
+    imageDefs :: [Resources.ResourceDef]
+    imageDefs =
+        let
+            loadingMode@LoadingMode{children} = Modes.LoadingMode.LoadingMode.new
+        in
+            Entity.loadAll children
 
     instance EntityClass LoadingMode where
 
-        load _ = GameMode.imageResources
+        load loadingMode@LoadingMode{children} = GameMode.imageDefs
 
-        update loadingMode input@Input{resources} =
+        update loadingMode@LoadingMode{children} input@Input{resources} =
             let
                 images = Resources.images resources
                 loadedImageKeys = Map.keys images
-                requiredImageKeys = Prelude.map fst GameMode.imageResources
+                requiredImageKeys = Prelude.map fst GameMode.imageDefs
+
+                updatedChildren = Entity.updateAll children input
             in
                 if and $ Prelude.map (\key -> elem key loadedImageKeys) requiredImageKeys
-                    then Entity $ GameMode.new
-                    else Entity $ loadingMode
+                    then Entity GameMode.new
+                    else Entity $ loadingMode { children = updatedChildren }
+
+        render LoadingMode{children} resources = Entity.renderAll children resources

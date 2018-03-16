@@ -34,7 +34,7 @@ module Main where
         let updatedMode = Entity.update mode input
 
         scale <- Renderer.resize canvas
-        let scaledPicture = Canvas.scale (scale, scale) (Entity.render updatedMode)
+        let scaledPicture = Canvas.scale (scale, scale) (Entity.render updatedMode resources)
         Renderer.render canvas scaledPicture
 
         let updatedFrameData = frameData { timestamp = nextTimestamp, mode = updatedMode }

@@ -46,9 +46,9 @@ module Modes.GameMode.Entities.SpinningRectangles where
                                             , Modes.GameMode.Entities.SpinningRectangles.children = updatedChildren
                                             , Modes.GameMode.Entities.SpinningRectangles.position = updatedPosition }
 
-        render spinningRectangles@SpinningRectangles{..} = 
+        render spinningRectangles@SpinningRectangles{..} resources = 
             let
-                renderedChildren = Entity.renderAll children
+                renderedChildren = Entity.renderAll children resources
                 rotatedChildren = Canvas.rotate rotation renderedChildren
                 translatedChildren = Canvas.translate (Point.x position, Point.y position) rotatedChildren
             in
