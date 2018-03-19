@@ -12,14 +12,14 @@ module Modes.LoadingMode.LoadingMode(
     import Input
     import CommonEntities.Background as Background
     import CommonEntities.Fps as Fps
-    import Modes.LoadingMode.Entities.Loading as Loading
+    import Modes.LoadingMode.Entities.Spinner as Spinner
 
     data LoadingMode = LoadingMode { children :: [Entity] }
 
     new :: LoadingMode
     new = LoadingMode { children = [ Entity $ Background.new
                                    , Entity $ Fps.new
-                                   , Entity $ Loading.new
+                                   , Entity $ Spinner.new
                                    ] }
 
     imageDefs :: [Resources.ResourceDef]
@@ -42,7 +42,7 @@ module Modes.LoadingMode.LoadingMode(
                 updatedChildren = Entity.updateAll children input
             in
                 if and $ Prelude.map (\key -> elem key loadedImageKeys) requiredImageKeys
-                    then Entity GameMode.new
+                    then Entity $ loadingMode { children = updatedChildren }
                     else Entity $ loadingMode { children = updatedChildren }
 
         render LoadingMode{children} resources = Entity.renderAll children resources

@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.LoadingMode.Entities.Loading(Loading(Loading), new) where
+module Modes.LoadingMode.Entities.Spinner(Spinner(Spinner), new) where
 
     import Resources
     import Input
@@ -12,13 +12,13 @@ module Modes.LoadingMode.Entities.Loading(Loading(Loading), new) where
     import Haste
     import Data.Fixed
 
-    data Loading = Loading { elapsedTime :: Double, rotation :: Double, scale :: Double }
+    data Spinner = Spinner { elapsedTime :: Double, rotation :: Double, scale :: Double }
 
-    new :: Loading
-    new = Loading { elapsedTime = 0, rotation = 0, Modes.LoadingMode.Entities.Loading.scale = 1 }
+    new :: Spinner
+    new = Spinner { elapsedTime = 0, rotation = 0, Modes.LoadingMode.Entities.Spinner.scale = 1 }
 
     imageDef :: Resources.ResourceDef
-    imageDef = (ResourceKey "Loading", "Resources/Loading.png")
+    imageDef = (ResourceKey "Spinner", "Resources/Spinner.png")
 
     rotationStartTime :: Double
     rotationStartTime = 800
@@ -29,11 +29,11 @@ module Modes.LoadingMode.Entities.Loading(Loading(Loading), new) where
     totalTime :: Double
     totalTime = 2000
 
-    instance EntityClass Loading where
+    instance EntityClass Spinner where
 
         load _ = [imageDef]
 
-        update loading@Loading{elapsedTime} input@Input{deltaTime} = 
+        update spinner@Spinner{elapsedTime} input@Input{deltaTime} = 
             let
                 moduloElapsedTime = (elapsedTime  + deltaTime) `mod'` totalTime
                 rotationPhase = if moduloElapsedTime <= rotationStartTime then 0 else (moduloElapsedTime - rotationStartTime) / (totalTime - rotationStartTime)
@@ -41,9 +41,9 @@ module Modes.LoadingMode.Entities.Loading(Loading(Loading), new) where
                 scalePhase = if moduloElapsedTime <= scaleStartTime then 1 else (moduloElapsedTime - scaleStartTime) / (totalTime - scaleStartTime)
                 scale = 1 + (0.1 * scalePhase) - (0.1 * scalePhase ^ 2)
             in
-                Entity $ loading { elapsedTime = moduloElapsedTime, rotation = rotation, Modes.LoadingMode.Entities.Loading.scale = scale }
+                Entity $ spinner { elapsedTime = moduloElapsedTime, rotation = rotation, Modes.LoadingMode.Entities.Spinner.scale = scale }
 
-        render loading@Loading{rotation, Modes.LoadingMode.Entities.Loading.scale} resources@Resources{images} = 
+        render spinner@Spinner{rotation, Modes.LoadingMode.Entities.Spinner.scale} resources@Resources{images} = 
             let
                 (bitmap, (width, height)) = images ! (fst imageDef)
                 drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
