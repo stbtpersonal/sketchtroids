@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down)) where
+module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down, action)) where
 
     import Data.IORef as IORef
     import Haste.DOM as DOM

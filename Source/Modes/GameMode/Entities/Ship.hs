@@ -2,7 +2,7 @@
 
 module Modes.GameMode.Entities.Ship(
     Ship(Ship),
-    new,
+    Modes.GameMode.Entities.Ship.new,
     imageDef
     ) where
 
@@ -16,14 +16,16 @@ module Modes.GameMode.Entities.Ship(
     import Keyboard
     import Utils
     import Control.Monad
+    import Modes.GameMode.Entities.Gun as Gun
 
-    data Ship = Ship { position :: Point.Point, velocity :: Point.Point, rotation :: Double, rotationVelocity :: Double }
+    data Ship = Ship { position :: Point.Point, velocity :: Point.Point, rotation :: Double, rotationVelocity :: Double, gun :: Gun }
 
     new :: Ship
     new = Ship { position = Point { x = Constants.nativeWidth / 2, y = Constants.nativeHeight / 2 }
                , velocity = Point { x = 0, y = 0 }
                , rotation = 0
                , rotationVelocity = 0
+               , gun = Gun.new
                }
 
     imageDef :: Resources.ResourceDef
@@ -65,9 +67,9 @@ module Modes.GameMode.Entities.Ship(
 
     instance EntityClass Ship where
 
-        load _ = [imageDef]
+        load Ship{gun} = Entity.load gun ++ [imageDef]
 
-        update ship@Ship{position, velocity, rotation, rotationVelocity} input@Input{deltaTime, keyboard} =
+        update ship@Ship{position, velocity, rotation, rotationVelocity, gun} input@Input{deltaTime, keyboard} =
             let
                 leftValue = getValue Keyboard.left keyboard deltaTime rotationAcceleration
                 rightValue = getValue Keyboard.right keyboard deltaTime rotationAcceleration
@@ -87,10 +89,12 @@ module Modes.GameMode.Entities.Ship(
                 accelerationY = positionValueDelta * sin fowardAngle
                 nextVelocity = Point { x = (Point.x velocity) + accelerationX, y = (Point.y velocity) + accelerationY }
                 updatedVelocity = Point.clamp maxVelocityBackward maxVelocityForward nextVelocity
-            in
-                Entity $ ship { rotation = updatedRotation, rotationVelocity = updatedRotationVelocity, position = updatedPosition, velocity = updatedVelocity }
 
-        render ship@Ship{position} resources@Resources{images} = do
+                updatedGun = Gun.update' gun input
+            in
+                Entity $ ship { rotation = updatedRotation, rotationVelocity = updatedRotationVelocity, position = updatedPosition, velocity = updatedVelocity, gun = updatedGun }
+
+        render ship@Ship{position, gun} resources@Resources{images} = do
             drawAtPosition ship resources position
 
             let (_, (width, height)) = images ! (fst imageDef)
@@ -101,3 +105,4 @@ module Modes.GameMode.Entities.Ship(
             when (y < height / 2) (drawAtPosition ship resources Point { x = x, y = Constants.nativeHeight + y })
             when (y > Constants.nativeHeight - (height / 2)) (drawAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
             
+            Entity.render gun resources

@@ -2,7 +2,9 @@
 
 module Modes.GameMode.Entities.Bullet(
     Bullet(Bullet, position, velocity),
-    new
+    new,
+    imageDef,
+    update',
     ) where
 
     import Point
@@ -20,15 +22,18 @@ module Modes.GameMode.Entities.Bullet(
     imageDef :: Resources.ResourceDef
     imageDef = (ResourceKey "Bullet", "Resources/Bullet.png")
 
+    update' :: Bullet -> Input -> Bullet
+    update' bullet@Bullet{position, velocity} input@Input{deltaTime} = 
+        let
+            updatedPosition = Point { x = (Point.x position) + (Point.x velocity * deltaTime), y = (Point.y position) + (Point.y velocity * deltaTime) }
+        in
+            bullet { position = updatedPosition }
+
     instance EntityClass Bullet where
 
         load _ = [imageDef]
 
-        update bullet@Bullet{position, velocity} input@Input{deltaTime} =
-            let
-                updatedPosition = Point { x = (Point.x position) + (Point.x velocity * deltaTime), y = (Point.y position) + (Point.y velocity * deltaTime) }
-            in
-                Entity $ bullet { position = updatedPosition }
+        update bullet input =Entity $ update' bullet input
 
         render bullet@Bullet{position, velocity} resources@Resources{images} = 
             let

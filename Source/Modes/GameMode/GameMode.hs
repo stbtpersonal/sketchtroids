@@ -12,7 +12,6 @@ module Modes.GameMode.GameMode(
     import Input
     import Resources
     import Modes.GameMode.Entities.Ship as Ship
-    import Modes.GameMode.Entities.Bullet as Bullet
 
     data GameMode = GameMode { children :: [Entity] }
 
@@ -20,7 +19,6 @@ module Modes.GameMode.GameMode(
     new = GameMode { Modes.GameMode.GameMode.children = [ Entity $ Background.new
                                                         , Entity $ Ship.new
                                                         , Entity $ Fps.new
-                                                        , Entity $ Bullet.new { Bullet.position = Point { x = 50, y = 50 }, Bullet.velocity = Point { x = 0.02, y = 0.01 } }
                                                         ] }
 
     imageDefs :: [Resources.ResourceDef]
