@@ -29,13 +29,25 @@ module Modes.GameMode.Entities.Ship(
     imageDef = (ResourceKey "Ship", "Resources/Ship.png")
 
     rotationAcceleration :: Double
-    rotationAcceleration = 0.00005
+    rotationAcceleration = 0.00002
 
     rotationDecelerationLerp :: Double
     rotationDecelerationLerp = 0.01
 
     maxRotationVelocity :: Double
     maxRotationVelocity = 0.01
+
+    accelerationForward :: Double
+    accelerationForward = 0.0005
+
+    accelerationBackward :: Double
+    accelerationBackward = 0.0002
+
+    maxVelocityForward :: Double
+    maxVelocityForward = 0.5
+
+    maxVelocityBackward :: Double
+    maxVelocityBackward = -0.2
 
     getValue :: (Keyboard -> Bool) -> Keyboard -> Double -> Double -> Double
     getValue keyGetter keyboard deltaTime multiplier = if keyGetter keyboard then multiplier * deltaTime else 0
@@ -44,20 +56,26 @@ module Modes.GameMode.Entities.Ship(
 
         load _ = [imageDef]
 
-        update ship@Ship{position, rotation, rotationVelocity} input@Input{deltaTime, keyboard} =
+        update ship@Ship{position, velocity, rotation, rotationVelocity} input@Input{deltaTime, keyboard} =
             let
-                updatedRotation = rotation + (rotationVelocity * deltaTime)
-
                 leftValue = getValue Keyboard.left keyboard deltaTime rotationAcceleration
                 rightValue = getValue Keyboard.right keyboard deltaTime rotationAcceleration
-                upValue = getValue Keyboard.up keyboard deltaTime 0
-                downValue = getValue Keyboard.down keyboard deltaTime 0
-                horizontalDelta = rightValue - leftValue
-                verticalDelta = downValue - upValue
+                upValue = getValue Keyboard.up keyboard deltaTime accelerationForward
+                downValue = getValue Keyboard.down keyboard deltaTime accelerationBackward
+                rotationValueDelta = rightValue - leftValue
+                positionValueDelta = downValue - upValue
 
-                updatedRotationVelocity = Utils.clamp (-maxRotationVelocity) maxRotationVelocity (Utils.lerp (rotationVelocity + horizontalDelta) 0 rotationDecelerationLerp)
+                updatedRotation = rotation + (rotationVelocity * deltaTime)
+                updatedRotationVelocity = Utils.clamp (-maxRotationVelocity) maxRotationVelocity (Utils.lerp (rotationVelocity + rotationValueDelta) 0 rotationDecelerationLerp)
+
+                updatedPosition = Point { x = (Point.x position) + (Point.x velocity * deltaTime), y = (Point.y position) + (Point.y velocity * deltaTime) }
+                fowardAngle = updatedRotation + (pi / 2)
+                accelerationX = positionValueDelta * cos fowardAngle
+                accelerationY = positionValueDelta * sin fowardAngle
+                nextVelocity = Point { x = (Point.x velocity) + accelerationX, y = (Point.y velocity) + accelerationY }
+                updatedVelocity = Point.clamp maxVelocityBackward maxVelocityForward nextVelocity
             in
-                Entity $ ship { rotation = updatedRotation, rotationVelocity = updatedRotationVelocity }
+                Entity $ ship { rotation = updatedRotation, rotationVelocity = updatedRotationVelocity, position = updatedPosition, velocity = updatedVelocity }
 
         render ship@Ship{position, rotation} Resources{images} =
             let
