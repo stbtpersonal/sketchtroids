@@ -68,7 +68,9 @@ module Modes.GameMode.Entities.Ship(
                 updatedRotation = rotation + (rotationVelocity * deltaTime)
                 updatedRotationVelocity = Utils.clamp (-maxRotationVelocity) maxRotationVelocity (Utils.lerp (rotationVelocity + rotationValueDelta) 0 rotationDecelerationLerp)
 
-                updatedPosition = Point { x = (Point.x position) + (Point.x velocity * deltaTime), y = (Point.y position) + (Point.y velocity * deltaTime) }
+                nextX = (Point.x position) + (Point.x velocity * deltaTime)
+                nextY = (Point.y position) + (Point.y velocity * deltaTime)
+                updatedPosition = Point { x = Utils.wrap 0 Constants.nativeWidth nextX, y = Utils.wrap 0 Constants.nativeHeight nextY }
                 fowardAngle = updatedRotation + (pi / 2)
                 accelerationX = positionValueDelta * cos fowardAngle
                 accelerationY = positionValueDelta * sin fowardAngle
