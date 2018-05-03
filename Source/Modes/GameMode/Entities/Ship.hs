@@ -15,6 +15,7 @@ module Modes.GameMode.Entities.Ship(
     import Haste.Graphics.Canvas as Canvas
     import Keyboard
     import Utils
+    import Control.Monad
 
     data Ship = Ship { position :: Point.Point, velocity :: Point.Point, rotation :: Double, rotationVelocity :: Double }
 
@@ -52,6 +53,16 @@ module Modes.GameMode.Entities.Ship(
     getValue :: (Keyboard -> Bool) -> Keyboard -> Double -> Double -> Double
     getValue keyGetter keyboard deltaTime multiplier = if keyGetter keyboard then multiplier * deltaTime else 0
 
+    drawAtPosition :: Ship -> Resources -> Point.Point -> Canvas.Picture ()
+    drawAtPosition ship@Ship{rotation} Resources{images} Point{x, y} =
+        let
+            (bitmap, (width, height)) = images ! (fst imageDef)
+            drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
+            rotatedSprite = Canvas.rotate rotation drawnSprite
+            translatedSprite = Canvas.translate (x, y) rotatedSprite
+        in
+            translatedSprite
+
     instance EntityClass Ship where
 
         load _ = [imageDef]
@@ -79,11 +90,14 @@ module Modes.GameMode.Entities.Ship(
             in
                 Entity $ ship { rotation = updatedRotation, rotationVelocity = updatedRotationVelocity, position = updatedPosition, velocity = updatedVelocity }
 
-        render ship@Ship{position, rotation} Resources{images} =
-            let
-                (bitmap, (width, height)) = images ! (fst imageDef)
-                drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
-                rotatedSprite = Canvas.rotate rotation drawnSprite
-                translatedSprite = Canvas.translate (Point.x position, Point.y position) rotatedSprite
-            in
-                translatedSprite
+        render ship@Ship{position} resources@Resources{images} = do
+            drawAtPosition ship resources position
+
+            let (_, (width, height)) = images ! (fst imageDef)
+            let x = Point.x position
+            let y = Point.y position
+            when (x < width / 2) (drawAtPosition ship resources Point { x = Constants.nativeWidth + x, y = y })
+            when (x > Constants.nativeWidth - (width / 2)) (drawAtPosition ship resources Point { x = x - Constants.nativeWidth, y = y })
+            when (y < height / 2) (drawAtPosition ship resources Point { x = x, y = Constants.nativeHeight + y })
+            when (y > Constants.nativeHeight - (height / 2)) (drawAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
+            
