@@ -5,7 +5,8 @@ module Point(
     magnitude,
     normalize,
     multiply,
-    Point.clamp
+    Point.clamp,
+    angle
     ) where
 
     import Utils
@@ -34,3 +35,6 @@ module Point(
             clampedPoint = multiply clampedMagnitude normalizedPoint
         in
             clampedPoint
+
+    angle :: Point -> Double
+    angle Point{x, y} = atan2 y x

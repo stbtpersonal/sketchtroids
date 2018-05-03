@@ -48,7 +48,7 @@ module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down)) where
     keyCtrl = 17
 
     actionKeys :: Set Int
-    actionKeys = Set.fromList [keySpace, keyEnter, keyCtrl]
+    actionKeys = Set.fromList [keySpace, keyEnter, Keyboard.keyCtrl]
 
     initialize :: IO (IORef Keyboard)
     initialize = do
