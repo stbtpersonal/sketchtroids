@@ -8,7 +8,7 @@ module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down)) where
     import Haste
     import Data.Set as Set
 
-    data Keyboard = Keyboard { left :: Bool, right :: Bool, up :: Bool, down :: Bool, keysDown :: Set Int }
+    data Keyboard = Keyboard { left :: Bool, right :: Bool, up :: Bool, down :: Bool, action :: Bool, keysDown :: Set Int }
 
     keyA = 65
     arrowLeft = 37
@@ -43,9 +43,16 @@ module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down)) where
     downKeys :: Set Int
     downKeys = Set.fromList [keyS, arrowDown, numpad5, numpad2, keyK]
 
+    keySpace = 32
+    keyEnter = 13
+    keyCtrl = 17
+
+    actionKeys :: Set Int
+    actionKeys = Set.fromList [keySpace, keyEnter, keyCtrl]
+
     initialize :: IO (IORef Keyboard)
     initialize = do
-        keyboardRef <- IORef.newIORef $ Keyboard { left = False, right = False, up = False, down = False, keysDown = Set.empty }
+        keyboardRef <- IORef.newIORef $ Keyboard { left = False, right = False, up = False, down = False, action = False, keysDown = Set.empty }
         registerKeyboardEvent keyboardRef Events.KeyDown True
         registerKeyboardEvent keyboardRef Events.KeyUp False
         return keyboardRef
@@ -71,5 +78,6 @@ module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down)) where
             updatedRight = isKeyDown rightKeys
             updatedUp = isKeyDown upKeys
             updatedDown = isKeyDown downKeys
+            updatedAction = isKeyDown actionKeys
         in
-            Keyboard { left = updatedLeft, right = updatedRight, up = updatedUp, down = updatedDown, keysDown = updatedKeysDown }
+            Keyboard { left = updatedLeft, right = updatedRight, up = updatedUp, down = updatedDown, action = updatedAction, keysDown = updatedKeysDown }
