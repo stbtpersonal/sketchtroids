@@ -33,7 +33,7 @@ module Modes.GameMode.Entities.Bullet(
 
         load _ = [imageDef]
 
-        update bullet input =Entity $ update' bullet input
+        update bullet input = Entity $ update' bullet input
 
         render bullet@Bullet{position, velocity} resources@Resources{images} = 
             let

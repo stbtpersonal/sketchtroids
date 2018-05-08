@@ -69,7 +69,7 @@ module Modes.GameMode.Entities.Ship(
 
         load Ship{gun} = Entity.load gun ++ [imageDef]
 
-        update ship@Ship{position, velocity, rotation, rotationVelocity, gun} input@Input{deltaTime, keyboard} =
+        update ship@Ship{position, velocity, rotation, rotationVelocity, gun} input@Input{deltaTime, keyboard, resources} =
             let
                 leftValue = getValue Keyboard.left keyboard deltaTime rotationAcceleration
                 rightValue = getValue Keyboard.right keyboard deltaTime rotationAcceleration
@@ -90,7 +90,14 @@ module Modes.GameMode.Entities.Ship(
                 nextVelocity = Point { x = (Point.x velocity) + accelerationX, y = (Point.y velocity) + accelerationY }
                 updatedVelocity = Point.clamp maxVelocityBackward maxVelocityForward nextVelocity
 
-                updatedGun = Gun.update' gun input
+                gunAngle = updatedRotation - (pi / 2)
+                images = Resources.images resources
+                (_, (_, height)) = images ! (fst imageDef)
+                gunUnitVector = Point.fromAngle gunAngle
+                gunVector = Point { x = (Point.x gunUnitVector) * (height / 2), y = (Point.y gunUnitVector) * (height / 2) }
+                gunPosition = Point { x = (Point.x updatedPosition) + (Point.x gunVector), y = (Point.y updatedPosition) + (Point.y gunVector) }
+                coordinatesSetGun = Gun.setCoordinates gun gunPosition gunAngle
+                updatedGun = Gun.update' coordinatesSetGun input
             in
                 Entity $ ship { rotation = updatedRotation, rotationVelocity = updatedRotationVelocity, position = updatedPosition, velocity = updatedVelocity, gun = updatedGun }
 

@@ -6,7 +6,8 @@ module Point(
     normalize,
     multiply,
     Point.clamp,
-    angle
+    angle,
+    fromAngle
     ) where
 
     import Utils
@@ -38,3 +39,6 @@ module Point(
 
     angle :: Point -> Double
     angle Point{x, y} = atan2 y x
+
+    fromAngle :: Double -> Point
+    fromAngle angle = Point { x = cos angle, y = sin angle }

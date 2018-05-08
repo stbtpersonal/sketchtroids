@@ -3,7 +3,8 @@
 module Modes.GameMode.Entities.Gun(
     Gun(),
     Modes.GameMode.Entities.Gun.new,
-    Modes.GameMode.Entities.Gun.update'
+    Modes.GameMode.Entities.Gun.update',
+    setCoordinates
     ) where
 
     import Modes.GameMode.Entities.Bullet as Bullet
@@ -15,19 +16,27 @@ module Modes.GameMode.Entities.Gun(
     import Keyboard
     import Data.Map
 
-    data Gun = Gun { bullets :: [Bullet], timeCount :: Double, lastFiredTime :: Double }
+    data Gun = Gun { bullets :: [Bullet], timeCount :: Double, lastFiredTime :: Double, position :: Point.Point, rotation :: Double }
 
     maxBullets :: Int
     maxBullets = 50
 
     new :: Gun
-    new = Gun { bullets = [], timeCount = 0, lastFiredTime = 0 }
+    new = Gun { bullets = []
+              , timeCount = 0
+              , lastFiredTime = 0
+              , Modes.GameMode.Entities.Gun.position = Point { x = 800, y = 800 }
+              , Modes.GameMode.Entities.Gun.rotation = 0
+              }
 
     intervalBetweenFiring :: Double
     intervalBetweenFiring = 300.0
 
+    setCoordinates :: Gun -> Point -> Double -> Gun
+    setCoordinates gun position rotation = gun { Modes.GameMode.Entities.Gun.position = position, rotation = rotation }
+
     isBulletOutOfBounds :: Bullet -> Double -> Double -> Bool
-    isBulletOutOfBounds Bullet{position} bulletWidth bulletHeight = 
+    isBulletOutOfBounds Bullet{Bullet.position} bulletWidth bulletHeight = 
         let
             bulletX = Point.x position
             bulletY = Point.y position
@@ -35,7 +44,7 @@ module Modes.GameMode.Entities.Gun(
             bulletX < -bulletWidth || bulletX > Constants.nativeWidth + bulletWidth || bulletY < -bulletHeight || bulletY > Constants.nativeHeight + bulletHeight
 
     update' :: Gun -> Input -> Gun
-    update' gun@Gun{bullets, timeCount, lastFiredTime} input@Input{keyboard, deltaTime, resources} =
+    update' gun@Gun{bullets, timeCount, lastFiredTime, Modes.GameMode.Entities.Gun.position, rotation} input@Input{keyboard, deltaTime, resources} =
         let
             updatedTimeCount = timeCount + deltaTime
             updatedBullets = Prelude.map (\bullet -> Bullet.update' bullet input) bullets
@@ -45,7 +54,7 @@ module Modes.GameMode.Entities.Gun(
 
             withAddedBullets = if isFiring
                 then 
-                    Bullet.new { Bullet.position = Point { x = 400, y = 400 }, Bullet.velocity = Point { x = 0.1, y = 0.2 } } : updatedBullets
+                    Bullet.new { Bullet.position = position, Bullet.velocity = Point.fromAngle rotation } : updatedBullets
                 else
                     updatedBullets
 
