@@ -96,7 +96,8 @@ module Modes.GameMode.Entities.Ship(
                 gunUnitVector = Point.fromAngle gunAngle
                 gunVector = Point { x = (Point.x gunUnitVector) * (height / 2), y = (Point.y gunUnitVector) * (height / 2) }
                 gunPosition = Point { x = (Point.x updatedPosition) + (Point.x gunVector), y = (Point.y updatedPosition) + (Point.y gunVector) }
-                coordinatesSetGun = Gun.setCoordinates gun gunPosition gunAngle
+                wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
+                coordinatesSetGun = Gun.setCoordinates gun wrappedGunPosition gunAngle
                 updatedGun = Gun.update' coordinatesSetGun input
             in
                 Entity $ ship { rotation = updatedRotation, rotationVelocity = updatedRotationVelocity, position = updatedPosition, velocity = updatedVelocity, gun = updatedGun }
@@ -111,5 +112,5 @@ module Modes.GameMode.Entities.Ship(
             when (x > Constants.nativeWidth - (width / 2)) (drawAtPosition ship resources Point { x = x - Constants.nativeWidth, y = y })
             when (y < height / 2) (drawAtPosition ship resources Point { x = x, y = Constants.nativeHeight + y })
             when (y > Constants.nativeHeight - (height / 2)) (drawAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
-            
+
             Entity.render gun resources

@@ -53,10 +53,8 @@ module Modes.GameMode.Entities.Gun(
             updatedLastFiredTime = if isFiring then updatedTimeCount else lastFiredTime
 
             withAddedBullets = if isFiring
-                then 
-                    Bullet.new { Bullet.position = position, Bullet.velocity = Point.fromAngle rotation } : updatedBullets
-                else
-                    updatedBullets
+                then Bullet.new { Bullet.position = position, Bullet.velocity = Point.fromAngle rotation } : updatedBullets
+                else updatedBullets
 
             images = Resources.images resources
             (_, (bulletWidth, bulletHeight)) = images ! (fst Bullet.imageDef)
