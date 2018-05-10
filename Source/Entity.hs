@@ -28,7 +28,7 @@ module Entity where
     loadAll entities = concat $ map Entity.load entities
 
     updateAll :: [Entity] -> Input -> [Entity]
-    updateAll entities input = map (\entity -> Entity.update entity input) entities
+    updateAll entities input = zipWith ($) (map (\entity -> Entity.update entity) entities) (Input.randomize input)
 
     renderAll :: [Entity] -> Resources -> Canvas.Picture ()
     renderAll entities resources = mapM_ (\entity -> Entity.render entity resources) entities

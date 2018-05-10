@@ -12,6 +12,7 @@ module Main where
     import Modes.PreloadingMode.PreloadingMode as PreloadingMode
     import Keyboard
     import Data.IORef as IORef
+    import System.Random as Random
 
     main :: IO ()
     main = do
@@ -30,7 +31,8 @@ module Main where
 
         resources <- IORef.readIORef resourcesRef
         keyboard <- IORef.readIORef keyboardRef
-        let input = Input { deltaTime = deltaTime, resources = resources, keyboard = keyboard }
+        randomGenerator <- Random.newStdGen
+        let input = Input { deltaTime = deltaTime, resources = resources, keyboard = keyboard, randomGenerator = randomGenerator }
         let updatedMode = Entity.update mode input
 
         scale <- Renderer.resize canvas

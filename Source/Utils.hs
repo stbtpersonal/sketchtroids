@@ -3,6 +3,7 @@ module Utils where
     import Haste
     import Haste.Foreign as Foreign
     import System.IO.Unsafe as Unsafe
+    import System.Random as Random
 
     clamp :: (Ord a) => a -> a -> a -> a
     clamp from to = max from . min to
@@ -21,3 +22,10 @@ module Utils where
 
     unsafeWriteLog :: String -> Double
     unsafeWriteLog string = Unsafe.unsafePerformIO $ Utils.writeLog string
+
+    splits :: Random.StdGen -> [Random.StdGen]
+    splits origin =
+        let
+            (nextGenerator, nextOrigin) = Random.split origin
+        in
+            nextGenerator : splits nextOrigin
