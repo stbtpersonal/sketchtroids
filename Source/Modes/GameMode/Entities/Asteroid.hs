@@ -31,6 +31,9 @@ module Modes.GameMode.Entities.Asteroid(
     imageDef :: Resources.ResourceDef
     imageDef = (ResourceKey "Asteroid", "Resources/Asteroid.png")
 
+    maxVelocity :: Double
+    maxVelocity = 0.1
+
     maxRotationVelocity :: Double
     maxRotationVelocity = 0.001
 
@@ -40,14 +43,21 @@ module Modes.GameMode.Entities.Asteroid(
 
         update asteroid@Asteroid{position, velocity, rotation, rotationVelocity, wasInitialized} Input{deltaTime, randomGenerator} =
             let
-                (updatedRotationVelocity, _) = if not wasInitialized 
-                    then Random.randomR (-maxRotationVelocity, maxRotationVelocity) randomGenerator
-                    else (rotationVelocity, randomGenerator)
+                (velocity', rotationVelocity', _) = if not wasInitialized
+                    then
+                        let
+                            (velocityX, randomGenerator') = Random.randomR (-maxVelocity, maxVelocity) randomGenerator
+                            (velocityY, randomGenerator'') = Random.randomR (-maxVelocity, maxVelocity) randomGenerator'
+                            (rotationVelocity, randomGenerator''') = Random.randomR (-maxRotationVelocity, maxRotationVelocity) randomGenerator''
+                        in
+                            (Point { x = velocityX, y = velocityY }, rotationVelocity, randomGenerator''')
+                    else
+                        (velocity, rotationVelocity, randomGenerator)
 
-                updatedPosition = Point { x = (Point.x position) + (Point.x velocity * deltaTime), y = (Point.y position) + (Point.y velocity * deltaTime) }
-                updatedRotation = rotation + (rotationVelocity * deltaTime)
+                position' = Point { x = (Point.x position) + (Point.x velocity * deltaTime), y = (Point.y position) + (Point.y velocity * deltaTime) }
+                rotation' = rotation + (rotationVelocity * deltaTime)
             in
-                Entity $ asteroid { position = updatedPosition, rotation = updatedRotation, rotationVelocity = updatedRotationVelocity, wasInitialized = True }
+                Entity $ asteroid { position = position', velocity = velocity', rotation = rotation', rotationVelocity = rotationVelocity', wasInitialized = True }
 
         render Asteroid{position, rotation} Resources{images} = 
             let
