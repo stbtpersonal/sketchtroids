@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Modes.GameMode.GameMode
     ( imageDefs
@@ -14,6 +15,8 @@ module Modes.GameMode.GameMode
     import Resources
     import Modes.GameMode.Entities.Ship as Ship
     import Modes.GameMode.Entities.Asteroid as Asteroid
+    import Collidable
+    import Utils
 
     data GameMode = GameMode
         { background :: Background
@@ -38,11 +41,14 @@ module Modes.GameMode.GameMode
 
     instance EntityClass GameMode where
 
-        update gameMode@GameMode{ship, asteroid, fps} input = 
+        update gameMode@GameMode{ship, asteroid, fps} input@Input{resources} = 
             let
                 ship' = Ship.update' ship input
                 asteroid' = Asteroid.update' asteroid input
                 fps' = Fps.update' fps input
+
+                haveCollided = Collidable.haveCollided ship' asteroid' resources
+                !kaka = Utils.unsafeWriteLog $ "AAA " ++ (show haveCollided)
             in
                 Entity $ gameMode
                     { ship = ship'

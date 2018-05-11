@@ -18,6 +18,8 @@ module Modes.GameMode.Entities.Ship
     import Utils
     import Control.Monad
     import Modes.GameMode.Entities.Gun as Gun
+    import Collidable
+    import Rectangle
 
     data Ship = Ship
         { position :: Point.Point
@@ -131,3 +133,16 @@ module Modes.GameMode.Entities.Ship
             when (y > Constants.nativeHeight - (height / 2)) (drawAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
 
             Entity.render gun resources
+
+    instance Collidable Ship where
+
+        boundingBox Ship{position} Resources{images} = 
+            let
+                (_, (width, height)) = images ! (fst imageDef)
+                x = Point.x position
+                y = Point.y position
+            in
+                Rectangle
+                    { topLeft = Point.Point { x = x - (width / 2), y = y - (height / 2) }
+                    , bottomRight = Point.Point { x = x + (width / 2), y = y + (width / 2) }
+                    }
