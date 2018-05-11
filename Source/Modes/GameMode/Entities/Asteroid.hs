@@ -12,6 +12,9 @@ module Modes.GameMode.Entities.Asteroid(
     import Data.Map as Map
     import Haste.Graphics.Canvas as Canvas
     import System.Random as Random
+    import Utils
+    import Constants
+    import Control.Monad
 
     data Asteroid = Asteroid { position :: Point.Point
                              , velocity :: Point.Point
@@ -37,6 +40,16 @@ module Modes.GameMode.Entities.Asteroid(
     maxRotationVelocity :: Double
     maxRotationVelocity = 0.001
 
+    drawAtPosition :: Asteroid -> Resources -> Point.Point -> Canvas.Picture ()
+    drawAtPosition Asteroid{rotation} Resources{images} Point{x, y} = 
+        let
+            (bitmap, (width, height)) = images ! (fst imageDef)
+            drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
+            rotatedSprite = Canvas.rotate rotation drawnSprite
+            translatedSprite = Canvas.translate (x, y) rotatedSprite
+        in
+            translatedSprite
+
     instance EntityClass Asteroid where
 
         load _ = [imageDef]
@@ -54,16 +67,20 @@ module Modes.GameMode.Entities.Asteroid(
                     else
                         (velocity, rotationVelocity, randomGenerator)
 
-                position' = Point { x = (Point.x position) + (Point.x velocity * deltaTime), y = (Point.y position) + (Point.y velocity * deltaTime) }
+                nextX = (Point.x position) + (Point.x velocity * deltaTime)
+                nextY = (Point.y position) + (Point.y velocity * deltaTime)
+                position' = Point { x = Utils.wrap 0 Constants.nativeWidth nextX, y = Utils.wrap 0 Constants.nativeHeight nextY }
                 rotation' = rotation + (rotationVelocity * deltaTime)
             in
                 Entity $ asteroid { position = position', velocity = velocity', rotation = rotation', rotationVelocity = rotationVelocity', wasInitialized = True }
 
-        render Asteroid{position, rotation} Resources{images} = 
-            let
-                (bitmap, (width, height)) = images ! (fst imageDef)
-                drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
-                rotatedSprite = Canvas.rotate rotation drawnSprite
-                translatedSprite = Canvas.translate (Point.x position, Point.y position) rotatedSprite
-            in
-                translatedSprite
+        render asteroid@Asteroid{position} resources@Resources{images} = do
+            drawAtPosition asteroid resources position
+
+            let (_, (width, height)) = images ! (fst imageDef)
+            let x = Point.x position
+            let y = Point.y position
+            when (x < width / 2) (drawAtPosition asteroid resources Point { x = Constants.nativeWidth + x, y = y })
+            when (x > Constants.nativeWidth - (width / 2)) (drawAtPosition asteroid resources Point { x = x - Constants.nativeWidth, y = y })
+            when (y < height / 2) (drawAtPosition asteroid resources Point { x = x, y = Constants.nativeHeight + y })
+            when (y > Constants.nativeHeight - (height / 2)) (drawAtPosition asteroid resources Point { x = x, y = y - Constants.nativeHeight })
