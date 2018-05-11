@@ -3,6 +3,7 @@
 module Modes.GameMode.Entities.Asteroid
     ( Asteroid()
     , new
+    , update'
     ) where
 
     import Point
@@ -53,7 +54,7 @@ module Modes.GameMode.Entities.Asteroid
     arrivalMargin = 200
 
     arrivalVelocityMultiplier :: Double
-    arrivalVelocityMultiplier = 2
+    arrivalVelocityMultiplier = 0.5
 
     data ArrivingDirection = ArrivingDirection
         { minPositionX :: Double
@@ -151,6 +152,44 @@ module Modes.GameMode.Entities.Asteroid
     arrivingDirections :: [ArrivingDirection]
     arrivingDirections = [fromLeft, fromRight, fromTop, fromBottom]
 
+    update' :: Asteroid -> Input -> Asteroid
+    update' asteroid@Asteroid{position, velocity, rotation, rotationVelocity, isInitialized, hasArrived, arrivingDirection} Input{deltaTime, randomGenerator} =
+        let
+            (position', velocity', rotationVelocity', arrivingDirection') = if not isInitialized
+                then
+                    let
+                        (arrivingDirectionIndex, randomGenerator1) = Random.randomR (0, length arrivingDirections - 1) randomGenerator
+                        arrivingDirection = arrivingDirections !! arrivingDirectionIndex
+                        (positionX, randomGenerator2) = Random.randomR (minPositionX arrivingDirection, maxPositionX arrivingDirection) randomGenerator1
+                        (positionY, randomGenerator3) = Random.randomR (minPositionY arrivingDirection, maxPositionY arrivingDirection) randomGenerator2
+                        (velocityX, randomGenerator4) = Random.randomR (minVelocityX arrivingDirection, maxVelocityX arrivingDirection) randomGenerator3
+                        (velocityY, randomGenerator5) = Random.randomR (minVelocityY arrivingDirection, maxVelocityY arrivingDirection) randomGenerator4
+                        (rotationVelocity, _) = Random.randomR (-maxRotationVelocity, maxRotationVelocity) randomGenerator5
+                    in
+                        (Point { x = positionX, y = positionY }, Point { x = velocityX, y = velocityY }, rotationVelocity, arrivingDirection)
+                else
+                    (position, velocity, rotationVelocity, arrivingDirection)
+
+            hasArrived' = hasArrived || (isInBounds arrivingDirection' $ position')
+
+            nextX = (Point.x position') + (Point.x velocity * deltaTime)
+            nextY = (Point.y position') + (Point.y velocity * deltaTime)
+            position'' = if not hasArrived'
+                then Point { x = nextX, y = nextY }
+                else Point { x = Utils.wrap 0 Constants.nativeWidth nextX, y = Utils.wrap 0 Constants.nativeHeight nextY }
+
+            rotation' = rotation + (rotationVelocity * deltaTime)
+        in
+            asteroid
+                { position = position''
+                , velocity = velocity'
+                , rotation = rotation'
+                , rotationVelocity = rotationVelocity'
+                , isInitialized = True
+                , arrivingDirection = arrivingDirection' 
+                , hasArrived = hasArrived'
+                }
+
     drawAtPosition :: Asteroid -> Resources -> Point.Point -> Canvas.Picture ()
     drawAtPosition Asteroid{rotation} Resources{images} Point{x, y} = 
         let
@@ -165,42 +204,7 @@ module Modes.GameMode.Entities.Asteroid
 
         load _ = [imageDef]
 
-        update asteroid@Asteroid{position, velocity, rotation, rotationVelocity, isInitialized, hasArrived, arrivingDirection} Input{deltaTime, randomGenerator} =
-            let
-                (position', velocity', rotationVelocity', arrivingDirection') = if not isInitialized
-                    then
-                        let
-                            (arrivingDirectionIndex, randomGenerator1) = Random.randomR (0, length arrivingDirections - 1) randomGenerator
-                            arrivingDirection = arrivingDirections !! arrivingDirectionIndex
-                            (positionX, randomGenerator2) = Random.randomR (minPositionX arrivingDirection, maxPositionX arrivingDirection) randomGenerator1
-                            (positionY, randomGenerator3) = Random.randomR (minPositionY arrivingDirection, maxPositionY arrivingDirection) randomGenerator2
-                            (velocityX, randomGenerator4) = Random.randomR (minVelocityX arrivingDirection, maxVelocityX arrivingDirection) randomGenerator3
-                            (velocityY, randomGenerator5) = Random.randomR (minVelocityY arrivingDirection, maxVelocityY arrivingDirection) randomGenerator4
-                            (rotationVelocity, _) = Random.randomR (-maxRotationVelocity, maxRotationVelocity) randomGenerator5
-                        in
-                            (Point { x = positionX, y = positionY }, Point { x = velocityX, y = velocityY }, rotationVelocity, arrivingDirection)
-                    else
-                        (position, velocity, rotationVelocity, arrivingDirection)
-
-                hasArrived' = hasArrived || (isInBounds arrivingDirection' $ position')
-
-                nextX = (Point.x position') + (Point.x velocity * deltaTime)
-                nextY = (Point.y position') + (Point.y velocity * deltaTime)
-                position'' = if not hasArrived'
-                    then Point { x = nextX, y = nextY }
-                    else Point { x = Utils.wrap 0 Constants.nativeWidth nextX, y = Utils.wrap 0 Constants.nativeHeight nextY }
-
-                rotation' = rotation + (rotationVelocity * deltaTime)
-            in
-                Entity $ asteroid
-                    { position = position''
-                    , velocity = velocity'
-                    , rotation = rotation'
-                    , rotationVelocity = rotationVelocity'
-                    , isInitialized = True
-                    , arrivingDirection = arrivingDirection' 
-                    , hasArrived = hasArrived'
-                    }
+        update asteroid input = Entity $ update' asteroid input
 
         render asteroid@Asteroid{position, isInitialized, hasArrived, arrivingDirection} resources@Resources{images} = do
             when isInitialized (drawAtPosition asteroid resources position)

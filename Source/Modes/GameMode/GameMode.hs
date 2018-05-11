@@ -1,9 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.GameMode.GameMode(
-    imageDefs, 
-    GameMode(GameMode),
-    Modes.GameMode.GameMode.new) where
+module Modes.GameMode.GameMode
+    ( imageDefs
+    , GameMode(GameMode)
+    , Modes.GameMode.GameMode.new
+    ) where
 
     import Entity
     import CommonEntities.Background as Background
@@ -14,24 +15,39 @@ module Modes.GameMode.GameMode(
     import Modes.GameMode.Entities.Ship as Ship
     import Modes.GameMode.Entities.Asteroid as Asteroid
 
-    data GameMode = GameMode { children :: [Entity] }
+    data GameMode = GameMode
+        { background :: Background
+        , ship :: Ship
+        , asteroid :: Asteroid
+        , fps :: Fps
+        }
 
     new :: GameMode
-    new = GameMode { Modes.GameMode.GameMode.children = [ Entity $ Background.new
-                                                        , Entity $ Ship.new
-                                                        , Entity $ Fps.new
-                                                        , Entity $ Asteroid.new
-                                                        ] }
+    new = GameMode
+        { background = Background.new
+        , ship = Ship.new
+        , asteroid = Asteroid.new
+        , fps = Fps.new
+        }
+
+    children :: GameMode -> [Entity]
+    children GameMode{background, ship, asteroid, fps} = [Entity background, Entity ship, Entity asteroid, Entity fps]
 
     imageDefs :: [Resources.ResourceDef]
-    imageDefs =
-        let
-            GameMode{Modes.GameMode.GameMode.children} = Modes.GameMode.GameMode.new
-        in
-            Entity.loadAll children
+    imageDefs = Entity.loadAll $ children Modes.GameMode.GameMode.new
 
     instance EntityClass GameMode where
 
-        update gameMode@GameMode{Modes.GameMode.GameMode.children} input = Entity $ gameMode { Modes.GameMode.GameMode.children = Entity.updateAll children input }
+        update gameMode@GameMode{ship, asteroid, fps} input = 
+            let
+                ship' = Ship.update' ship input
+                asteroid' = Asteroid.update' asteroid input
+                fps' = Fps.update' fps input
+            in
+                Entity $ gameMode
+                    { ship = ship'
+                    , asteroid = asteroid'
+                    , fps = fps'
+                    }
 
-        render GameMode{Modes.GameMode.GameMode.children} resources = Entity.renderAll children resources
+        render gameMode resources = Entity.renderAll (children gameMode) resources

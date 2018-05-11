@@ -1,10 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.GameMode.Entities.Bullet(
-    Bullet(Bullet, position, velocity),
-    new,
-    imageDef,
-    update',
+module Modes.GameMode.Entities.Bullet
+    ( Bullet(Bullet, position, velocity)
+    , new
+    , imageDef
+    , update'
     ) where
 
     import Point
@@ -14,10 +14,16 @@ module Modes.GameMode.Entities.Bullet(
     import Data.Map as Map
     import Haste.Graphics.Canvas as Canvas
 
-    data Bullet = Bullet { position :: Point.Point, velocity :: Point.Point }
+    data Bullet = Bullet
+        { position :: Point.Point
+        , velocity :: Point.Point
+        }
 
     new :: Bullet
-    new = Bullet { position = Point { x = 0, y = 0 }, velocity = Point { x = 0, y = 0 } }
+    new = Bullet 
+        { position = Point { x = 0, y = 0 }
+        , velocity = Point { x = 0, y = 0 }
+        }
 
     imageDef :: Resources.ResourceDef
     imageDef = (ResourceKey "Bullet", "Resources/Bullet.png")
