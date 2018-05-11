@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Resources (ResourceKey(ResourceKey), ResourceDef, Resources(Resources, images), initialize, loadImages) where
+module Resources (ResourceKey(ResourceKey), ResourceDef, BitmapData, Resources(Resources, images), initialize, loadImages) where
 
     import Data.Map as Map
     import Data.Set as Set

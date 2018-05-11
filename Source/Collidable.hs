@@ -2,15 +2,15 @@
 
 module Collidable where
 
+    import Sprite
     import Rectangle
     import Resources
+    import Point
 
-    class Collidable a where
-
-        boundingBox :: a -> Resources -> Rectangle
+    class Sprite a => Collidable a where
 
         haveCollided :: Collidable b => a -> b -> Resources -> Bool
-        haveCollided a b resources= 
+        haveCollided a b resources = 
             let
                 boundingBoxA = boundingBox a resources
                 boundingBoxB = boundingBox b resources

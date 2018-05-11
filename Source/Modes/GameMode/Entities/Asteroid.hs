@@ -18,6 +18,7 @@ module Modes.GameMode.Entities.Asteroid
     import Control.Monad
     import Collidable
     import Rectangle
+    import Sprite
 
     data Asteroid = Asteroid
         { position :: Point.Point
@@ -192,16 +193,6 @@ module Modes.GameMode.Entities.Asteroid
                 , hasArrived = hasArrived'
                 }
 
-    drawAtPosition :: Asteroid -> Resources -> Point.Point -> Canvas.Picture ()
-    drawAtPosition Asteroid{rotation} Resources{images} Point{x, y} = 
-        let
-            (bitmap, (width, height)) = images ! (fst imageDef)
-            drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
-            rotatedSprite = Canvas.rotate rotation drawnSprite
-            translatedSprite = Canvas.translate (x, y) rotatedSprite
-        in
-            translatedSprite
-
     instance EntityClass Asteroid where
 
         load _ = [imageDef]
@@ -209,7 +200,7 @@ module Modes.GameMode.Entities.Asteroid
         update asteroid input = Entity $ update' asteroid input
 
         render asteroid@Asteroid{position, isInitialized, hasArrived, arrivingDirection} resources@Resources{images} = do
-            when isInitialized (drawAtPosition asteroid resources position)
+            when isInitialized (Sprite.drawAtPosition asteroid resources position)
 
             when isInitialized $ do
                 let isVertical = orientation arrivingDirection == Vertical
@@ -218,27 +209,21 @@ module Modes.GameMode.Entities.Asteroid
                 let y = Point.y position
                 when
                     ((hasArrived || isVertical) && x < width / 2)
-                    (drawAtPosition asteroid resources Point { x = Constants.nativeWidth + x, y = y })
+                    (Sprite.drawAtPosition asteroid resources Point { x = Constants.nativeWidth + x, y = y })
                 when 
                     ((hasArrived || isVertical) && x > Constants.nativeWidth - (width / 2))
-                    (drawAtPosition asteroid resources Point { x = x - Constants.nativeWidth, y = y })
+                    (Sprite.drawAtPosition asteroid resources Point { x = x - Constants.nativeWidth, y = y })
                 when 
                     ((hasArrived || not isVertical) && y < height / 2)
-                    (drawAtPosition asteroid resources Point { x = x, y = Constants.nativeHeight + y })
+                    (Sprite.drawAtPosition asteroid resources Point { x = x, y = Constants.nativeHeight + y })
                 when 
                     ((hasArrived || not isVertical) && y > Constants.nativeHeight - (height / 2)) 
-                    (drawAtPosition asteroid resources Point { x = x, y = y - Constants.nativeHeight })
+                    (Sprite.drawAtPosition asteroid resources Point { x = x, y = y - Constants.nativeHeight })
 
 
-    instance Collidable Asteroid where
+    instance Sprite Asteroid where
+        imageDef' _ = imageDef
+        position' Asteroid{position} = position
+        rotation' Asteroid{rotation} = rotation
 
-        boundingBox Asteroid{position} Resources{images} = 
-            let
-                (_, (width, height)) = images ! (fst imageDef)
-                x = Point.x position
-                y = Point.y position
-            in
-                Rectangle
-                    { topLeft = Point.Point { x = x - (width / 2), y = y - (height / 2) }
-                    , bottomRight = Point.Point { x = x + (width / 2), y = y + (width / 2) }
-                    }
+    instance Collidable Asteroid

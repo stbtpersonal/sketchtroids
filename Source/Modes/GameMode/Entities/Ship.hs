@@ -18,8 +18,8 @@ module Modes.GameMode.Entities.Ship
     import Utils
     import Control.Monad
     import Modes.GameMode.Entities.Gun as Gun
+    import Sprite
     import Collidable
-    import Rectangle
 
     data Ship = Ship
         { position :: Point.Point
@@ -105,16 +105,6 @@ module Modes.GameMode.Entities.Ship
                 , gun = gun'
                 }
 
-    drawAtPosition :: Ship -> Resources -> Point.Point -> Canvas.Picture ()
-    drawAtPosition ship@Ship{rotation} Resources{images} Point{x, y} =
-        let
-            (bitmap, (width, height)) = images ! (fst imageDef)
-            drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
-            rotatedSprite = Canvas.rotate rotation drawnSprite
-            translatedSprite = Canvas.translate (x, y) rotatedSprite
-        in
-            translatedSprite
-
     instance EntityClass Ship where
 
         load Ship{gun} = Entity.load gun ++ [imageDef]
@@ -122,27 +112,21 @@ module Modes.GameMode.Entities.Ship
         update ship input = Entity $ Modes.GameMode.Entities.Ship.update' ship input
 
         render ship@Ship{position, gun} resources@Resources{images} = do
-            drawAtPosition ship resources position
+            Sprite.drawAtPosition ship resources position
 
             let (_, (width, height)) = images ! (fst imageDef)
             let x = Point.x position
             let y = Point.y position
-            when (x < width / 2) (drawAtPosition ship resources Point { x = Constants.nativeWidth + x, y = y })
-            when (x > Constants.nativeWidth - (width / 2)) (drawAtPosition ship resources Point { x = x - Constants.nativeWidth, y = y })
-            when (y < height / 2) (drawAtPosition ship resources Point { x = x, y = Constants.nativeHeight + y })
-            when (y > Constants.nativeHeight - (height / 2)) (drawAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
+            when (x < width / 2) (Sprite.drawAtPosition ship resources Point { x = Constants.nativeWidth + x, y = y })
+            when (x > Constants.nativeWidth - (width / 2)) (Sprite.drawAtPosition ship resources Point { x = x - Constants.nativeWidth, y = y })
+            when (y < height / 2) (Sprite.drawAtPosition ship resources Point { x = x, y = Constants.nativeHeight + y })
+            when (y > Constants.nativeHeight - (height / 2)) (Sprite.drawAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
 
             Entity.render gun resources
 
-    instance Collidable Ship where
+    instance Sprite Ship where
+        imageDef' _ = imageDef
+        position' Ship{position} = position
+        rotation' Ship{rotation} = rotation
 
-        boundingBox Ship{position} Resources{images} = 
-            let
-                (_, (width, height)) = images ! (fst imageDef)
-                x = Point.x position
-                y = Point.y position
-            in
-                Rectangle
-                    { topLeft = Point.Point { x = x - (width / 2), y = y - (height / 2) }
-                    , bottomRight = Point.Point { x = x + (width / 2), y = y + (width / 2) }
-                    }
+    instance Collidable Ship
