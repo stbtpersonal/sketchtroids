@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.GameMode.Entities.Asteroid
+module Asteroid
     ( Asteroid()
     , new
     , update'

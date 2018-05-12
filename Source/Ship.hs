@@ -1,10 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.GameMode.Entities.Ship
+module Ship
     ( Ship(Ship)
-    , Modes.GameMode.Entities.Ship.new
+    , Ship.new
     , imageDef
-    , Modes.GameMode.Entities.Ship.update'
+    , Ship.update'
     ) where
 
     import Point
@@ -17,7 +17,7 @@ module Modes.GameMode.Entities.Ship
     import Keyboard
     import Utils
     import Control.Monad
-    import Modes.GameMode.Entities.Gun as Gun
+    import Gun
     import Sprite
     import Collidable
 
@@ -109,7 +109,7 @@ module Modes.GameMode.Entities.Ship
 
         load Ship{gun} = Entity.load gun ++ [imageDef]
 
-        update ship input = Entity $ Modes.GameMode.Entities.Ship.update' ship input
+        update ship input = Entity $ Ship.update' ship input
 
         render ship@Ship{position, gun} resources@Resources{images} = do
             Sprite.drawAtPosition ship resources position

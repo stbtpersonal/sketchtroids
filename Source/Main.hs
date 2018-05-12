@@ -9,7 +9,7 @@ module Main where
     import Resources
     import Haste.Graphics.Canvas as Canvas
     import FrameData
-    import Modes.PreloadingMode.PreloadingMode as PreloadingMode
+    import PreloadingMode
     import Keyboard
     import Data.IORef as IORef
     import System.Random as Random

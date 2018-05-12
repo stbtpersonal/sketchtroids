@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.GameMode.Entities.Bullet
+module Bullet
     ( Bullet(Bullet, position, velocity)
     , new
     , imageDef

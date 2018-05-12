@@ -1,10 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.PreloadingMode.PreloadingMode where
+module PreloadingMode where
 
     import Entity
     import Resources
-    import Modes.LoadingMode.LoadingMode as LoadingMode
+    import LoadingMode
     import Data.Map as Map
     import Input
 

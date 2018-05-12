@@ -1,13 +1,13 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.GameMode.Entities.Gun
+module Gun
     ( Gun()
-    , Modes.GameMode.Entities.Gun.new
-    , Modes.GameMode.Entities.Gun.update'
+    , Gun.new
+    , Gun.update'
     , setCoordinates
     ) where
 
-    import Modes.GameMode.Entities.Bullet as Bullet
+    import Bullet
     import Input
     import Entity
     import Point
@@ -32,15 +32,15 @@ module Modes.GameMode.Entities.Gun
         { bullets = []
         , timeCount = 0
         , lastFiredTime = 0
-        , Modes.GameMode.Entities.Gun.position = Point { x = 800, y = 800 }
-        , Modes.GameMode.Entities.Gun.rotation = 0
+        , Gun.position = Point { x = 800, y = 800 }
+        , Gun.rotation = 0
         }
 
     intervalBetweenFiring :: Double
     intervalBetweenFiring = 300.0
 
     setCoordinates :: Gun -> Point -> Double -> Gun
-    setCoordinates gun position rotation = gun { Modes.GameMode.Entities.Gun.position = position, rotation = rotation }
+    setCoordinates gun position rotation = gun { Gun.position = position, rotation = rotation }
 
     isBulletOutOfBounds :: Bullet -> Double -> Double -> Bool
     isBulletOutOfBounds Bullet{Bullet.position} bulletWidth bulletHeight = 
@@ -51,7 +51,7 @@ module Modes.GameMode.Entities.Gun
             bulletX < -bulletWidth || bulletX > Constants.nativeWidth + bulletWidth || bulletY < -bulletHeight || bulletY > Constants.nativeHeight + bulletHeight
 
     update' :: Gun -> Input -> Gun
-    update' gun@Gun{bullets, timeCount, lastFiredTime, Modes.GameMode.Entities.Gun.position, rotation} input@Input{keyboard, deltaTime, resources} =
+    update' gun@Gun{bullets, timeCount, lastFiredTime, Gun.position, rotation} input@Input{keyboard, deltaTime, resources} =
         let
             timeCount' = timeCount + deltaTime
             bullets' = Prelude.map (\bullet -> Bullet.update' bullet input) bullets
@@ -78,7 +78,7 @@ module Modes.GameMode.Entities.Gun
 
         load _ = [Bullet.imageDef]
 
-        update gun input = Entity $ Modes.GameMode.Entities.Gun.update' gun input
+        update gun input = Entity $ Gun.update' gun input
 
         render Gun{bullets} resources = Entity.renderAll (Prelude.map Entity bullets) resources
 

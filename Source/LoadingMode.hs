@@ -1,18 +1,18 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.LoadingMode.LoadingMode(
+module LoadingMode(
     LoadingMode(LoadingMode),
-    Modes.LoadingMode.LoadingMode.new,
-    Modes.LoadingMode.LoadingMode.imageDefs) where
+    LoadingMode.new,
+    LoadingMode.imageDefs) where
 
     import Entity
     import Resources
-    import Modes.GameMode.GameMode as GameMode
+    import GameMode
     import Data.Map as Map
     import Input
-    import CommonEntities.Background as Background
-    import CommonEntities.Fps as Fps
-    import Modes.LoadingMode.Entities.Spinner as Spinner
+    import Background
+    import Fps
+    import Spinner as Spinner
     import Haste.Graphics.Canvas as Canvas
 
     data LoadingMode = LoadingMode { children :: [Entity], spinner :: Spinner, finishElapsedTime :: Double, finishAlpha :: Double }
@@ -23,7 +23,7 @@ module Modes.LoadingMode.LoadingMode(
     imageDefs :: [Resources.ResourceDef]
     imageDefs =
         let
-            loadingMode@LoadingMode{children, spinner} = Modes.LoadingMode.LoadingMode.new
+            loadingMode@LoadingMode{children, spinner} = LoadingMode.new
         in
             Entity.loadAll (Entity spinner : children)
 

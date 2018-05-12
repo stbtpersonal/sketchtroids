@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module CommonEntities.Fps where
+module Fps where
     
     import Haste.Graphics.Canvas as Canvas
     import Entity

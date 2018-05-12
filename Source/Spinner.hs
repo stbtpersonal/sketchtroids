@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Modes.LoadingMode.Entities.Spinner(Spinner(Spinner, isStopped), new, stop, update') where
+module Spinner(Spinner(Spinner, isStopped), new, stop, update') where
 
     import Resources
     import Input
@@ -15,7 +15,7 @@ module Modes.LoadingMode.Entities.Spinner(Spinner(Spinner, isStopped), new, stop
     data Spinner = Spinner { elapsedTime :: Double, rotation :: Double, scale :: Double, isStopping :: Bool, isStopped :: Bool }
 
     new :: Spinner
-    new = Spinner { elapsedTime = 0, rotation = 0, Modes.LoadingMode.Entities.Spinner.scale = 1, isStopping = False, isStopped = False }
+    new = Spinner { elapsedTime = 0, rotation = 0, Spinner.scale = 1, isStopping = False, isStopped = False }
 
     imageDef :: Resources.ResourceDef
     imageDef = (ResourceKey "Spinner", "Resources/Spinner.png")
@@ -49,7 +49,7 @@ module Modes.LoadingMode.Entities.Spinner(Spinner(Spinner, isStopped), new, stop
             scalePhase = if moduloElapsedTime <= scaleStartTime || moduloElapsedTime > scaleEndTime then 1 else (moduloElapsedTime - scaleStartTime) / (scaleEndTime - scaleStartTime)
             scale = 1 + (0.1 * scalePhase) - (0.1 * scalePhase ^ 2)
         in
-            spinner { elapsedTime = moduloElapsedTime, rotation = rotation, Modes.LoadingMode.Entities.Spinner.scale = scale, isStopped = isStopped }
+            spinner { elapsedTime = moduloElapsedTime, rotation = rotation, Spinner.scale = scale, isStopped = isStopped }
 
     instance EntityClass Spinner where
 
@@ -57,7 +57,7 @@ module Modes.LoadingMode.Entities.Spinner(Spinner(Spinner, isStopped), new, stop
 
         update spinner input = Entity $ update' spinner input
 
-        render spinner@Spinner{rotation, Modes.LoadingMode.Entities.Spinner.scale, isStopped} resources@Resources{images} = 
+        render spinner@Spinner{rotation, Spinner.scale, isStopped} resources@Resources{images} = 
             let
                 (bitmap, (width, height)) = images ! (fst imageDef)
                 drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))

@@ -1,20 +1,20 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE BangPatterns #-}
 
-module Modes.GameMode.GameMode
+module GameMode
     ( imageDefs
     , GameMode(GameMode)
-    , Modes.GameMode.GameMode.new
+    , GameMode.new
     ) where
 
     import Entity
-    import CommonEntities.Background as Background
-    import CommonEntities.Fps as Fps
+    import Background
+    import Fps
     import Point
     import Input
     import Resources
-    import Modes.GameMode.Entities.Ship as Ship
-    import Modes.GameMode.Entities.Asteroid as Asteroid
+    import Ship
+    import Asteroid
     import Collidable
     import Utils
 
@@ -37,7 +37,7 @@ module Modes.GameMode.GameMode
     children GameMode{background, ship, asteroid, fps} = [Entity background, Entity ship, Entity asteroid, Entity fps]
 
     imageDefs :: [Resources.ResourceDef]
-    imageDefs = Entity.loadAll $ children Modes.GameMode.GameMode.new
+    imageDefs = Entity.loadAll $ children GameMode.new
 
     instance EntityClass GameMode where
 
