@@ -1,9 +1,9 @@
 module Utils where
 
-    import Haste
-    import Haste.Foreign as Foreign
-    import System.IO.Unsafe as Unsafe
-    import System.Random as Random
+    import Haste (toJSString)
+    import Haste.Foreign as Foreign (ffi)
+    import System.IO.Unsafe as Unsafe (unsafePerformIO)
+    import System.Random as Random (StdGen, split)
 
     clamp :: (Ord a) => a -> a -> a -> a
     clamp from to = max from . min to

@@ -1,18 +1,21 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Point(
-    Point(Point, x, y),
-    magnitude,
-    normalize,
-    multiply,
-    Point.clamp,
-    angle,
-    fromAngle
+module Point
+    ( Point(Point, x, y)
+    , Point.magnitude
+    , Point.normalize
+    , Point.multiply
+    , Point.clamp
+    , Point.angle
+    , Point.fromAngle
     ) where
 
-    import Utils
+    import Utils (clamp)
 
-    data Point = Point { x :: Double, y :: Double } deriving Show
+    data Point = Point
+        { x :: Double
+        , y :: Double
+        } deriving Show
 
     magnitude :: Point -> Double
     magnitude Point{x, y} = sqrt (x * x + y * y)

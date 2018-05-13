@@ -1,21 +1,30 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
-module Background where
+module Background
+    ( Background()
+    , Background.new
+    ) where
 
-    import Entity
-    import Haste.Graphics.Canvas as Canvas
-    import Constants
+    import Entity (EntityClass(render))
+    import Haste.Graphics.Canvas as Canvas (rect, fill, color, Color(RGB))
+    import Constants (nativeWidth, nativeHeight)
 
-    data Background = Background { width :: Double, height :: Double }
+    data Background = Background
+        { _width :: Double
+        , _height :: Double
+        }
 
     new :: Background
-    new = Background { width = Constants.nativeWidth, height = Constants.nativeHeight }
+    new = Background
+        { _width = Constants.nativeWidth
+        , _height = Constants.nativeHeight
+        }
 
     instance EntityClass Background where
 
-        render background@Background{..} _ = 
+        render Background{_width, _height} _ = 
             let
-                shape = Canvas.rect (0, 0) (width, height)
+                shape = Canvas.rect (0, 0) (_width, _height)
                 filled = Canvas.fill shape
                 colored = Canvas.color (Canvas.RGB 255 255 255) filled
             in

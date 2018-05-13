@@ -2,22 +2,22 @@
 
 module Sprite where
 
-    import Resources
-    import Point
-    import Data.Map as Map
-    import Rectangle
-    import Haste.Graphics.Canvas as Canvas
+    import Resources (Resources(Resources, images), ResourceDef, BitmapData)
+    import Point (Point(Point, x, y))
+    import Data.Map ((!))
+    import Rectangle (Rectangle(Rectangle, topLeft, bottomRight))
+    import Haste.Graphics.Canvas as Canvas (Picture, Bitmap, draw, rotate, translate)
 
     class Sprite a where
 
-        imageDef' :: a -> Resources.ResourceDef
+        imageDef :: a -> Resources.ResourceDef
 
-        position' :: a -> Point.Point
+        position :: a -> Point
 
-        rotation' :: a -> Double
+        rotation :: a -> Double
 
         bitmapData :: a -> Resources -> Resources.BitmapData
-        bitmapData a Resources{images} = images ! (fst $ imageDef' a)
+        bitmapData a Resources{images} = images ! (fst $ imageDef a)
 
         bitmap :: a -> Resources -> Canvas.Bitmap
         bitmap a resources = fst $ bitmapData a resources
@@ -35,21 +35,22 @@ module Sprite where
         boundingBox a resources = 
             let
                 (width, height) = dimensions a resources
-                x = Point.x $ position' a
-                y = Point.y $ position' a
+                Point{x, y} = position a
             in
                 Rectangle
-                    { topLeft = Point.Point { x = x - (width / 2), y = y - (height / 2) }
-                    , bottomRight = Point.Point { x = x + (width / 2), y = y + (width / 2) }
+                    { topLeft = Point { x = x - (width / 2), y = y - (height / 2) }
+                    , bottomRight = Point { x = x + (width / 2), y = y + (width / 2) }
                     }
 
-        drawAtPosition :: a -> Resources -> Point.Point -> Canvas.Picture ()
-        drawAtPosition a resources Point{x, y} =
+        render :: a -> Resources -> Canvas.Picture ()
+        render a resources = renderAtPosition a resources $ position a
+
+        renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
+        renderAtPosition a resources Point{x, y} =
             let
-                rotation = rotation' a
                 (bitmap, (width, height)) = bitmapData a resources
                 drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
-                rotatedSprite = Canvas.rotate rotation drawnSprite
+                rotatedSprite = Canvas.rotate (rotation a) drawnSprite
                 translatedSprite = Canvas.translate (x, y) rotatedSprite
             in
                 translatedSprite

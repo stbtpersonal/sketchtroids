@@ -3,43 +3,37 @@
 module Ship
     ( Ship(Ship)
     , Ship.new
-    , imageDef
     , Ship.update'
     ) where
 
-    import Point
-    import Constants
-    import Entity
-    import Resources
-    import Input
-    import Data.Map as Map
-    import Haste.Graphics.Canvas as Canvas
-    import Keyboard
-    import Utils
-    import Control.Monad
-    import Gun
-    import Sprite
-    import Collidable
+    import Point (Point(Point, x, y), fromAngle, clamp)
+    import Constants (nativeWidth, nativeHeight)
+    import Entity (EntityClass(load, update, render), Entity(Entity))
+    import Resources (Resources(Resources, images), ResourceKey(ResourceKey))
+    import Input (Input(Input, deltaTime, keyboard, resources))
+    import Keyboard (Keyboard(Keyboard, left, right, up, down))
+    import Utils (clamp, lerp, wrap, )
+    import Control.Monad (when)
+    import Gun (Gun, new, setCoordinates, update')
+    import Sprite (Sprite(imageDef, position, rotation, height, renderAtPosition, dimensions))
+    import Collidable (Collidable(render))
 
     data Ship = Ship
-        { position :: Point.Point
-        , velocity :: Point.Point
-        , rotation :: Double
-        , rotationVelocity :: Double
-        , gun :: Gun 
+        { _position :: Point
+        , _velocity :: Point
+        , _rotation :: Double
+        , _rotationVelocity :: Double
+        , _gun :: Gun 
         }
 
     new :: Ship
     new = Ship
-        { position = Point { x = Constants.nativeWidth / 2, y = Constants.nativeHeight / 2 }
-        , velocity = Point { x = 0, y = 0 }
-        , rotation = 0
-        , rotationVelocity = 0
-        , gun = Gun.new
+        { _position = Point { x = Constants.nativeWidth / 2, y = Constants.nativeHeight / 2 }
+        , _velocity = Point { x = 0, y = 0 }
+        , _rotation = 0
+        , _rotationVelocity = 0
+        , _gun = Gun.new
         }
-
-    imageDef :: Resources.ResourceDef
-    imageDef = (ResourceKey "Ship", "Resources/Ship.png")
 
     rotationAcceleration :: Double
     rotationAcceleration = 0.00002
@@ -66,7 +60,7 @@ module Ship
     getValue keyGetter keyboard deltaTime multiplier = if keyGetter keyboard then multiplier * deltaTime else 0
 
     update' :: Ship -> Input -> Ship
-    update' ship@Ship{position, velocity, rotation, rotationVelocity, gun} input@Input{deltaTime, keyboard, resources} =
+    update' ship@Ship{_position, _velocity, _rotation, _rotationVelocity, _gun} input@Input{deltaTime, keyboard, resources} =
         let
             leftValue = getValue Keyboard.left keyboard deltaTime rotationAcceleration
             rightValue = getValue Keyboard.right keyboard deltaTime rotationAcceleration
@@ -75,58 +69,58 @@ module Ship
             rotationValueDelta = rightValue - leftValue
             positionValueDelta = downValue - upValue
 
-            rotation' = rotation + (rotationVelocity * deltaTime)
-            rotationVelocity' = Utils.clamp (-maxRotationVelocity) maxRotationVelocity (Utils.lerp (rotationVelocity + rotationValueDelta) 0 rotationDecelerationLerp)
+            rotation' = _rotation + (_rotationVelocity * deltaTime)
+            rotationVelocity' = Utils.clamp (-maxRotationVelocity) maxRotationVelocity (Utils.lerp (_rotationVelocity + rotationValueDelta) 0 rotationDecelerationLerp)
 
-            nextX = (Point.x position) + (Point.x velocity * deltaTime)
-            nextY = (Point.y position) + (Point.y velocity * deltaTime)
+            nextX = (Point.x _position) + (Point.x _velocity * deltaTime)
+            nextY = (Point.y _position) + (Point.y _velocity * deltaTime)
             position' = Point { x = Utils.wrap 0 Constants.nativeWidth nextX, y = Utils.wrap 0 Constants.nativeHeight nextY }
             fowardAngle = rotation' + (pi / 2)
             accelerationX = positionValueDelta * cos fowardAngle
             accelerationY = positionValueDelta * sin fowardAngle
-            nextVelocity = Point { x = (Point.x velocity) + accelerationX, y = (Point.y velocity) + accelerationY }
+            nextVelocity = Point { x = (Point.x _velocity) + accelerationX, y = (Point.y _velocity) + accelerationY }
             velocity' = Point.clamp maxVelocityBackward maxVelocityForward nextVelocity
 
             gunAngle = rotation' - (pi / 2)
             images = Resources.images resources
-            (_, (_, height)) = images ! (fst imageDef)
+            height = Sprite.height ship resources
             gunUnitVector = Point.fromAngle gunAngle
             gunVector = Point { x = (Point.x gunUnitVector) * (height / 2), y = (Point.y gunUnitVector) * (height / 2) }
             gunPosition = Point { x = (Point.x position') + (Point.x gunVector), y = (Point.y position') + (Point.y gunVector) }
             wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
-            coordinatesSetGun = Gun.setCoordinates gun wrappedGunPosition gunAngle
+            coordinatesSetGun = Gun.setCoordinates _gun wrappedGunPosition gunAngle
             gun' = Gun.update' coordinatesSetGun input
         in
             ship
-                { rotation = rotation'
-                , rotationVelocity = rotationVelocity'
-                , position = position'
-                , velocity = velocity'
-                , gun = gun'
+                { _rotation = rotation'
+                , _rotationVelocity = rotationVelocity'
+                , _position = position'
+                , _velocity = velocity'
+                , _gun = gun'
                 }
 
     instance EntityClass Ship where
 
-        load Ship{gun} = Entity.load gun ++ [imageDef]
+        load ship@Ship{_gun} = Entity.load _gun ++ [imageDef ship]
 
         update ship input = Entity $ Ship.update' ship input
 
-        render ship@Ship{position, gun} resources@Resources{images} = do
-            Sprite.drawAtPosition ship resources position
+        render ship@Ship{_position, _gun} resources@Resources{images} = do
+            Collidable.render ship resources
 
-            let (_, (width, height)) = images ! (fst imageDef)
-            let x = Point.x position
-            let y = Point.y position
-            when (x < width / 2) (Sprite.drawAtPosition ship resources Point { x = Constants.nativeWidth + x, y = y })
-            when (x > Constants.nativeWidth - (width / 2)) (Sprite.drawAtPosition ship resources Point { x = x - Constants.nativeWidth, y = y })
-            when (y < height / 2) (Sprite.drawAtPosition ship resources Point { x = x, y = Constants.nativeHeight + y })
-            when (y > Constants.nativeHeight - (height / 2)) (Sprite.drawAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
+            let (width, height) = Sprite.dimensions ship resources
+            let Point{x, y} = _position
 
-            Entity.render gun resources
+            when (x < width / 2) (Sprite.renderAtPosition ship resources Point { x = Constants.nativeWidth + x, y = y })
+            when (x > Constants.nativeWidth - (width / 2)) (Sprite.renderAtPosition ship resources Point { x = x - Constants.nativeWidth, y = y })
+            when (y < height / 2) (Sprite.renderAtPosition ship resources Point { x = x, y = Constants.nativeHeight + y })
+            when (y > Constants.nativeHeight - (height / 2)) (Sprite.renderAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
+
+            Entity.render _gun resources
 
     instance Sprite Ship where
-        imageDef' _ = imageDef
-        position' Ship{position} = position
-        rotation' Ship{rotation} = rotation
+        imageDef _ = (ResourceKey "Ship", "Resources/Ship.png")
+        position Ship{_position} = _position
+        rotation Ship{_rotation} = _rotation
 
     instance Collidable Ship

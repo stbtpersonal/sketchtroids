@@ -2,47 +2,41 @@
 
 module Asteroid
     ( Asteroid()
-    , new
-    , update'
+    , Asteroid.new
+    , Asteroid.update'
     ) where
 
-    import Point
-    import Entity
-    import Resources
-    import Input
-    import Data.Map as Map
-    import Haste.Graphics.Canvas as Canvas
-    import System.Random as Random
-    import Utils
-    import Constants
-    import Control.Monad
-    import Collidable
-    import Rectangle
-    import Sprite
+    import Point (Point(Point, x, y))
+    import Entity (EntityClass(load, update, render), Entity(Entity))
+    import Resources (Resources(Resources, images), ResourceKey(ResourceKey))
+    import Input (Input(Input, deltaTime, randomGenerator))
+    import System.Random as Random (randomR)
+    import Utils (wrap)
+    import Constants (nativeWidth, nativeHeight)
+    import Control.Monad (when)
+    import Collidable (Collidable, render)
+    import Sprite (Sprite(imageDef, position, rotation, render, renderAtPosition, dimensions))
 
     data Asteroid = Asteroid
-        { position :: Point.Point
-        , velocity :: Point.Point
-        , rotation :: Double
-        , rotationVelocity :: Double
-        , isInitialized :: Bool
-        , arrivingDirection :: ArrivingDirection
-        , hasArrived :: Bool
+        { _position :: Point
+        , _velocity :: Point
+        , _rotation :: Double
+        , _rotationVelocity :: Double
+        , _isInitialized :: Bool
+        , _arrivingDirection :: ArrivingDirection
+        , _hasArrived :: Bool
         }
 
     new :: Asteroid
     new = Asteroid
-        { position = Point { x = 0, y = 0 }
-        , velocity = Point { x = 0, y = 0 }
-        , rotation = 0
-        , rotationVelocity = 0
-        , isInitialized = False
-        , arrivingDirection = fromLeft
-        , hasArrived = False
+        { _position = Point { x = 0, y = 0 }
+        , _velocity = Point { x = 0, y = 0 }
+        , _rotation = 0
+        , _rotationVelocity = 0
+        , _isInitialized = False
+        , _arrivingDirection = fromLeft
+        , _hasArrived = False
         }
-
-    imageDef :: Resources.ResourceDef
-    imageDef = (ResourceKey "Asteroid", "Resources/Asteroid.png")
 
     minVelocity :: Double
     minVelocity = 0.05
@@ -60,36 +54,36 @@ module Asteroid
     arrivalVelocityMultiplier = 0.5
 
     data ArrivingDirection = ArrivingDirection
-        { minPositionX :: Double
-        , maxPositionX :: Double
-        , minPositionY :: Double
-        , maxPositionY :: Double 
+        { _minPositionX :: Double
+        , _maxPositionX :: Double
+        , _minPositionY :: Double
+        , _maxPositionY :: Double 
 
-        , minVelocityX :: Double
-        , maxVelocityX :: Double
-        , minVelocityY :: Double
-        , maxVelocityY :: Double
+        , _minVelocityX :: Double
+        , _maxVelocityX :: Double
+        , _minVelocityY :: Double
+        , _maxVelocityY :: Double
 
-        , isInBounds :: Point.Point -> Bool
-        , orientation :: Orientation
+        , _isInBounds :: Point.Point -> Bool
+        , _orientation :: Orientation
         }
 
     data Orientation = Horizontal | Vertical deriving Eq
 
     fromLeft :: ArrivingDirection
     fromLeft = ArrivingDirection
-        { minPositionX = -arrivalMargin
-        , maxPositionX = -arrivalMargin
-        , minPositionY = arrivalMargin
-        , maxPositionY = Constants.nativeHeight - arrivalMargin
+        { _minPositionX = -arrivalMargin
+        , _maxPositionX = -arrivalMargin
+        , _minPositionY = arrivalMargin
+        , _maxPositionY = Constants.nativeHeight - arrivalMargin
 
-        , minVelocityX = minVelocity
-        , maxVelocityX = maxVelocity
-        , minVelocityY = -maxVelocity * arrivalVelocityMultiplier
-        , maxVelocityY = maxVelocity * arrivalVelocityMultiplier
+        , _minVelocityX = minVelocity
+        , _maxVelocityX = maxVelocity
+        , _minVelocityY = -maxVelocity * arrivalVelocityMultiplier
+        , _maxVelocityY = maxVelocity * arrivalVelocityMultiplier
 
-        , isInBounds = isInBoundsFromLeft
-        , orientation = Horizontal
+        , _isInBounds = isInBoundsFromLeft
+        , _orientation = Horizontal
         }
 
     isInBoundsFromLeft :: Point.Point -> Bool
@@ -97,18 +91,18 @@ module Asteroid
 
     fromRight :: ArrivingDirection
     fromRight = ArrivingDirection
-        { minPositionX = Constants.nativeWidth + arrivalMargin
-        , maxPositionX = Constants.nativeWidth + arrivalMargin
-        , minPositionY = arrivalMargin
-        , maxPositionY = Constants.nativeHeight - arrivalMargin
+        { _minPositionX = Constants.nativeWidth + arrivalMargin
+        , _maxPositionX = Constants.nativeWidth + arrivalMargin
+        , _minPositionY = arrivalMargin
+        , _maxPositionY = Constants.nativeHeight - arrivalMargin
 
-        , minVelocityX = -maxVelocity
-        , maxVelocityX = -minVelocity
-        , minVelocityY = -maxVelocity * arrivalVelocityMultiplier
-        , maxVelocityY = maxVelocity * arrivalVelocityMultiplier
+        , _minVelocityX = -maxVelocity
+        , _maxVelocityX = -minVelocity
+        , _minVelocityY = -maxVelocity * arrivalVelocityMultiplier
+        , _maxVelocityY = maxVelocity * arrivalVelocityMultiplier
 
-        , isInBounds = isInBoundsFromRight
-        , orientation = Horizontal
+        , _isInBounds = isInBoundsFromRight
+        , _orientation = Horizontal
         }
 
     isInBoundsFromRight :: Point.Point -> Bool
@@ -116,18 +110,18 @@ module Asteroid
 
     fromTop :: ArrivingDirection
     fromTop = ArrivingDirection
-        { minPositionX = arrivalMargin
-        , maxPositionX = Constants.nativeWidth - arrivalMargin
-        , minPositionY = -arrivalMargin
-        , maxPositionY = -arrivalMargin
+        { _minPositionX = arrivalMargin
+        , _maxPositionX = Constants.nativeWidth - arrivalMargin
+        , _minPositionY = -arrivalMargin
+        , _maxPositionY = -arrivalMargin
 
-        , minVelocityX = -maxVelocity * arrivalVelocityMultiplier
-        , maxVelocityX = maxVelocity * arrivalVelocityMultiplier
-        , minVelocityY = minVelocity
-        , maxVelocityY = maxVelocity
+        , _minVelocityX = -maxVelocity * arrivalVelocityMultiplier
+        , _maxVelocityX = maxVelocity * arrivalVelocityMultiplier
+        , _minVelocityY = minVelocity
+        , _maxVelocityY = maxVelocity
 
-        , isInBounds = isInBoundsFromTop
-        , orientation = Vertical
+        , _isInBounds = isInBoundsFromTop
+        , _orientation = Vertical
         }
 
     isInBoundsFromTop :: Point.Point -> Bool
@@ -135,18 +129,18 @@ module Asteroid
 
     fromBottom :: ArrivingDirection
     fromBottom = ArrivingDirection 
-        { minPositionX = arrivalMargin
-        , maxPositionX = Constants.nativeWidth - arrivalMargin
-        , minPositionY = Constants.nativeHeight + arrivalMargin
-        , maxPositionY = Constants.nativeHeight + arrivalMargin
+        { _minPositionX = arrivalMargin
+        , _maxPositionX = Constants.nativeWidth - arrivalMargin
+        , _minPositionY = Constants.nativeHeight + arrivalMargin
+        , _maxPositionY = Constants.nativeHeight + arrivalMargin
 
-        , minVelocityX = -maxVelocity * arrivalVelocityMultiplier
-        , maxVelocityX = maxVelocity * arrivalVelocityMultiplier
-        , minVelocityY = -maxVelocity
-        , maxVelocityY = -minVelocity
+        , _minVelocityX = -maxVelocity * arrivalVelocityMultiplier
+        , _maxVelocityX = maxVelocity * arrivalVelocityMultiplier
+        , _minVelocityY = -maxVelocity
+        , _maxVelocityY = -minVelocity
 
-        , isInBounds = isInBoundsFromBottom
-        , orientation = Vertical
+        , _isInBounds = isInBoundsFromBottom
+        , _orientation = Vertical
         }
 
     isInBoundsFromBottom :: Point.Point -> Bool
@@ -156,74 +150,73 @@ module Asteroid
     arrivingDirections = [fromLeft, fromRight, fromTop, fromBottom]
 
     update' :: Asteroid -> Input -> Asteroid
-    update' asteroid@Asteroid{position, velocity, rotation, rotationVelocity, isInitialized, hasArrived, arrivingDirection} Input{deltaTime, randomGenerator} =
+    update' asteroid@Asteroid{_position, _velocity, _rotation, _rotationVelocity, _isInitialized, _hasArrived, _arrivingDirection} Input{deltaTime, randomGenerator} =
         let
-            (position', velocity', rotationVelocity', arrivingDirection') = if not isInitialized
+            (position', velocity', rotationVelocity', arrivingDirection') = if not _isInitialized
                 then
                     let
                         (arrivingDirectionIndex, randomGenerator1) = Random.randomR (0, length arrivingDirections - 1) randomGenerator
                         arrivingDirection = arrivingDirections !! arrivingDirectionIndex
-                        (positionX, randomGenerator2) = Random.randomR (minPositionX arrivingDirection, maxPositionX arrivingDirection) randomGenerator1
-                        (positionY, randomGenerator3) = Random.randomR (minPositionY arrivingDirection, maxPositionY arrivingDirection) randomGenerator2
-                        (velocityX, randomGenerator4) = Random.randomR (minVelocityX arrivingDirection, maxVelocityX arrivingDirection) randomGenerator3
-                        (velocityY, randomGenerator5) = Random.randomR (minVelocityY arrivingDirection, maxVelocityY arrivingDirection) randomGenerator4
+                        (positionX, randomGenerator2) = Random.randomR (_minPositionX arrivingDirection, _maxPositionX arrivingDirection) randomGenerator1
+                        (positionY, randomGenerator3) = Random.randomR (_minPositionY arrivingDirection, _maxPositionY arrivingDirection) randomGenerator2
+                        (velocityX, randomGenerator4) = Random.randomR (_minVelocityX arrivingDirection, _maxVelocityX arrivingDirection) randomGenerator3
+                        (velocityY, randomGenerator5) = Random.randomR (_minVelocityY arrivingDirection, _maxVelocityY arrivingDirection) randomGenerator4
                         (rotationVelocity, _) = Random.randomR (-maxRotationVelocity, maxRotationVelocity) randomGenerator5
                     in
                         (Point { x = positionX, y = positionY }, Point { x = velocityX, y = velocityY }, rotationVelocity, arrivingDirection)
                 else
-                    (position, velocity, rotationVelocity, arrivingDirection)
+                    (_position, _velocity, _rotationVelocity, _arrivingDirection)
 
-            hasArrived' = hasArrived || (isInBounds arrivingDirection' $ position')
+            hasArrived' = _hasArrived || (_isInBounds arrivingDirection' $ position')
 
-            nextX = (Point.x position') + (Point.x velocity * deltaTime)
-            nextY = (Point.y position') + (Point.y velocity * deltaTime)
+            nextX = (Point.x position') + (Point.x velocity' * deltaTime)
+            nextY = (Point.y position') + (Point.y velocity' * deltaTime)
             position'' = if not hasArrived'
                 then Point { x = nextX, y = nextY }
                 else Point { x = Utils.wrap 0 Constants.nativeWidth nextX, y = Utils.wrap 0 Constants.nativeHeight nextY }
 
-            rotation' = rotation + (rotationVelocity * deltaTime)
+            rotation' = _rotation + (rotationVelocity' * deltaTime)
         in
             asteroid
-                { position = position''
-                , velocity = velocity'
-                , rotation = rotation'
-                , rotationVelocity = rotationVelocity'
-                , isInitialized = True
-                , arrivingDirection = arrivingDirection' 
-                , hasArrived = hasArrived'
+                { _position = position''
+                , _velocity = velocity'
+                , _rotation = rotation'
+                , _rotationVelocity = rotationVelocity'
+                , _isInitialized = True
+                , _arrivingDirection = arrivingDirection' 
+                , _hasArrived = hasArrived'
                 }
 
     instance EntityClass Asteroid where
 
-        load _ = [imageDef]
+        load asteroid = [Sprite.imageDef asteroid]
 
         update asteroid input = Entity $ update' asteroid input
 
-        render asteroid@Asteroid{position, isInitialized, hasArrived, arrivingDirection} resources@Resources{images} = do
-            when isInitialized (Sprite.drawAtPosition asteroid resources position)
+        render asteroid@Asteroid{_position, _isInitialized, _hasArrived, _arrivingDirection} resources@Resources{images} = when _isInitialized $ do
+            Collidable.render asteroid resources
 
-            when isInitialized $ do
-                let isVertical = orientation arrivingDirection == Vertical
-                let (_, (width, height)) = images ! (fst imageDef)
-                let x = Point.x position
-                let y = Point.y position
-                when
-                    ((hasArrived || isVertical) && x < width / 2)
-                    (Sprite.drawAtPosition asteroid resources Point { x = Constants.nativeWidth + x, y = y })
-                when 
-                    ((hasArrived || isVertical) && x > Constants.nativeWidth - (width / 2))
-                    (Sprite.drawAtPosition asteroid resources Point { x = x - Constants.nativeWidth, y = y })
-                when 
-                    ((hasArrived || not isVertical) && y < height / 2)
-                    (Sprite.drawAtPosition asteroid resources Point { x = x, y = Constants.nativeHeight + y })
-                when 
-                    ((hasArrived || not isVertical) && y > Constants.nativeHeight - (height / 2)) 
-                    (Sprite.drawAtPosition asteroid resources Point { x = x, y = y - Constants.nativeHeight })
+            let isVertical = _orientation _arrivingDirection == Vertical
+            let (width, height) = Sprite.dimensions asteroid resources
+            let Point{x, y} = _position
+
+            when
+                ((_hasArrived || isVertical) && x < width / 2)
+                (Sprite.renderAtPosition asteroid resources Point { x = Constants.nativeWidth + x, y = y })
+            when 
+                ((_hasArrived || isVertical) && x > Constants.nativeWidth - (width / 2))
+                (Sprite.renderAtPosition asteroid resources Point { x = x - Constants.nativeWidth, y = y })
+            when 
+                ((_hasArrived || not isVertical) && y < height / 2)
+                (Sprite.renderAtPosition asteroid resources Point { x = x, y = Constants.nativeHeight + y })
+            when 
+                ((_hasArrived || not isVertical) && y > Constants.nativeHeight - (height / 2)) 
+                (Sprite.renderAtPosition asteroid resources Point { x = x, y = y - Constants.nativeHeight })
 
 
     instance Sprite Asteroid where
-        imageDef' _ = imageDef
-        position' Asteroid{position} = position
-        rotation' Asteroid{rotation} = rotation
+        imageDef _ = (ResourceKey "Asteroid", "Resources/Asteroid.png")
+        position Asteroid{_position} = _position
+        rotation Asteroid{_rotation} = _rotation
 
     instance Collidable Asteroid
