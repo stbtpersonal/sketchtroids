@@ -2,7 +2,7 @@
 
 module Sprite where
 
-    import Resources (Resources(Resources, images), ResourceDef, BitmapData)
+    import Resources (Resources(Resources, images), ResourceDef, BitmapData(BitmapData, _bitmap, _width, _height))
     import Point (Point(Point, x, y))
     import Data.Map ((!))
     import Rectangle (Rectangle(Rectangle, topLeft, bottomRight))
@@ -20,10 +20,18 @@ module Sprite where
         bitmapData a Resources{images} = images ! (fst $ imageDef a)
 
         bitmap :: a -> Resources -> Canvas.Bitmap
-        bitmap a resources = fst $ bitmapData a resources
+        bitmap a resources = 
+            let
+                BitmapData{_bitmap} = bitmapData a resources
+            in 
+                _bitmap
 
         dimensions :: a -> Resources -> (Double, Double)
-        dimensions a resources = snd $ bitmapData a resources
+        dimensions a resources = 
+            let
+                BitmapData{_width, _height} = bitmapData a resources
+            in
+                (_width, _height)
 
         width :: a -> Resources -> Double
         width a resources = fst $ dimensions a resources
@@ -48,8 +56,8 @@ module Sprite where
         renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
         renderAtPosition a resources Point{x, y} =
             let
-                (bitmap, (width, height)) = bitmapData a resources
-                drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
+                BitmapData{_bitmap, _width, _height} = bitmapData a resources
+                drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
                 rotatedSprite = Canvas.rotate (rotation a) drawnSprite
                 translatedSprite = Canvas.translate (x, y) rotatedSprite
             in

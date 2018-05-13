@@ -64,7 +64,7 @@ module Gun
                 else bullets'
 
             images = Resources.images resources
-            (_, (bulletWidth, bulletHeight)) = images ! (fst Bullet.imageDef)
+            BitmapData{_width = bulletWidth, _height = bulletHeight} = images ! (fst Bullet.imageDef)
 
             bullets''' = Prelude.filter (\bullet -> not $ isBulletOutOfBounds bullet bulletWidth bulletHeight) bullets''
         in

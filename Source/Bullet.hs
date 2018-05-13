@@ -43,8 +43,8 @@ module Bullet
 
         render bullet@Bullet{position, velocity} resources@Resources{images} = 
             let
-                (bitmap, (width, height)) = images ! (fst imageDef)
-                drawnSprite = Canvas.draw bitmap (-(width / 2), -(height / 2))
+                BitmapData{_bitmap, _width, _height} = images ! (fst imageDef)
+                drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
                 rotation = Point.angle velocity
                 rotatedSprite = Canvas.rotate rotation drawnSprite
                 translatedSprite = Canvas.translate (Point.x position, Point.y position) rotatedSprite

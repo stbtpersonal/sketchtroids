@@ -1,6 +1,13 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Resources (ResourceKey(ResourceKey), ResourceDef, BitmapData, Resources(Resources, images), initialize, loadImages) where
+module Resources
+    ( ResourceKey(ResourceKey)
+    , ResourceDef
+    , BitmapData(BitmapData, _bitmap, _width, _height, _collisionPolygon)
+    , Resources(Resources, images)
+    , initialize
+    , loadImages
+    ) where
 
     import Data.Map as Map
     import Data.Set as Set
@@ -9,13 +16,23 @@ module Resources (ResourceKey(ResourceKey), ResourceDef, BitmapData, Resources(R
     import Haste
     import Haste.Events as Events
     import Haste.DOM as DOM
+    import CollisionPolygon
 
     newtype ResourceKey = ResourceKey String deriving (Eq, Ord, Show)
 
     type ResourceDef = (ResourceKey, String)
-    type BitmapData = (Bitmap, (Double, Double))
 
-    data Resources = Resources { images :: Map ResourceKey BitmapData, requestedKeys :: Set ResourceKey }
+    data BitmapData = BitmapData
+        { _bitmap :: Bitmap
+        , _width :: Double
+        , _height :: Double
+        , _collisionPolygon :: CollisionPolygon
+        }
+
+    data Resources = Resources
+        { images :: Map ResourceKey BitmapData
+        , requestedKeys :: Set ResourceKey
+        }
 
     initialize :: IO (IORef Resources)
     initialize = IORef.newIORef $ Resources { images = Map.empty, requestedKeys = Set.empty }
@@ -52,4 +69,10 @@ module Resources (ResourceKey(ResourceKey), ResourceDef, BitmapData, Resources(R
         heightProperty <- DOM.getProp bitmapElement "height"
         let width = read widthProperty
         let height = read heightProperty
-        return (bitmap, (width, height))
+        let collisionPolygon = CollisionPolygon.build bitmap width height 
+        return BitmapData
+            { _bitmap = bitmap
+            , _width = width
+            , _height = height
+            , _collisionPolygon = collisionPolygon
+            }

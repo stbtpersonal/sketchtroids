@@ -7,11 +7,12 @@ module Collidable
     , Collidable.renderAtPosition
     ) where
 
-    import Sprite (Sprite, boundingBox, width, height, position, renderAtPosition)
+    import Sprite (Sprite, boundingBox, width, height, position, renderAtPosition, bitmapData)
     import Rectangle (left, right, top, bottom)
-    import Resources (Resources)
+    import Resources (Resources, BitmapData(BitmapData, _collisionPolygon))
     import Point (Point(Point, x, y))
     import Haste.Graphics.Canvas as Canvas (Picture, circle, stroke, color, Color(RGB), line, Shape)
+    import CollisionPolygon (CollisionPolygon(CollisionPolygon, points))
 
     debugColor :: Color
     debugColor = RGB 0 255 0
@@ -38,8 +39,11 @@ module Collidable
             in
                 distance < radiusA + radiusB
 
+        haveCollidedPolygons :: Collidable b => a -> b -> Resources -> Bool
+        haveCollidedPolygons _ _ _ = True
+
         haveCollided :: Collidable b => a -> b -> Resources -> Bool
-        haveCollided = haveCollidedCircle
+        haveCollided a b resources = (haveCollidedCircle a b resources) && (haveCollidedPolygons a b resources)
 
         render :: a -> Resources -> Canvas.Picture ()
         render a resources = Collidable.renderAtPosition a resources $ position a
@@ -49,6 +53,7 @@ module Collidable
             Sprite.renderAtPosition a resources point
             renderCollisionCrosshair a
             renderCollisionCircle a resources
+            renderCollisionPolygon a resources
 
         renderCollisionCrosshair :: a -> Canvas.Picture()
         renderCollisionCrosshair a = 
@@ -66,3 +71,18 @@ module Collidable
                 radius' = radius a resources
             in
                 strokeDebug $ Canvas.circle (x, y) radius'
+
+        renderCollisionPolygon :: a -> Resources -> Canvas.Picture ()
+        renderCollisionPolygon a resources =
+            let
+                CollisionPolygon{points} = collisionPolygon a resources
+                length' = length points
+            in
+                strokeDebug $ Canvas.line (0, 0) (0, fromIntegral length')
+
+        collisionPolygon :: a -> Resources -> CollisionPolygon
+        collisionPolygon a resources = 
+            let
+                BitmapData{_collisionPolygon} = Sprite.bitmapData a resources
+            in
+                _collisionPolygon
