@@ -8,6 +8,9 @@ module Point
     , Point.clamp
     , Point.angle
     , Point.fromAngle
+    , Point.subtract
+    , Point.normal
+    , Point.dot
     ) where
 
     import Utils (clamp)
@@ -45,3 +48,16 @@ module Point
 
     fromAngle :: Double -> Point
     fromAngle angle = Point { x = cos angle, y = sin angle }
+
+    subtract :: Point -> Point -> Point
+    subtract Point{x = x0, y = y0} Point{x = x1, y = y1} = Point { x = x1 - x0, y = y1 - y0 }
+
+    normal :: Point -> Point -> Point
+    normal pointA pointB =
+        let
+            Point{x, y} = Point.subtract pointA pointB
+        in
+            Point { x = -y, y = x }
+
+    dot :: Point -> Point -> Double
+    dot Point{x = x0, y = y0} Point{x = x1, y = y1} = (x0 * x1) + (y0 * y1)
