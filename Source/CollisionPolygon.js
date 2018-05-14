@@ -13,6 +13,8 @@
         { x : -1, y : 0 }
     ];
 
+    var distanceThreshold = 5;
+
     var extractImageData = function(bitmap, width, height) {
         var canvas = document.createElement("canvas");
         canvas.width = width;
@@ -22,7 +24,7 @@
         context.drawImage(bitmap, 0, 0, width, height);
 
         return context.getImageData(0, 0, width, height).data;
-    }
+    };
 
     var convertToRgba = function(imageData, width, height) {
         var rgbaRows = [];
@@ -38,7 +40,7 @@
         }
 
         return rgbaRows;
-    }
+    };
 
     var findStartCoordinates = function(rgbas, width, height) {
         for (var y = 0; y < height; y++) {
@@ -51,7 +53,7 @@
         }
 
         return null;
-    }
+    };
 
     var findNextCoordinates = function(rgbas, width, height, previousCoordinates) {
         var oppositeToPreviousIndex = (previousCoordinates.mooreNeighborIndex + (mooreNeighborhood.length / 2)) % mooreNeighborhood.length;
@@ -74,7 +76,7 @@
         } 
 
         return null;
-    }
+    };
 
     var isContourFinished = function(contour) {
         var firstCoordinates = contour[0];
@@ -83,7 +85,7 @@
         var ultimateCoordinates = contour[contour.length - 1];
         return firstCoordinates.x === panultimateCoordinates.x && firstCoordinates.y === panultimateCoordinates.y &&
             secondCoordinates.x === ultimateCoordinates.x && secondCoordinates.y === ultimateCoordinates.y;
-    }
+    };
 
     var getContour = function(rgbas, width, height) {
         var startCoordinates = findStartCoordinates(rgbas, width, height);
@@ -99,11 +101,60 @@
                     nextCoordinates = findNextCoordinates(rgbas, width, height, nextCoordinates);
                     contour.push(nextCoordinates);
                 } while (!isContourFinished(contour))
+
+                contour.pop();
             }
 
             return contour;
         }
-    }
+    };
+
+    var distance = function(pointA, pointB) {
+        return Math.sqrt(Math.pow(pointB.x - pointA.x, 2) + Math.pow(pointB.y - pointA.y, 2));
+    };
+
+    var perpendicularDistance = function(point, lineFrom, lineTo) {
+        if (lineFrom.x === lineTo.x && lineFrom.y === lineTo.y) {
+            return distance(point, lineFrom);
+        }
+        else {
+            var nominator = Math.abs((lineTo.x - lineFrom.x) * (lineFrom.y - point.y) - (lineFrom.x - point.x) * (lineTo.y - lineFrom.y));
+            var denominator = Math.sqrt(Math.pow(lineTo.x - lineFrom.x, 2) + Math.pow(lineTo.y - lineFrom.y, 2));
+            return nominator / denominator;
+        }
+    };
+
+    var reducePolygon = function reducePolygon(polygon) {
+        var maxDistance = 0;
+        var maxDistanceIndex = 0;
+
+        var firstPoint = polygon[0];
+        var lastPoint = polygon[polygon.length - 1];
+
+        for (var i = 0; i < polygon.length; i++) {
+            var point = polygon[i];
+            var distance = perpendicularDistance(point, firstPoint, lastPoint);
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                maxDistanceIndex = i;
+            }
+        }
+
+        console.log(maxDistance, maxDistanceIndex);
+
+        if (maxDistance > distanceThreshold) {
+            var lowPolygon = polygon.slice(0, maxDistanceIndex + 1);
+            var highPolygon = polygon.slice(maxDistanceIndex, polygon.length);
+
+            var lowReducedPolygon = reducePolygon(lowPolygon);
+            var highReducedPolygon = reducePolygon(highPolygon);
+
+            return lowReducedPolygon.slice(0, lowReducedPolygon.length - 1).concat(highReducedPolygon);
+        }
+        else {
+            return [firstPoint, lastPoint];
+        }
+    };
     
     var build = function(bitmap) {
         var width = bitmap.width;
@@ -112,7 +163,8 @@
         var imageData = extractImageData(bitmap, width, height);
         var rgbas = convertToRgba(imageData, width, height);
         var contour = getContour(rgbas, width, height);
-        console.log(width, height, rgbas, contour);
+        var polygon = reducePolygon(contour);
+        console.log(width, height, rgbas, contour, polygon);
 
         return [0, 1, 2, 3];
     };
