@@ -69,7 +69,7 @@ module Resources
         heightProperty <- DOM.getProp bitmapElement "height"
         let width = read widthProperty
         let height = read heightProperty
-        let collisionPolygon = CollisionPolygon.build bitmap width height 
+        collisionPolygon <- CollisionPolygon.build bitmap width height 
         return BitmapData
             { _bitmap = bitmap
             , _width = width
