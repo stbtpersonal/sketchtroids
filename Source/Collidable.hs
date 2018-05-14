@@ -7,11 +7,11 @@ module Collidable
     , Collidable.renderAtPosition
     ) where
 
-    import Sprite (Sprite, boundingBox, width, height, position, renderAtPosition, bitmapData)
+    import Sprite (Sprite, boundingBox, width, height, position, renderAtPosition, bitmapData, rotation, position, dimensions)
     import Rectangle (left, right, top, bottom)
     import Resources (Resources, BitmapData(BitmapData, _collisionPolygon))
     import Point (Point(Point, x, y))
-    import Haste.Graphics.Canvas as Canvas (Picture, circle, stroke, color, Color(RGB), line, Shape)
+    import Haste.Graphics.Canvas as Canvas (Picture, circle, stroke, color, Color(RGB), line, Shape, path, rotate, translate)
     import CollisionPolygon (CollisionPolygon(CollisionPolygon, points))
 
     debugColor :: Color
@@ -75,10 +75,17 @@ module Collidable
         renderCollisionPolygon :: a -> Resources -> Canvas.Picture ()
         renderCollisionPolygon a resources =
             let
+                Point{x, y} = Sprite.position a
+                rotation = Sprite.rotation a
+                (width, height) = Sprite.dimensions a resources
                 CollisionPolygon{points} = collisionPolygon a resources
-                length' = length points
+                points' = map (\Point{x = polygonX, y = polygonY} -> (-(width / 2) + polygonX, -(height / 2) + polygonY)) points
+
+                drawnPolygon = strokeDebug $ Canvas.path points'
+                rotatedPolygon = Canvas.rotate rotation drawnPolygon
+                translatedPolygon = Canvas.translate (x, y) rotatedPolygon
             in
-                strokeDebug $ Canvas.line (0, 0) (0, fromIntegral length')
+                translatedPolygon
 
         collisionPolygon :: a -> Resources -> CollisionPolygon
         collisionPolygon a resources = 

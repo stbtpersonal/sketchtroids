@@ -140,8 +140,6 @@
             }
         }
 
-        console.log(maxDistance, maxDistanceIndex);
-
         if (maxDistance > distanceThreshold) {
             var lowPolygon = polygon.slice(0, maxDistanceIndex + 1);
             var highPolygon = polygon.slice(maxDistanceIndex, polygon.length);
@@ -164,9 +162,8 @@
         var rgbas = convertToRgba(imageData, width, height);
         var contour = getContour(rgbas, width, height);
         var polygon = reducePolygon(contour);
-        console.log(width, height, rgbas, contour, polygon);
 
-        return [0, 1, 2, 3];
+        return polygon.map(function(point) { return [point.x, point.y] }).reduce(function(a, b) { return a.concat(b) });
     };
 
     window["COLLISION_POLYGON"] = {
