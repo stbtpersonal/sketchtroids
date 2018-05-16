@@ -7,6 +7,7 @@ module Sprite where
     import Data.Map ((!))
     import Rectangle (Rectangle(Rectangle, topLeft, bottomRight))
     import Haste.Graphics.Canvas as Canvas (Picture, Bitmap, draw, rotate, translate)
+    import Input(Input)
 
     class Sprite a where
 
@@ -50,8 +51,14 @@ module Sprite where
                     , bottomRight = Point { x = x + (width / 2), y = y + (width / 2) }
                     }
 
+        update :: a -> Input -> a
+        update a _ = a
+
         render :: a -> Resources -> Canvas.Picture ()
-        render a resources = renderAtPosition a resources $ position a
+        render = defaultRender
+
+        defaultRender :: a -> Resources -> Canvas.Picture ()
+        defaultRender a resources = renderAtPosition a resources $ position a
 
         renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
         renderAtPosition a resources Point{x, y} =

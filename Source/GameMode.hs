@@ -17,12 +17,15 @@ module GameMode
     import Asteroid
     import Collidable
     import Utils
+    import PressToStartText (PressToStartText, new)
+    import Sprite (update)
 
     data GameMode = GameMode
         { background :: Background
         , ship :: Ship
         , asteroid :: Asteroid
         , fps :: Fps
+        , pressToStartText :: PressToStartText
         }
 
     new :: GameMode
@@ -31,21 +34,23 @@ module GameMode
         , ship = Ship.new
         , asteroid = Asteroid.new
         , fps = Fps.new
+        , pressToStartText = PressToStartText.new
         }
 
     children :: GameMode -> [Entity]
-    children GameMode{background, ship, asteroid, fps} = [Entity background, Entity ship, Entity asteroid, Entity fps]
+    children GameMode{background, ship, asteroid, fps, pressToStartText} = [Entity background, Entity ship, Entity asteroid, Entity fps, Entity pressToStartText]
 
     imageDefs :: [Resources.ResourceDef]
     imageDefs = Entity.loadAll $ children GameMode.new
 
     instance EntityClass GameMode where
 
-        update gameMode@GameMode{ship, asteroid, fps} input@Input{resources} = 
+        update gameMode@GameMode{ship, asteroid, fps, pressToStartText} input@Input{resources} = 
             let
                 ship' = Ship.update' ship input
                 asteroid' = Asteroid.update' asteroid input
                 fps' = Fps.update' fps input
+                pressToStartText' = Sprite.update pressToStartText input
 
                 haveCollided = Collidable.haveCollided ship' asteroid' resources
                 !kaka = Utils.unsafeWriteLog $ "AAA " ++ (show haveCollided)
@@ -54,6 +59,7 @@ module GameMode
                     { ship = ship'
                     , asteroid = asteroid'
                     , fps = fps'
+                    , pressToStartText = pressToStartText'
                     }
 
         render gameMode resources = Entity.renderAll (children gameMode) resources
