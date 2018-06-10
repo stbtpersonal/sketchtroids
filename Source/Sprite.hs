@@ -9,10 +9,16 @@ module Sprite where
     import Haste.Graphics.Canvas as Canvas (Picture, Bitmap, draw, rotate, translate)
     import Input(Input)
     import Renderer(doNothing)
+    import Constants (nativeWidth, nativeHeight)
+    import Control.Monad (when)
 
     class Sprite a where
 
         imageDef :: a -> Resources.ResourceDef
+        imageDef a = head $ imageDefs a 
+
+        imageDefs :: a -> [Resources.ResourceDef]
+        imageDefs a = [imageDef a]
 
         position :: a -> Point
 
@@ -23,6 +29,12 @@ module Sprite where
 
         setEnabled :: a -> Bool -> a
         setEnabled a _ = a
+
+        isWrappingHorizontal :: a -> Bool
+        isWrappingHorizontal _ = False
+
+        isWrappingVertical :: a -> Bool
+        isWrappingVertical _ = False
 
         bitmapData :: a -> Resources -> Resources.BitmapData
         bitmapData a Resources{images} = images ! (fst $ imageDef a)
@@ -65,7 +77,17 @@ module Sprite where
         render = defaultRender
 
         defaultRender :: a -> Resources -> Canvas.Picture ()
-        defaultRender a resources = renderAtPosition a resources $ position a
+        defaultRender a resources = do
+            let (width, height) = dimensions a resources
+            let position'@Point{x, y} = position a
+            renderAtPosition a resources position'
+
+            when (isWrappingHorizontal a) $ do
+                when (x < width / 2) (renderAtPosition a resources Point { x = Constants.nativeWidth + x, y = y })
+                when (x > Constants.nativeWidth - (width / 2)) (renderAtPosition a resources Point { x = x - Constants.nativeWidth, y = y })
+            when (isWrappingVertical a) $ do
+                when (y < height / 2) (renderAtPosition a resources Point { x = x, y = Constants.nativeHeight + y })
+                when (y > Constants.nativeHeight - (height / 2)) (renderAtPosition a resources Point { x = x, y = y - Constants.nativeHeight })
 
         renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
         renderAtPosition a resources Point{x, y} = if isEnabled a

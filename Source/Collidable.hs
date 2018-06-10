@@ -7,7 +7,7 @@ module Collidable
     , Collidable.renderAtPosition
     ) where
 
-    import Sprite (Sprite, boundingBox, width, height, position, renderAtPosition, bitmapData, rotation, position, dimensions, isEnabled)
+    import Sprite (Sprite, boundingBox, width, height, position, render, bitmapData, rotation, position, dimensions, isEnabled)
     import Rectangle (left, right, top, bottom)
     import Resources (Resources, BitmapData(BitmapData, _collisionPolygon))
     import Point (Point(Point, x, y), normal, dot)
@@ -101,13 +101,17 @@ module Collidable
             (haveCollidedPolygons a b resources)
 
         render :: a -> Resources -> Canvas.Picture ()
-        render a resources = Collidable.renderAtPosition a resources $ position a
+        render = defaultRender
+
+        defaultRender :: a -> Resources -> Canvas.Picture ()
+        defaultRender a resources = do
+            Sprite.render a resources
+            Collidable.renderAtPosition a resources $ position a
 
         renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
         renderAtPosition a resources point@Point{x, y} = if Sprite.isEnabled a
             then
-                do 
-                    Sprite.renderAtPosition a resources point
+                do
                     renderCollisionCrosshair a
                     renderCollisionCircle a resources
                     renderCollisionPolygon a resources

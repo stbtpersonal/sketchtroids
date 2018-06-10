@@ -15,7 +15,7 @@ module Asteroid
     import Constants (nativeWidth, nativeHeight)
     import Control.Monad (when)
     import Collidable (Collidable, render)
-    import Sprite (Sprite(imageDef, position, rotation, render, renderAtPosition, dimensions, isEnabled, setEnabled))
+    import Sprite (Sprite(imageDef, position, rotation, render, renderAtPosition, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical))
 
     data Asteroid = Asteroid
         { _position :: Point
@@ -199,26 +199,8 @@ module Asteroid
 
         update asteroid input = Entity $ update' asteroid input
 
-        render asteroid@Asteroid{_position, _isInitialized, _hasArrived, _arrivingDirection} resources@Resources{images} = when _isInitialized $ do
-            Collidable.render asteroid resources
-
-            let isVertical = _orientation _arrivingDirection == Vertical
-            let (width, height) = Sprite.dimensions asteroid resources
-            let Point{x, y} = _position
-
-            when
-                ((_hasArrived || isVertical) && x < width / 2)
-                (Sprite.renderAtPosition asteroid resources Point { x = Constants.nativeWidth + x, y = y })
-            when 
-                ((_hasArrived || isVertical) && x > Constants.nativeWidth - (width / 2))
-                (Sprite.renderAtPosition asteroid resources Point { x = x - Constants.nativeWidth, y = y })
-            when 
-                ((_hasArrived || not isVertical) && y < height / 2)
-                (Sprite.renderAtPosition asteroid resources Point { x = x, y = Constants.nativeHeight + y })
-            when 
-                ((_hasArrived || not isVertical) && y > Constants.nativeHeight - (height / 2)) 
-                (Sprite.renderAtPosition asteroid resources Point { x = x, y = y - Constants.nativeHeight })
-
+        render asteroid@Asteroid{_position, _isInitialized, _hasArrived, _arrivingDirection} resources@Resources{images} =
+            when _isInitialized $ Collidable.render asteroid resources
 
     instance Sprite Asteroid where
         imageDef _ = (ResourceKey "Asteroid", "Resources/Asteroid.png")
@@ -226,5 +208,7 @@ module Asteroid
         rotation Asteroid{_rotation} = _rotation
         isEnabled Asteroid{_isEnabled} = _isEnabled
         setEnabled asteroid enabled = asteroid{_isEnabled = enabled}
+        isWrappingHorizontal Asteroid{_hasArrived, _arrivingDirection} = _hasArrived || _orientation _arrivingDirection == Vertical
+        isWrappingVertical Asteroid{_hasArrived, _arrivingDirection} = _hasArrived || _orientation _arrivingDirection == Horizontal
 
     instance Collidable Asteroid

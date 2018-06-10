@@ -12,10 +12,9 @@ module Ship
     import Resources (Resources(Resources, images), ResourceKey(ResourceKey))
     import Input (Input(Input, deltaTime, keyboard, resources))
     import Keyboard (Keyboard(Keyboard, left, right, up, down))
-    import Utils (clamp, lerp, wrap, )
-    import Control.Monad (when)
+    import Utils (clamp, lerp, wrap)
     import Gun (Gun, new, setCoordinates, update')
-    import Sprite (Sprite(imageDef, position, rotation, isEnabled, height, renderAtPosition, dimensions, setEnabled))
+    import Sprite (Sprite(imageDefs, position, rotation, isEnabled, height, renderAtPosition, dimensions, setEnabled, isWrappingHorizontal, isWrappingVertical))
     import Collidable (Collidable(render))
 
     data Ship = Ship
@@ -25,6 +24,7 @@ module Ship
         , _rotationVelocity :: Double
         , _gun :: Gun 
         , _isEnabled :: Bool
+        , _isExploding :: Bool
         }
 
     new :: Ship
@@ -35,6 +35,7 @@ module Ship
         , _rotationVelocity = 0
         , _gun = Gun.new
         , _isEnabled = False
+        , _isExploding = False
         }
 
     rotationAcceleration :: Double
@@ -106,28 +107,22 @@ module Ship
 
     instance EntityClass Ship where
 
-        load ship@Ship{_gun} = Entity.load _gun ++ [imageDef ship]
+        load ship@Ship{_gun} = Entity.load _gun ++ imageDefs ship
 
         update ship input = Entity $ Ship.update' ship input
 
         render ship@Ship{_position, _gun} resources@Resources{images} = do
             Collidable.render ship resources
 
-            let (width, height) = Sprite.dimensions ship resources
-            let Point{x, y} = _position
-
-            when (x < width / 2) (Sprite.renderAtPosition ship resources Point { x = Constants.nativeWidth + x, y = y })
-            when (x > Constants.nativeWidth - (width / 2)) (Sprite.renderAtPosition ship resources Point { x = x - Constants.nativeWidth, y = y })
-            when (y < height / 2) (Sprite.renderAtPosition ship resources Point { x = x, y = Constants.nativeHeight + y })
-            when (y > Constants.nativeHeight - (height / 2)) (Sprite.renderAtPosition ship resources Point { x = x, y = y - Constants.nativeHeight })
-
             Entity.render _gun resources
 
     instance Sprite Ship where
-        imageDef _ = (ResourceKey "Ship", "Resources/Ship.png")
+        imageDefs _ = [(ResourceKey "Ship", "Resources/Ship.png"), (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")]
         position Ship{_position} = _position
         rotation Ship{_rotation} = _rotation
         isEnabled Ship{_isEnabled} = _isEnabled
         setEnabled ship enabled = ship{_isEnabled = enabled}
+        isWrappingHorizontal _ = True
+        isWrappingVertical _ = True
 
     instance Collidable Ship
