@@ -1,5 +1,4 @@
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE BangPatterns #-}
 
 module GameMode
     ( imageDefs
@@ -16,7 +15,6 @@ module GameMode
     import Ship
     import Asteroid
     import Collidable
-    import Utils
     import PressToStartText (PressToStartText, new)
     import Sprite (update, isEnabled, setEnabled)
 
@@ -61,10 +59,10 @@ module GameMode
                 asteroid'' = Asteroid.update' asteroid' input
 
                 haveCollided = Collidable.haveCollided ship'' asteroid'' resources
-                !kaka = Utils.unsafeWriteLog $ "AAA " ++ (show haveCollided)
+                ship''' = if not haveCollided then ship'' else Ship.explode ship''
             in
                 Entity $ gameMode
-                    { ship = ship''
+                    { ship = ship'''
                     , asteroid = asteroid''
                     , fps = fps'
                     , pressToStartText = pressToStartText'

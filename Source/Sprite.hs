@@ -15,7 +15,7 @@ module Sprite where
     class Sprite a where
 
         imageDef :: a -> Resources.ResourceDef
-        imageDef a = head $ imageDefs a 
+        imageDef a = (imageDefs a) !! (spriteIndex a)
 
         imageDefs :: a -> [Resources.ResourceDef]
         imageDefs a = [imageDef a]
@@ -35,6 +35,12 @@ module Sprite where
 
         isWrappingVertical :: a -> Bool
         isWrappingVertical _ = False
+
+        spriteIndex :: a -> Int
+        spriteIndex _ = 0
+
+        setSpriteIndex :: a -> Int -> a
+        setSpriteIndex a _ = a
 
         bitmapData :: a -> Resources -> Resources.BitmapData
         bitmapData a Resources{images} = images ! (fst $ imageDef a)
