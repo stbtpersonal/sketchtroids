@@ -1,4 +1,4 @@
-module Renderer (initialize, Renderer.render, resize) where
+module Renderer (initialize, Renderer.render, doNothing, resize) where
 
     import Haste
     import Haste.DOM as DOM
@@ -24,6 +24,9 @@ module Renderer (initialize, Renderer.render, resize) where
 
     render :: Haste.MonadIO m => Canvas -> Picture a -> m a
     render = Canvas.render
+
+    doNothing :: Canvas.Picture ()
+    doNothing = Canvas.setStrokeColor $ Canvas.RGB 0 0 0
 
     resize :: Canvas -> IO Double
     resize canvas = do

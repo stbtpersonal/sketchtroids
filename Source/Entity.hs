@@ -5,6 +5,7 @@ module Entity where
     import Resources
     import Input
     import Haste.Graphics.Canvas as Canvas
+    import Renderer
 
     class EntityClass a where
 
@@ -15,7 +16,7 @@ module Entity where
         update a _ = Entity a
 
         render :: a -> Resources -> Canvas.Picture ()
-        render _ _ = Canvas.setStrokeColor $ Canvas.RGB 0 0 0
+        render _ _ = Renderer.doNothing
 
     data Entity = forall a . EntityClass a => Entity a
 

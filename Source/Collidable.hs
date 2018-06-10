@@ -7,12 +7,13 @@ module Collidable
     , Collidable.renderAtPosition
     ) where
 
-    import Sprite (Sprite, boundingBox, width, height, position, renderAtPosition, bitmapData, rotation, position, dimensions)
+    import Sprite (Sprite, boundingBox, width, height, position, renderAtPosition, bitmapData, rotation, position, dimensions, isEnabled)
     import Rectangle (left, right, top, bottom)
     import Resources (Resources, BitmapData(BitmapData, _collisionPolygon))
     import Point (Point(Point, x, y), normal, dot)
     import Haste.Graphics.Canvas as Canvas (Picture, circle, stroke, color, Color(RGB), line, Shape, path, rotate, translate)
     import CollisionPolygon (CollisionPolygon(CollisionPolygon, points))
+    import Renderer(doNothing)
 
     debugColor :: Color
     debugColor = RGB 0 255 0
@@ -93,17 +94,25 @@ module Collidable
                 all (\axis -> overlap (project pointsA axis) (project pointsB axis)) axes
 
         haveCollided :: Collidable b => a -> b -> Resources -> Bool
-        haveCollided a b resources = (haveCollidedCircle a b resources) && (haveCollidedPolygons a b resources)
+        haveCollided a b resources = 
+            (Sprite.isEnabled a) &&
+            (Sprite.isEnabled b) &&
+            (haveCollidedCircle a b resources) &&
+            (haveCollidedPolygons a b resources)
 
         render :: a -> Resources -> Canvas.Picture ()
         render a resources = Collidable.renderAtPosition a resources $ position a
 
         renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
-        renderAtPosition a resources point@Point{x, y} = do 
-            Sprite.renderAtPosition a resources point
-            renderCollisionCrosshair a
-            renderCollisionCircle a resources
-            renderCollisionPolygon a resources
+        renderAtPosition a resources point@Point{x, y} = if Sprite.isEnabled a
+            then
+                do 
+                    Sprite.renderAtPosition a resources point
+                    renderCollisionCrosshair a
+                    renderCollisionCircle a resources
+                    renderCollisionPolygon a resources
+            else
+                Renderer.doNothing
 
         renderCollisionCrosshair :: a -> Canvas.Picture()
         renderCollisionCrosshair a = 

@@ -8,6 +8,7 @@ module Sprite where
     import Rectangle (Rectangle(Rectangle, topLeft, bottomRight))
     import Haste.Graphics.Canvas as Canvas (Picture, Bitmap, draw, rotate, translate)
     import Input(Input)
+    import Renderer(doNothing)
 
     class Sprite a where
 
@@ -16,6 +17,9 @@ module Sprite where
         position :: a -> Point
 
         rotation :: a -> Double
+
+        isEnabled :: a -> Bool
+        isEnabled _ = True
 
         bitmapData :: a -> Resources -> Resources.BitmapData
         bitmapData a Resources{images} = images ! (fst $ imageDef a)
@@ -61,11 +65,14 @@ module Sprite where
         defaultRender a resources = renderAtPosition a resources $ position a
 
         renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
-        renderAtPosition a resources Point{x, y} =
-            let
-                BitmapData{_bitmap, _width, _height} = bitmapData a resources
-                drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
-                rotatedSprite = Canvas.rotate (rotation a) drawnSprite
-                translatedSprite = Canvas.translate (x, y) rotatedSprite
-            in
-                translatedSprite
+        renderAtPosition a resources Point{x, y} = if isEnabled a
+            then
+                let
+                    BitmapData{_bitmap, _width, _height} = bitmapData a resources
+                    drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
+                    rotatedSprite = Canvas.rotate (rotation a) drawnSprite
+                    translatedSprite = Canvas.translate (x, y) rotatedSprite
+                in
+                    translatedSprite
+            else
+                Renderer.doNothing
