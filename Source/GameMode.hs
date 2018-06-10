@@ -18,7 +18,7 @@ module GameMode
     import Collidable
     import Utils
     import PressToStartText (PressToStartText, new)
-    import Sprite (update)
+    import Sprite (update, isEnabled, setEnabled)
 
     data GameMode = GameMode
         { background :: Background
@@ -50,15 +50,22 @@ module GameMode
                 fps' = Fps.update' fps input
 
                 pressToStartText' = Sprite.update pressToStartText input
-                ship' = Ship.update' ship input
-                asteroid' = Asteroid.update' asteroid input
+                ship' = if (not $ Sprite.isEnabled ship) && (not $ Sprite.isEnabled pressToStartText')
+                    then Sprite.setEnabled ship True
+                    else ship
+                asteroid' = if (not $ Sprite.isEnabled asteroid) && (not $ Sprite.isEnabled pressToStartText')
+                    then Sprite.setEnabled asteroid True
+                    else asteroid
 
-                haveCollided = Collidable.haveCollided ship' asteroid' resources
+                ship'' = Ship.update' ship' input
+                asteroid'' = Asteroid.update' asteroid' input
+
+                haveCollided = Collidable.haveCollided ship'' asteroid'' resources
                 !kaka = Utils.unsafeWriteLog $ "AAA " ++ (show haveCollided)
             in
                 Entity $ gameMode
-                    { ship = ship'
-                    , asteroid = asteroid'
+                    { ship = ship''
+                    , asteroid = asteroid''
                     , fps = fps'
                     , pressToStartText = pressToStartText'
                     }

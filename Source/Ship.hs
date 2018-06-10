@@ -15,7 +15,7 @@ module Ship
     import Utils (clamp, lerp, wrap, )
     import Control.Monad (when)
     import Gun (Gun, new, setCoordinates, update')
-    import Sprite (Sprite(imageDef, position, rotation, isEnabled, height, renderAtPosition, dimensions))
+    import Sprite (Sprite(imageDef, position, rotation, isEnabled, height, renderAtPosition, dimensions, setEnabled))
     import Collidable (Collidable(render))
 
     data Ship = Ship
@@ -128,5 +128,6 @@ module Ship
         position Ship{_position} = _position
         rotation Ship{_rotation} = _rotation
         isEnabled Ship{_isEnabled} = _isEnabled
+        setEnabled ship enabled = ship{_isEnabled = enabled}
 
     instance Collidable Ship
