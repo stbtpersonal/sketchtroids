@@ -6,17 +6,30 @@ module PressToStartText
     ) where
 
     import Entity (EntityClass(load, render, update), Entity(Entity))
-    import Sprite (Sprite(imageDef, position, rotation), render, defaultRender, update)
+    import Sprite (Sprite(imageDef, position, rotation), render, defaultRender, update, isEnabled, setEnabled)
     import Resources (ResourceKey(ResourceKey))
     import Point (Point(Point, x, y))
     import Constants (nativeWidth, nativeHeight)
-    import Input (Input(Input, deltaTime))
+    import Input (Input(Input, deltaTime, keyboard))
     import Haste.Graphics.Canvas as Canvas (opacity)
+    import Keyboard (action)
 
-    data PressToStartText = PressToStartText { _alpha :: Double, _fadeDirection :: Double }
+    data PressToStartText = PressToStartText
+        { _alpha :: Double
+        , _fadeDirection :: Double
+        , _isStopping :: Bool
+        , _isStopped :: Bool
+        , _isEnabled :: Bool
+        }
 
     new :: PressToStartText
-    new = PressToStartText { _alpha = 0, _fadeDirection = 1 }
+    new = PressToStartText
+        { _alpha = 0
+        , _fadeDirection = 1
+        , _isStopping = False
+        , _isStopped = False
+        , _isEnabled = True
+        }
 
     fadeDuration :: Double
     fadeDuration = 1000
@@ -31,20 +44,36 @@ module PressToStartText
         position _ = Point { x = Constants.nativeWidth / 2, y = Constants.nativeHeight / 2 }
         rotation _ = 0
 
-        update text@PressToStartText{_alpha, _fadeDirection} Input{deltaTime} =
-            let
-                fadeMultiplier = 1 / fadeDuration
-                fadeDelta = _fadeDirection * (fadeMultiplier * deltaTime)
-                alpha' = _alpha + fadeDelta
-                fadeDirection' = if alpha' >= 0 && alpha' <= 1 then _fadeDirection else -1 * _fadeDirection
-                alpha''
-                    | alpha' < 0 = -1 * alpha'
-                    | alpha' > 1 = 2 - alpha'
-                    | otherwise  = alpha'
-            in
-                text
-                    { _alpha = alpha''
-                    , _fadeDirection = fadeDirection'
-                    }
+        update text@PressToStartText{_alpha, _fadeDirection, _isStopping, _isStopped} Input{deltaTime, keyboard} = if Sprite.isEnabled text
+            then
+                let
+                    isEnabled' = not _isStopped
+
+                    fadeMultiplier = 1 / fadeDuration
+                    fadeDelta = _fadeDirection * (fadeMultiplier * deltaTime)
+                    alpha' = _alpha + fadeDelta
+                    fadeDirection' = if alpha' >= 0 && alpha' <= 1 then _fadeDirection else -1 * _fadeDirection
+                    alpha''
+                        | _isStopped = 0
+                        | alpha' < 0 = -1 * alpha'
+                        | alpha' > 1 = 2 - alpha'
+                        | otherwise  = alpha'   
+
+                    isStopping' = _isStopping || Keyboard.action keyboard
+                    isStopped' = _isStopped || (isStopping' && alpha' <= 0)
+                in
+                    text
+                        { _alpha = alpha''
+                        , _fadeDirection = fadeDirection'
+                        , _isStopping = isStopping'
+                        , _isStopped = isStopped'
+                        , _isEnabled = isEnabled'
+                        }
+            else
+                text{_isEnabled = False}
 
         render text@PressToStartText{_alpha} resorces = Canvas.opacity _alpha $ Sprite.defaultRender text resorces
+
+        isEnabled PressToStartText{_isEnabled} = _isEnabled
+
+        setEnabled text enabled = text{_isEnabled = enabled}

@@ -47,10 +47,11 @@ module GameMode
 
         update gameMode@GameMode{ship, asteroid, fps, pressToStartText} input@Input{resources} = 
             let
+                fps' = Fps.update' fps input
+
+                pressToStartText' = Sprite.update pressToStartText input
                 ship' = Ship.update' ship input
                 asteroid' = Asteroid.update' asteroid input
-                fps' = Fps.update' fps input
-                pressToStartText' = Sprite.update pressToStartText input
 
                 haveCollided = Collidable.haveCollided ship' asteroid' resources
                 !kaka = Utils.unsafeWriteLog $ "AAA " ++ (show haveCollided)

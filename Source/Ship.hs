@@ -24,7 +24,7 @@ module Ship
         , _rotation :: Double
         , _rotationVelocity :: Double
         , _gun :: Gun 
-        , _isSpawned :: Bool
+        , _isEnabled :: Bool
         }
 
     new :: Ship
@@ -34,7 +34,7 @@ module Ship
         , _rotation = 0
         , _rotationVelocity = 0
         , _gun = Gun.new
-        , _isSpawned = False
+        , _isEnabled = False
         }
 
     rotationAcceleration :: Double
@@ -127,6 +127,6 @@ module Ship
         imageDef _ = (ResourceKey "Ship", "Resources/Ship.png")
         position Ship{_position} = _position
         rotation Ship{_rotation} = _rotation
-        isEnabled Ship{_isSpawned} = _isSpawned
+        isEnabled Ship{_isEnabled} = _isEnabled
 
     instance Collidable Ship

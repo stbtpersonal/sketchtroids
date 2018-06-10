@@ -21,6 +21,9 @@ module Sprite where
         isEnabled :: a -> Bool
         isEnabled _ = True
 
+        setEnabled :: a -> Bool -> a
+        setEnabled a _ = a
+
         bitmapData :: a -> Resources -> Resources.BitmapData
         bitmapData a Resources{images} = images ! (fst $ imageDef a)
 
