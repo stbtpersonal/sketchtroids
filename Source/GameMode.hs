@@ -47,23 +47,20 @@ module GameMode
             let
                 fps' = Fps.update' fps input
 
-                pressToStartText' = Sprite.update pressToStartText input
-                ship' = if (not $ Sprite.isEnabled ship) && (not $ Sprite.isEnabled pressToStartText')
-                    then Sprite.setEnabled ship True
-                    else ship
-                asteroid' = if (not $ Sprite.isEnabled asteroid) && (not $ Sprite.isEnabled pressToStartText')
-                    then Sprite.setEnabled asteroid True
-                    else asteroid
+                pressToStartText' = if (not $ Sprite.isEnabled pressToStartText) && (Ship.hadExploded ship)
+                    then PressToStartText.new
+                    else pressToStartText
+
+                pressToStartText'' = Sprite.update pressToStartText' input
+                shouldSpawn = ((not $ Sprite.isEnabled ship) || (Ship.hadExploded ship)) && (not $ Sprite.isEnabled pressToStartText'')
+                ship' = if shouldSpawn then Sprite.setEnabled Ship.new True else ship
+                asteroid' = if shouldSpawn then Sprite.setEnabled Asteroid.new True else asteroid
 
                 ship'' = Ship.update' ship' input
                 asteroid'' = Asteroid.update' asteroid' input
 
                 haveCollided = Collidable.haveCollided ship'' asteroid'' resources
                 ship''' = if not haveCollided then ship'' else Ship.explode ship''
-
-                pressToStartText'' = if (not $ Sprite.isEnabled pressToStartText') && (Ship.hadExploded ship)
-                    then PressToStartText.new
-                    else pressToStartText'
             in
                 Entity $ gameMode
                     { ship = ship'''
