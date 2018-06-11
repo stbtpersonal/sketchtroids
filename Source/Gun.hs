@@ -5,6 +5,7 @@ module Gun
     , Gun.new
     , Gun.update'
     , setCoordinates
+    , disable
     ) where
 
     import Bullet
@@ -22,6 +23,7 @@ module Gun
         , lastFiredTime :: Double
         , position :: Point.Point
         , rotation :: Double
+        , isEnabled :: Bool
         }
 
     maxBullets :: Int
@@ -34,6 +36,7 @@ module Gun
         , lastFiredTime = 0
         , Gun.position = Point { x = 800, y = 800 }
         , Gun.rotation = 0
+        , isEnabled = True
         }
 
     intervalBetweenFiring :: Double
@@ -41,6 +44,9 @@ module Gun
 
     setCoordinates :: Gun -> Point -> Double -> Gun
     setCoordinates gun position rotation = gun { Gun.position = position, rotation = rotation }
+
+    disable :: Gun -> Gun
+    disable gun = gun{isEnabled = False}
 
     isBulletOutOfBounds :: Bullet -> Double -> Double -> Bool
     isBulletOutOfBounds Bullet{Bullet.position} bulletWidth bulletHeight = 
@@ -51,12 +57,12 @@ module Gun
             bulletX < -bulletWidth || bulletX > Constants.nativeWidth + bulletWidth || bulletY < -bulletHeight || bulletY > Constants.nativeHeight + bulletHeight
 
     update' :: Gun -> Input -> Gun
-    update' gun@Gun{bullets, timeCount, lastFiredTime, Gun.position, rotation} input@Input{keyboard, deltaTime, resources} =
+    update' gun@Gun{bullets, timeCount, lastFiredTime, Gun.position, rotation, isEnabled} input@Input{keyboard, deltaTime, resources} =
         let
             timeCount' = timeCount + deltaTime
             bullets' = Prelude.map (\bullet -> Bullet.update' bullet input) bullets
 
-            isFiring = Keyboard.action keyboard && timeCount' - lastFiredTime > intervalBetweenFiring
+            isFiring = Keyboard.action keyboard && timeCount' - lastFiredTime > intervalBetweenFiring && isEnabled
             lastFiredTime' = if isFiring then timeCount' else lastFiredTime
 
             bullets'' = if isFiring

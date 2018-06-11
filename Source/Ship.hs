@@ -14,7 +14,7 @@ module Ship
     import Input (Input(Input, deltaTime, keyboard, resources))
     import Keyboard (Keyboard(Keyboard, left, right, up, down))
     import Utils (clamp, lerp, wrap)
-    import Gun (Gun, new, setCoordinates, update')
+    import Gun (Gun, new, setCoordinates, update', disable)
     import Sprite (Sprite(imageDefs, position, rotation, isEnabled, height, renderAtPosition, dimensions, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex, setSpriteIndex))
     import Collidable (Collidable(render))
 
@@ -69,10 +69,10 @@ module Ship
     update' ship@Ship{_position, _velocity, _rotation, _rotationVelocity, _gun, _isExploding} input@Input{deltaTime, keyboard, resources} = if Sprite.isEnabled ship
         then
             let
-                leftValue = getValue Keyboard.left keyboard deltaTime rotationAcceleration
-                rightValue = getValue Keyboard.right keyboard deltaTime rotationAcceleration
-                upValue = getValue Keyboard.up keyboard deltaTime accelerationForward
-                downValue = getValue Keyboard.down keyboard deltaTime accelerationBackward
+                leftValue = if _isExploding then 0 else getValue Keyboard.left keyboard deltaTime rotationAcceleration
+                rightValue = if _isExploding then 0 else getValue Keyboard.right keyboard deltaTime rotationAcceleration
+                upValue = if _isExploding then 0 else getValue Keyboard.up keyboard deltaTime accelerationForward
+                downValue = if _isExploding then 0 else getValue Keyboard.down keyboard deltaTime accelerationBackward
                 rotationValueDelta = rightValue - leftValue
                 positionValueDelta = downValue - upValue
 
@@ -97,6 +97,7 @@ module Ship
                 wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
                 coordinatesSetGun = Gun.setCoordinates _gun wrappedGunPosition gunAngle
                 gun' = Gun.update' coordinatesSetGun input
+                gun'' = if _isExploding then Gun.disable gun' else gun'
 
                 spriteIndex' = if not _isExploding then 0 else 1
             in
@@ -105,7 +106,7 @@ module Ship
                     , _rotationVelocity = rotationVelocity'
                     , _position = position'
                     , _velocity = velocity'
-                    , _gun = gun'
+                    , _gun = gun''
                     , _spriteIndex = spriteIndex'
                     }
         else
