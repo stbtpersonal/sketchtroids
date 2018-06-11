@@ -60,12 +60,16 @@ module GameMode
 
                 haveCollided = Collidable.haveCollided ship'' asteroid'' resources
                 ship''' = if not haveCollided then ship'' else Ship.explode ship''
+
+                pressToStartText'' = if (not $ Sprite.isEnabled pressToStartText') && (Ship.hadExploded ship)
+                    then PressToStartText.new
+                    else pressToStartText'
             in
                 Entity $ gameMode
                     { ship = ship'''
                     , asteroid = asteroid''
                     , fps = fps'
-                    , pressToStartText = pressToStartText'
+                    , pressToStartText = pressToStartText''
                     }
 
         render gameMode resources = Entity.renderAll (children gameMode) resources

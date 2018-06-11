@@ -5,6 +5,7 @@ module Ship
     , Ship.new
     , Ship.update'
     , Ship.explode
+    , Ship.hadExploded
     ) where
 
     import Point (Point(Point, x, y), fromAngle, clamp)
@@ -26,6 +27,7 @@ module Ship
         , _gun :: Gun 
         , _isEnabled :: Bool
         , _isExploding :: Bool
+        , _explosionTimeCount :: Double
         , _spriteIndex :: Int
         }
 
@@ -38,6 +40,7 @@ module Ship
         , _gun = Gun.new
         , _isEnabled = False
         , _isExploding = False
+        , _explosionTimeCount = 0
         , _spriteIndex = 0
         }
 
@@ -66,7 +69,7 @@ module Ship
     getValue keyGetter keyboard deltaTime multiplier = if keyGetter keyboard then multiplier * deltaTime else 0
 
     update' :: Ship -> Input -> Ship
-    update' ship@Ship{_position, _velocity, _rotation, _rotationVelocity, _gun, _isExploding} input@Input{deltaTime, keyboard, resources} = if Sprite.isEnabled ship
+    update' ship@Ship{_position, _velocity, _rotation, _rotationVelocity, _gun, _isExploding, _explosionTimeCount} input@Input{deltaTime, keyboard, resources} = if Sprite.isEnabled ship
         then
             let
                 leftValue = if _isExploding then 0 else getValue Keyboard.left keyboard deltaTime rotationAcceleration
@@ -99,6 +102,7 @@ module Ship
                 gun' = Gun.update' coordinatesSetGun input
                 gun'' = if _isExploding then Gun.disable gun' else gun'
 
+                explosionTimeCount' = if not _isExploding then 0 else _explosionTimeCount + deltaTime
                 spriteIndex' = if not _isExploding then 0 else 1
             in
                 ship
@@ -107,13 +111,20 @@ module Ship
                     , _position = position'
                     , _velocity = velocity'
                     , _gun = gun''
+                    , _explosionTimeCount = explosionTimeCount'
                     , _spriteIndex = spriteIndex'
                     }
         else
             ship
 
+    explosionDuration :: Double
+    explosionDuration = 2000
+
     explode :: Ship -> Ship
     explode ship = ship{_isExploding = True}
+
+    hadExploded :: Ship -> Bool
+    hadExploded Ship{_explosionTimeCount} = _explosionTimeCount > explosionDuration
 
     instance EntityClass Ship where
 
