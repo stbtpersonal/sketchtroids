@@ -17,7 +17,7 @@ module Ship
     import Input (Input(Input, deltaTime, keyboard, resources))
     import Keyboard (Keyboard(Keyboard, left, right, up, down))
     import Utils (clamp, lerp, wrap)
-    import Gun (Gun, new, setCoordinates, update', setEnabled)
+    import Gun (Gun, new, setCoordinates, update')
     import Sprite (Sprite(imageDefs, position, rotation, isEnabled, height, renderAtPosition, dimensions, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex, setSpriteIndex))
     import Collidable (Collidable(render))
 
@@ -117,7 +117,7 @@ module Ship
                 wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
                 !coordinatesSetGun = Gun.setCoordinates gun wrappedGunPosition gunAngle
                 gun' = Gun.update' coordinatesSetGun input
-                gun'' = if _isExploding then Gun.setEnabled gun' False else gun'
+                gun'' = if _isExploding then Sprite.setEnabled gun' False else gun'
             in
                 gun''
         else

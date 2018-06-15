@@ -5,7 +5,6 @@ module Gun
     , Gun.new
     , Gun.update'
     , setCoordinates
-    , setEnabled
     ) where
 
     import Bullet
@@ -16,14 +15,15 @@ module Gun
     import Constants
     import Keyboard
     import Data.Map
+    import Sprite
 
     data Gun = Gun
-        { bullets :: [Bullet]
-        , timeCount :: Double
-        , lastFiredTime :: Double
-        , position :: Point.Point
-        , rotation :: Double
-        , isEnabled :: Bool
+        { _bullets :: [Bullet]
+        , _timeCount :: Double
+        , _lastFiredTime :: Double
+        , _position :: Point.Point
+        , _rotation :: Double
+        , _isEnabled :: Bool
         }
 
     maxBullets :: Int
@@ -31,22 +31,19 @@ module Gun
 
     new :: Gun
     new = Gun 
-        { bullets = []
-        , timeCount = 0
-        , lastFiredTime = 0
-        , Gun.position = Point { x = 800, y = 800 }
-        , Gun.rotation = 0
-        , isEnabled = False
+        { _bullets = []
+        , _timeCount = 0
+        , _lastFiredTime = 0
+        , _position = Point { x = 800, y = 800 }
+        , _rotation = 0
+        , _isEnabled = False
         }
 
     intervalBetweenFiring :: Double
     intervalBetweenFiring = 300.0
 
     setCoordinates :: Gun -> Point -> Double -> Gun
-    setCoordinates gun position rotation = gun { Gun.position = position, rotation = rotation }
-
-    setEnabled :: Gun -> Bool -> Gun
-    setEnabled gun enabled = gun{isEnabled = enabled}
+    setCoordinates gun position rotation = gun { _position = position, _rotation = rotation }
 
     isBulletOutOfBounds :: Bullet -> Double -> Double -> Bool
     isBulletOutOfBounds Bullet{Bullet.position} bulletWidth bulletHeight = 
@@ -57,16 +54,16 @@ module Gun
             bulletX < -bulletWidth || bulletX > Constants.nativeWidth + bulletWidth || bulletY < -bulletHeight || bulletY > Constants.nativeHeight + bulletHeight
 
     update' :: Gun -> Input -> Gun
-    update' gun@Gun{bullets, timeCount, lastFiredTime, Gun.position, rotation, isEnabled} input@Input{keyboard, deltaTime, resources} =
+    update' gun@Gun{_bullets, _timeCount, _lastFiredTime, _position, _rotation, _isEnabled} input@Input{keyboard, deltaTime, resources} =
         let
-            timeCount' = timeCount + deltaTime
-            bullets' = Prelude.map (\bullet -> Bullet.update' bullet input) bullets
+            timeCount' = _timeCount + deltaTime
+            bullets' = Prelude.map (\bullet -> Bullet.update' bullet input) _bullets
 
-            isFiring = Keyboard.action keyboard && timeCount' - lastFiredTime > intervalBetweenFiring && isEnabled
-            lastFiredTime' = if isFiring then timeCount' else lastFiredTime
+            isFiring = Keyboard.action keyboard && timeCount' - _lastFiredTime > intervalBetweenFiring && _isEnabled
+            lastFiredTime' = if isFiring then timeCount' else _lastFiredTime
 
             bullets'' = if isFiring
-                then Bullet.new { Bullet.position = position, Bullet.velocity = Point.fromAngle rotation } : bullets'
+                then Bullet.new { Bullet.position = _position, Bullet.velocity = Point.fromAngle _rotation } : bullets'
                 else bullets'
 
             images = Resources.images resources
@@ -75,13 +72,19 @@ module Gun
             bullets''' = Prelude.filter (\bullet -> not $ isBulletOutOfBounds bullet bulletWidth bulletHeight) bullets''
         in
             gun
-                { bullets = bullets'''
-                , timeCount = timeCount'
-                , lastFiredTime = lastFiredTime'
+                { _bullets = bullets'''
+                , _timeCount = timeCount'
+                , _lastFiredTime = lastFiredTime'
                 }
 
     instance EntityClass Gun where
-        load _ = [Bullet.imageDef]
+        load gun = Sprite.imageDefs gun
         update gun input = Entity $ Gun.update' gun input
-        render Gun{bullets} resources = Entity.renderAll (Prelude.map Entity bullets) resources
+        render Gun{_bullets} resources = Entity.renderAll (Prelude.map Entity _bullets) resources
 
+    instance Sprite Gun where
+        imageDef _ = Bullet.imageDef
+        position Gun{_position} = _position
+        rotation Gun{_rotation} = _rotation
+        isEnabled Gun{_isEnabled} = _isEnabled
+        setEnabled gun enabled = gun{_isEnabled = enabled}

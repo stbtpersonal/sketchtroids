@@ -17,7 +17,7 @@ module GameMode
     import Collidable
     import PressToStartText (PressToStartText, new)
     import Sprite (update, isEnabled, setEnabled)
-    import Gun (Gun, new, setEnabled)
+    import Gun (Gun, new)
 
     data GameMode = GameMode
         { background :: Background
@@ -57,7 +57,7 @@ module GameMode
                 pressToStartText'' = Sprite.update pressToStartText' input
                 shouldSpawn = ((not $ Sprite.isEnabled ship) || (Ship.hadExploded ship)) && (not $ Sprite.isEnabled pressToStartText'')
                 ship' = if shouldSpawn then Sprite.setEnabled Ship.new True else ship
-                gun' = if shouldSpawn then Gun.setEnabled Gun.new True else gun
+                gun' = if shouldSpawn then Sprite.setEnabled Gun.new True else gun
                 asteroid' = if shouldSpawn then Sprite.setEnabled Asteroid.new True else asteroid
 
                 ship'' = Ship.update' ship' input
