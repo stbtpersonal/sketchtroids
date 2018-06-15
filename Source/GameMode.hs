@@ -69,11 +69,12 @@ module GameMode
 
                 collidedBullets = Gun.getCollisions gun'' asteroid'' resources
                 gun''' = Gun.removeBullets gun'' collidedBullets
+                asteroid''' = if not $ null $ collidedBullets then Asteroid.receiveHit asteroid'' else asteroid''
             in
                 Entity $ gameMode
                     { ship = ship'''
                     , gun = gun'''
-                    , asteroid = asteroid''
+                    , asteroid = asteroid'''
                     , fps = fps'
                     , pressToStartText = pressToStartText''
                     }

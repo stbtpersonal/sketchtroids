@@ -4,6 +4,7 @@ module Asteroid
     ( Asteroid()
     , Asteroid.new
     , Asteroid.update'
+    , Asteroid.receiveHit
     ) where
 
     import Point (Point(Point, x, y))
@@ -26,6 +27,7 @@ module Asteroid
         , _arrivingDirection :: ArrivingDirection
         , _hasArrived :: Bool
         , _isEnabled :: Bool
+        , _timesHit :: Integer
         }
 
     new :: Asteroid
@@ -38,6 +40,7 @@ module Asteroid
         , _arrivingDirection = fromLeft
         , _hasArrived = False
         , _isEnabled = False
+        , _timesHit = 0
         }
 
     minVelocity :: Double
@@ -150,6 +153,20 @@ module Asteroid
 
     arrivingDirections :: [ArrivingDirection]
     arrivingDirections = [fromLeft, fromRight, fromTop, fromBottom]
+
+    maxTimesHit :: Integer
+    maxTimesHit = 5
+
+    receiveHit :: Asteroid -> Asteroid
+    receiveHit asteroid@Asteroid{_timesHit} = 
+        let
+            timesHit' = _timesHit + 1
+            asteroid' = if timesHit' < 5
+                then asteroid{_timesHit = timesHit'}
+                else asteroid{_timesHit = timesHit', _isEnabled = False}
+        in 
+            asteroid'
+            
 
     update' :: Asteroid -> Input -> Asteroid
     update' asteroid@Asteroid{_position, _velocity, _rotation, _rotationVelocity, _isInitialized, _hasArrived, _arrivingDirection} Input{deltaTime, randomGenerator} =
