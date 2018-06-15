@@ -5,7 +5,7 @@ module Gun
     , Gun.new
     , Gun.update'
     , setCoordinates
-    , disable
+    , setEnabled
     ) where
 
     import Bullet
@@ -36,7 +36,7 @@ module Gun
         , lastFiredTime = 0
         , Gun.position = Point { x = 800, y = 800 }
         , Gun.rotation = 0
-        , isEnabled = True
+        , isEnabled = False
         }
 
     intervalBetweenFiring :: Double
@@ -45,8 +45,8 @@ module Gun
     setCoordinates :: Gun -> Point -> Double -> Gun
     setCoordinates gun position rotation = gun { Gun.position = position, rotation = rotation }
 
-    disable :: Gun -> Gun
-    disable gun = gun{isEnabled = False}
+    setEnabled :: Gun -> Bool -> Gun
+    setEnabled gun enabled = gun{isEnabled = enabled}
 
     isBulletOutOfBounds :: Bullet -> Double -> Double -> Bool
     isBulletOutOfBounds Bullet{Bullet.position} bulletWidth bulletHeight = 
@@ -81,10 +81,7 @@ module Gun
                 }
 
     instance EntityClass Gun where
-
         load _ = [Bullet.imageDef]
-
         update gun input = Entity $ Gun.update' gun input
-
         render Gun{bullets} resources = Entity.renderAll (Prelude.map Entity bullets) resources
 

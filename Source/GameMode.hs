@@ -17,10 +17,12 @@ module GameMode
     import Collidable
     import PressToStartText (PressToStartText, new)
     import Sprite (update, isEnabled, setEnabled)
+    import Gun (Gun, new, setEnabled)
 
     data GameMode = GameMode
         { background :: Background
         , ship :: Ship
+        , gun :: Gun
         , asteroid :: Asteroid
         , fps :: Fps
         , pressToStartText :: PressToStartText
@@ -30,20 +32,21 @@ module GameMode
     new = GameMode
         { background = Background.new
         , ship = Ship.new
+        , gun = Gun.new
         , asteroid = Asteroid.new
         , fps = Fps.new
         , pressToStartText = PressToStartText.new
         }
 
     children :: GameMode -> [Entity]
-    children GameMode{background, ship, asteroid, fps, pressToStartText} = [Entity background, Entity ship, Entity asteroid, Entity fps, Entity pressToStartText]
+    children GameMode{background, ship, gun, asteroid, fps, pressToStartText} = [Entity background, Entity ship, Entity gun, Entity asteroid, Entity fps, Entity pressToStartText]
 
     imageDefs :: [Resources.ResourceDef]
     imageDefs = Entity.loadAll $ children GameMode.new
 
     instance EntityClass GameMode where
 
-        update gameMode@GameMode{ship, asteroid, fps, pressToStartText} input@Input{resources} = 
+        update gameMode@GameMode{ship, gun, asteroid, fps, pressToStartText} input@Input{resources} = 
             let
                 fps' = Fps.update' fps input
 
@@ -54,9 +57,11 @@ module GameMode
                 pressToStartText'' = Sprite.update pressToStartText' input
                 shouldSpawn = ((not $ Sprite.isEnabled ship) || (Ship.hadExploded ship)) && (not $ Sprite.isEnabled pressToStartText'')
                 ship' = if shouldSpawn then Sprite.setEnabled Ship.new True else ship
+                gun' = if shouldSpawn then Gun.setEnabled Gun.new True else gun
                 asteroid' = if shouldSpawn then Sprite.setEnabled Asteroid.new True else asteroid
 
                 ship'' = Ship.update' ship' input
+                gun'' = Ship.updateGun gun' ship'' input
                 asteroid'' = Asteroid.update' asteroid' input
 
                 haveCollided = Collidable.haveCollided ship'' asteroid'' resources
@@ -64,6 +69,7 @@ module GameMode
             in
                 Entity $ gameMode
                     { ship = ship'''
+                    , gun = gun''
                     , asteroid = asteroid''
                     , fps = fps'
                     , pressToStartText = pressToStartText''

@@ -15,7 +15,7 @@ module Asteroid
     import Constants (nativeWidth, nativeHeight)
     import Control.Monad (when)
     import Collidable (Collidable, render)
-    import Sprite (Sprite(imageDef, position, rotation, render, renderAtPosition, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical))
+    import Sprite (Sprite(imageDef, imageDefs, position, rotation, render, renderAtPosition, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical))
 
     data Asteroid = Asteroid
         { _position :: Point
@@ -194,11 +194,8 @@ module Asteroid
                 asteroid
 
     instance EntityClass Asteroid where
-
-        load asteroid = [Sprite.imageDef asteroid]
-
+        load asteroid = Sprite.imageDefs asteroid
         update asteroid input = Entity $ update' asteroid input
-
         render asteroid@Asteroid{_position, _isInitialized, _hasArrived, _arrivingDirection} resources@Resources{images} =
             when _isInitialized $ Collidable.render asteroid resources
 

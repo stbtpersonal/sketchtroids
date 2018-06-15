@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Ship
     ( Ship(Ship)
@@ -6,6 +7,7 @@ module Ship
     , Ship.update'
     , Ship.explode
     , Ship.hadExploded
+    , Ship.updateGun
     ) where
 
     import Point (Point(Point, x, y), fromAngle, clamp)
@@ -15,7 +17,7 @@ module Ship
     import Input (Input(Input, deltaTime, keyboard, resources))
     import Keyboard (Keyboard(Keyboard, left, right, up, down))
     import Utils (clamp, lerp, wrap)
-    import Gun (Gun, new, setCoordinates, update', disable)
+    import Gun (Gun, new, setCoordinates, update', setEnabled)
     import Sprite (Sprite(imageDefs, position, rotation, isEnabled, height, renderAtPosition, dimensions, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex, setSpriteIndex))
     import Collidable (Collidable(render))
 
@@ -24,7 +26,6 @@ module Ship
         , _velocity :: Point
         , _rotation :: Double
         , _rotationVelocity :: Double
-        , _gun :: Gun 
         , _isEnabled :: Bool
         , _isExploding :: Bool
         , _explosionTimeCount :: Double
@@ -37,7 +38,6 @@ module Ship
         , _velocity = Point { x = 0, y = 0 }
         , _rotation = 0
         , _rotationVelocity = 0
-        , _gun = Gun.new
         , _isEnabled = False
         , _isExploding = False
         , _explosionTimeCount = 0
@@ -69,7 +69,7 @@ module Ship
     getValue keyGetter keyboard deltaTime multiplier = if keyGetter keyboard then multiplier * deltaTime else 0
 
     update' :: Ship -> Input -> Ship
-    update' ship@Ship{_position, _velocity, _rotation, _rotationVelocity, _gun, _isExploding, _explosionTimeCount} input@Input{deltaTime, keyboard, resources} = if Sprite.isEnabled ship
+    update' ship@Ship{_position, _velocity, _rotation, _rotationVelocity, _isExploding, _explosionTimeCount} input@Input{deltaTime, keyboard, resources} = if Sprite.isEnabled ship
         then
             let
                 leftValue = if _isExploding then 0 else getValue Keyboard.left keyboard deltaTime rotationAcceleration
@@ -91,17 +91,6 @@ module Ship
                 nextVelocity = Point { x = (Point.x _velocity) + accelerationX, y = (Point.y _velocity) + accelerationY }
                 velocity' = Point.clamp maxVelocityBackward maxVelocityForward nextVelocity
 
-                gunAngle = rotation' - (pi / 2)
-                images = Resources.images resources
-                height = Sprite.height ship resources
-                gunUnitVector = Point.fromAngle gunAngle
-                gunVector = Point { x = (Point.x gunUnitVector) * (height / 2), y = (Point.y gunUnitVector) * (height / 2) }
-                gunPosition = Point { x = (Point.x position') + (Point.x gunVector), y = (Point.y position') + (Point.y gunVector) }
-                wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
-                coordinatesSetGun = Gun.setCoordinates _gun wrappedGunPosition gunAngle
-                gun' = Gun.update' coordinatesSetGun input
-                gun'' = if _isExploding then Gun.disable gun' else gun'
-
                 explosionTimeCount' = if not _isExploding then 0 else _explosionTimeCount + deltaTime
                 spriteIndex' = if not _isExploding then 0 else 1
             in
@@ -110,12 +99,29 @@ module Ship
                     , _rotationVelocity = rotationVelocity'
                     , _position = position'
                     , _velocity = velocity'
-                    , _gun = gun''
                     , _explosionTimeCount = explosionTimeCount'
                     , _spriteIndex = spriteIndex'
                     }
         else
             ship
+
+    updateGun :: Gun -> Ship -> Input -> Gun
+    updateGun gun ship@Ship{_position, _rotation, _isExploding} input@Input{resources} = if Sprite.isEnabled ship
+        then
+            let
+                gunAngle = _rotation - (pi / 2)
+                height = Sprite.height ship resources
+                gunUnitVector = Point.fromAngle gunAngle
+                gunVector = Point { x = (Point.x gunUnitVector) * (height / 2), y = (Point.y gunUnitVector) * (height / 2) }
+                gunPosition = Point { x = (Point.x _position) + (Point.x gunVector), y = (Point.y _position) + (Point.y gunVector) }
+                wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
+                !coordinatesSetGun = Gun.setCoordinates gun wrappedGunPosition gunAngle
+                gun' = Gun.update' coordinatesSetGun input
+                gun'' = if _isExploding then Gun.setEnabled gun' False else gun'
+            in
+                gun''
+        else
+            gun
 
     explosionDuration :: Double
     explosionDuration = 2000
@@ -127,15 +133,9 @@ module Ship
     hadExploded Ship{_explosionTimeCount} = _explosionTimeCount > explosionDuration
 
     instance EntityClass Ship where
-
-        load ship@Ship{_gun} = Entity.load _gun ++ imageDefs ship
-
+        load ship = imageDefs ship
         update ship input = Entity $ Ship.update' ship input
-
-        render ship@Ship{_position, _gun, _isExploding} resources@Resources{images} = do
-            Collidable.render ship resources
-
-            Entity.render _gun resources
+        render ship resources@Resources{images} = Collidable.render ship resources
 
     instance Sprite Ship where
         imageDefs _ = [(ResourceKey "Ship", "Resources/Ship.png"), (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")]
