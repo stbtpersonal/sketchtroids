@@ -45,14 +45,6 @@ module Gun
     setCoordinates :: Gun -> Point -> Double -> Gun
     setCoordinates gun position rotation = gun { _position = position, _rotation = rotation }
 
-    isBulletOutOfBounds :: Bullet -> Double -> Double -> Bool
-    isBulletOutOfBounds Bullet{Bullet.position} bulletWidth bulletHeight = 
-        let
-            bulletX = Point.x position
-            bulletY = Point.y position
-        in
-            bulletX < -bulletWidth || bulletX > Constants.nativeWidth + bulletWidth || bulletY < -bulletHeight || bulletY > Constants.nativeHeight + bulletHeight
-
     update' :: Gun -> Input -> Gun
     update' gun@Gun{_bullets, _timeCount, _lastFiredTime, _position, _rotation, _isEnabled} input@Input{keyboard, deltaTime, resources} =
         let
@@ -63,13 +55,10 @@ module Gun
             lastFiredTime' = if isFiring then timeCount' else _lastFiredTime
 
             bullets'' = if isFiring
-                then Bullet.new { Bullet.position = _position, Bullet.velocity = Point.fromAngle _rotation } : bullets'
+                then (Bullet.new _position $ Point.fromAngle _rotation) : bullets'
                 else bullets'
 
-            images = Resources.images resources
-            BitmapData{_width = bulletWidth, _height = bulletHeight} = images ! (fst Bullet.imageDef)
-
-            bullets''' = Prelude.filter (\bullet -> not $ isBulletOutOfBounds bullet bulletWidth bulletHeight) bullets''
+            bullets''' = Prelude.filter (\bullet -> not $ Bullet.isOutOfBounds bullet resources) bullets''
         in
             gun
                 { _bullets = bullets'''
@@ -83,7 +72,7 @@ module Gun
         render Gun{_bullets} resources = Entity.renderAll (Prelude.map Entity _bullets) resources
 
     instance Sprite Gun where
-        imageDef _ = Bullet.imageDef
+        imageDef _ = Bullet.imageDef'
         position Gun{_position} = _position
         rotation Gun{_rotation} = _rotation
         isEnabled Gun{_isEnabled} = _isEnabled

@@ -1,10 +1,11 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Bullet
-    ( Bullet(Bullet, position, velocity)
+    ( Bullet(Bullet)
     , new
-    , imageDef
     , update'
+    , isOutOfBounds
+    , imageDef'
     ) where
 
     import Point
@@ -13,40 +14,44 @@ module Bullet
     import Input
     import Data.Map as Map
     import Haste.Graphics.Canvas as Canvas
+    import Sprite
+    import Constants
 
     data Bullet = Bullet
-        { position :: Point.Point
-        , velocity :: Point.Point
+        { _position :: Point.Point
+        , _velocity :: Point.Point
         }
 
-    new :: Bullet
-    new = Bullet 
-        { position = Point { x = 0, y = 0 }
-        , velocity = Point { x = 0, y = 0 }
+    new :: Point.Point -> Point.Point -> Bullet
+    new position velocity = Bullet 
+        { _position = position
+        , _velocity = velocity
         }
-
-    imageDef :: Resources.ResourceDef
-    imageDef = (ResourceKey "Bullet", "Resources/Bullet.png")
+    
+    imageDef' :: Resources.ResourceDef
+    imageDef' = (ResourceKey "Bullet", "Resources/Bullet.png")
 
     update' :: Bullet -> Input -> Bullet
-    update' bullet@Bullet{position, velocity} input@Input{deltaTime} = 
+    update' bullet@Bullet{_position, _velocity} input@Input{deltaTime} = 
         let
-            updatedPosition = Point { x = (Point.x position) + (Point.x velocity * deltaTime), y = (Point.y position) + (Point.y velocity * deltaTime) }
+            position' = Point { x = (Point.x _position) + (Point.x _velocity * deltaTime), y = (Point.y _position) + (Point.y _velocity * deltaTime) }
         in
-            bullet { position = updatedPosition }
+            bullet { _position = position' }
+
+    isOutOfBounds :: Bullet -> Resources -> Bool
+    isOutOfBounds bullet@Bullet{_position} resources = 
+        let
+            (width, height) = Sprite.dimensions bullet resources
+            Point{x, y} = _position
+        in
+            x < -width || x > Constants.nativeWidth + width || y < -height || y > Constants.nativeHeight + height
 
     instance EntityClass Bullet where
-
-        load _ = [imageDef]
-
+        load bullet = imageDefs bullet
         update bullet input = Entity $ update' bullet input
+        render bullet resources = Sprite.render bullet resources
 
-        render bullet@Bullet{position, velocity} resources@Resources{images} = 
-            let
-                BitmapData{_bitmap, _width, _height} = images ! (fst imageDef)
-                drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
-                rotation = Point.angle velocity
-                rotatedSprite = Canvas.rotate rotation drawnSprite
-                translatedSprite = Canvas.translate (Point.x position, Point.y position) rotatedSprite
-            in
-                translatedSprite
+    instance Sprite Bullet where
+        imageDef _ = imageDef'
+        position Bullet{_position} = _position
+        rotation Bullet{_velocity} = Point.angle _velocity
