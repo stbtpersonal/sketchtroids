@@ -17,7 +17,7 @@ module GameMode
     import Collidable
     import PressToStartText (PressToStartText, new)
     import Sprite (update, isEnabled, setEnabled)
-    import Gun (Gun, new)
+    import Gun (Gun, new, getCollisions, removeBullets)
 
     data GameMode = GameMode
         { background :: Background
@@ -64,12 +64,15 @@ module GameMode
                 gun'' = Ship.updateGun gun' ship'' input
                 asteroid'' = Asteroid.update' asteroid' input
 
-                haveCollided = Collidable.haveCollided ship'' asteroid'' resources
-                ship''' = if not haveCollided then ship'' else Ship.explode ship''
+                hasShipCollided = Collidable.haveCollided ship'' asteroid'' resources
+                ship''' = if not hasShipCollided then ship'' else Ship.explode ship''
+
+                collidedBullets = Gun.getCollisions gun'' asteroid'' resources
+                gun''' = Gun.removeBullets gun'' collidedBullets
             in
                 Entity $ gameMode
                     { ship = ship'''
-                    , gun = gun''
+                    , gun = gun'''
                     , asteroid = asteroid''
                     , fps = fps'
                     , pressToStartText = pressToStartText''

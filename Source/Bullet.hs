@@ -21,7 +21,7 @@ module Bullet
     data Bullet = Bullet
         { _position :: Point.Point
         , _velocity :: Point.Point
-        }
+        } deriving (Eq)
 
     new :: Point.Point -> Point.Point -> Bullet
     new position velocity = Bullet 

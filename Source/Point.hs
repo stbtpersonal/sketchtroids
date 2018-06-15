@@ -18,7 +18,7 @@ module Point
     data Point = Point
         { x :: Double
         , y :: Double
-        } deriving Show
+        } deriving (Show, Eq)
 
     magnitude :: Point -> Double
     magnitude Point{x, y} = sqrt (x * x + y * y)

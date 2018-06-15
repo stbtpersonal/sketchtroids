@@ -4,7 +4,9 @@ module Gun
     ( Gun()
     , Gun.new
     , Gun.update'
-    , setCoordinates
+    , Gun.setCoordinates
+    , Gun.getCollisions
+    , Gun.removeBullets
     ) where
 
     import Bullet
@@ -14,8 +16,9 @@ module Gun
     import Resources
     import Constants
     import Keyboard
-    import Data.Map
     import Sprite
+    import Collidable
+    import Data.List ((\\))
 
     data Gun = Gun
         { _bullets :: [Bullet]
@@ -44,6 +47,12 @@ module Gun
 
     setCoordinates :: Gun -> Point -> Double -> Gun
     setCoordinates gun position rotation = gun { _position = position, _rotation = rotation }
+
+    getCollisions :: Collidable a => Gun -> a -> Resources -> [Bullet]
+    getCollisions gun@Gun{_bullets} collidable resources = filter (\bullet -> Collidable.haveCollided bullet collidable resources) _bullets
+
+    removeBullets :: Gun -> [Bullet] -> Gun
+    removeBullets gun@Gun{_bullets} toRemove = gun{_bullets = _bullets \\ toRemove}
 
     update' :: Gun -> Input -> Gun
     update' gun@Gun{_bullets, _timeCount, _lastFiredTime, _position, _rotation, _isEnabled} input@Input{keyboard, deltaTime, resources} =
