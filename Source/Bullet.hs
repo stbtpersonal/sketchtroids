@@ -16,6 +16,7 @@ module Bullet
     import Haste.Graphics.Canvas as Canvas
     import Sprite
     import Constants
+    import Collidable
 
     data Bullet = Bullet
         { _position :: Point.Point
@@ -49,9 +50,11 @@ module Bullet
     instance EntityClass Bullet where
         load bullet = imageDefs bullet
         update bullet input = Entity $ update' bullet input
-        render bullet resources = Sprite.render bullet resources
+        render bullet resources = Collidable.render bullet resources
 
     instance Sprite Bullet where
         imageDef _ = imageDef'
         position Bullet{_position} = _position
         rotation Bullet{_velocity} = Point.angle _velocity
+
+    instance Collidable Bullet where
