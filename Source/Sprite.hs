@@ -21,10 +21,8 @@ module Sprite where
         imageDefs a = [imageDef a]
 
         position :: a -> Point
-        position _ = Point{x = 0, y = 0}
 
         rotation :: a -> Double
-        rotation _ = 0
 
         isEnabled :: a -> Bool
         isEnabled _ = True

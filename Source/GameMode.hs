@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE BangPatterns #-}
 
 module GameMode
     ( imageDefs
@@ -18,6 +19,7 @@ module GameMode
     import PressToStartText (PressToStartText, new)
     import Sprite (update, isEnabled, setEnabled)
     import Gun (Gun, new, getCollisions, removeBullets)
+    import Utils
 
     data GameMode = GameMode
         { background :: Background
@@ -26,6 +28,7 @@ module GameMode
         , asteroids :: Asteroids
         , fps :: Fps
         , pressToStartText :: PressToStartText
+        , asteroidAmount :: Int
         }
 
     new :: GameMode
@@ -33,10 +36,14 @@ module GameMode
         { background = Background.new
         , ship = Ship.new
         , gun = Gun.new
-        , asteroids = Asteroids.new 5
+        , asteroids = Asteroids.new 0
         , fps = Fps.new
         , pressToStartText = PressToStartText.new
+        , asteroidAmount = initialAsteroidAmount
         }
+
+    initialAsteroidAmount :: Int
+    initialAsteroidAmount = 3
 
     children :: GameMode -> [Entity]
     children GameMode{background, ship, gun, asteroids, fps, pressToStartText} = [Entity background, Entity ship, Entity gun, Entity asteroids, Entity fps, Entity pressToStartText]
@@ -46,7 +53,7 @@ module GameMode
 
     instance EntityClass GameMode where
 
-        update gameMode@GameMode{ship, gun, asteroids, fps, pressToStartText} input@Input{resources} = 
+        update gameMode@GameMode{ship, gun, asteroids, fps, pressToStartText, asteroidAmount} input@Input{resources} = 
             let
                 fps' = Fps.update' fps input
 
@@ -55,10 +62,13 @@ module GameMode
                     else pressToStartText
 
                 pressToStartText'' = Sprite.update pressToStartText' input
-                shouldSpawn = ((not $ Sprite.isEnabled ship) || (Ship.hadExploded ship)) && (not $ Sprite.isEnabled pressToStartText'')
-                ship' = if shouldSpawn then Sprite.setEnabled Ship.new True else ship
-                gun' = if shouldSpawn then Sprite.setEnabled Gun.new True else gun
-                asteroids' = if shouldSpawn then Sprite.setEnabled (Asteroids.new 5) True else asteroids
+                shouldShipSpawn = ((not $ Sprite.isEnabled ship) || (Ship.hadExploded ship)) && (not $ Sprite.isEnabled pressToStartText'')
+                ship' = if shouldShipSpawn then Sprite.setEnabled Ship.new True else ship
+                gun' = if shouldShipSpawn then Sprite.setEnabled Gun.new True else gun
+                asteroidAmount' = if shouldShipSpawn then initialAsteroidAmount else asteroidAmount
+
+                shouldAsteroidsSpawn = shouldShipSpawn || ((Sprite.isEnabled ship) && (not $ Asteroids.areAnyEnabled asteroids))
+                asteroids' = if shouldAsteroidsSpawn then Asteroids.new asteroidAmount' else asteroids
 
                 ship'' = Ship.update' ship' input
                 gun'' = Ship.updateGun gun' ship'' input
@@ -70,6 +80,8 @@ module GameMode
                 collidedPairs = Asteroids.getGunCollisions asteroids'' gun'' resources
                 gun''' = Gun.removeBullets gun'' $ map snd collidedPairs
                 asteroids''' = Asteroids.receiveHits asteroids'' $ map fst collidedPairs
+
+                !asteroidAmount'' = if (Sprite.isEnabled ship) && (not $ Asteroids.areAnyEnabled asteroids''') then asteroidAmount' + 1 else asteroidAmount'
             in
                 Entity $ gameMode
                     { ship = ship'''
@@ -77,6 +89,7 @@ module GameMode
                     , asteroids = asteroids'''
                     , fps = fps'
                     , pressToStartText = pressToStartText''
+                    , asteroidAmount = asteroidAmount''
                     }
 
         render gameMode resources = Entity.renderAll (children gameMode) resources

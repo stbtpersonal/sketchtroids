@@ -15,14 +15,15 @@ module Asteroids where
 
     data Asteroids = Asteroids
         { _asteroids :: [Asteroid]
-        ,  _isEnabled :: Bool
         }
 
     new :: Int -> Asteroids
     new amount = Asteroids 
         { _asteroids = take amount $ repeat Asteroid.new
-        , _isEnabled = False
         }
+
+    areAnyEnabled :: Asteroids -> Bool
+    areAnyEnabled Asteroids{_asteroids} = (not $ null $ _asteroids) && (any Sprite.isEnabled _asteroids)
 
     getCollisions :: Collidable a => Asteroids -> a -> Resources -> [Asteroid]
     getCollisions asteroids@Asteroids{_asteroids} collidable resources = filter (\asteroid -> Collidable.haveCollided asteroid collidable resources) _asteroids
@@ -42,22 +43,14 @@ module Asteroids where
             asteroids{_asteroids = asteroids'}
 
     update' :: Asteroids -> Input -> Asteroids
-    update' asteroids@Asteroids{_asteroids, _isEnabled} input = if _isEnabled
-        then
-            let
-                randomizedInputs = Input.randomize input
-                asteroids' = zipWith (\asteroid randomizedInput -> Asteroid.update' asteroid randomizedInput) _asteroids randomizedInputs
-            in
-                asteroids {_asteroids = asteroids'}
-        else
-            asteroids
+    update' asteroids@Asteroids{_asteroids} input =
+        let
+            randomizedInputs = Input.randomize input
+            asteroids' = zipWith (\asteroid randomizedInput -> Asteroid.update' asteroid randomizedInput) _asteroids randomizedInputs
+        in
+            asteroids {_asteroids = asteroids'}
 
     instance EntityClass Asteroids where
-        load asteroids = Sprite.imageDefs asteroids
+        load asteroids = [Asteroid.imageDef']
         update asteroids input = Entity $ Asteroids.update' asteroids input
         render Asteroids{_asteroids} resources = Entity.renderAll (map Entity _asteroids) resources
-
-    instance Sprite Asteroids where
-        imageDef _ = Asteroid.imageDef'
-        isEnabled Asteroids{_isEnabled} = _isEnabled
-        setEnabled asteroids enabled = asteroids{_isEnabled = enabled}
