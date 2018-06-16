@@ -51,6 +51,6 @@ module Asteroids where
             asteroids {_asteroids = asteroids'}
 
     instance EntityClass Asteroids where
-        load asteroids = [Asteroid.imageDef']
+        load asteroids = Asteroid.imageDefs'
         update asteroids input = Entity $ Asteroids.update' asteroids input
         render Asteroids{_asteroids} resources = Entity.renderAll (map Entity _asteroids) resources

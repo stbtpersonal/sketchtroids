@@ -3,7 +3,7 @@
 module Asteroid
     ( Asteroid()
     , Asteroid.new
-    , Asteroid.imageDef'
+    , Asteroid.imageDefs'
     , Asteroid.update'
     , Asteroid.receiveHit
     ) where
@@ -17,7 +17,7 @@ module Asteroid
     import Constants (nativeWidth, nativeHeight)
     import Control.Monad (when)
     import Collidable (Collidable, render)
-    import Sprite (Sprite(imageDef, imageDefs, position, rotation, render, renderAtPosition, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical))
+    import Sprite (Sprite(imageDef, imageDefs, position, rotation, render, renderAtPosition, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex, setSpriteIndex))
 
     data Asteroid = Asteroid
         { _position :: Point
@@ -29,6 +29,7 @@ module Asteroid
         , _hasArrived :: Bool
         , _isEnabled :: Bool
         , _timesHit :: Integer
+        , _spriteIndex :: Int
         }
 
     new :: Asteroid
@@ -42,10 +43,11 @@ module Asteroid
         , _hasArrived = False
         , _isEnabled = True
         , _timesHit = 0
+        , _spriteIndex = 0
         }
 
-    imageDef' :: Resources.ResourceDef
-    imageDef' = (ResourceKey "Asteroid", "Resources/Asteroid.png")
+    imageDefs' :: [Resources.ResourceDef]
+    imageDefs' = [(ResourceKey "Asteroid", "Resources/Asteroid.png"), (ResourceKey "Asteroid2", "Resources/Asteroid2.png"), (ResourceKey "Asteroid3", "Resources/Asteroid3.png")]
 
     minVelocity :: Double
     minVelocity = 0.05
@@ -173,11 +175,11 @@ module Asteroid
             
 
     update' :: Asteroid -> Input -> Asteroid
-    update' asteroid@Asteroid{_position, _velocity, _rotation, _rotationVelocity, _isInitialized, _hasArrived, _arrivingDirection} Input{deltaTime, randomGenerator} =
+    update' asteroid@Asteroid{_position, _velocity, _rotation, _rotationVelocity, _isInitialized, _hasArrived, _arrivingDirection, _spriteIndex} Input{deltaTime, randomGenerator} =
         if Sprite.isEnabled asteroid
             then
                 let
-                    (position', velocity', rotationVelocity', arrivingDirection') = if not _isInitialized
+                    (position', velocity', rotationVelocity', arrivingDirection', spriteIndex') = if not _isInitialized
                         then
                             let
                                 (arrivingDirectionIndex, randomGenerator1) = Random.randomR (0, length arrivingDirections - 1) randomGenerator
@@ -186,11 +188,12 @@ module Asteroid
                                 (positionY, randomGenerator3) = Random.randomR (_minPositionY arrivingDirection, _maxPositionY arrivingDirection) randomGenerator2
                                 (velocityX, randomGenerator4) = Random.randomR (_minVelocityX arrivingDirection, _maxVelocityX arrivingDirection) randomGenerator3
                                 (velocityY, randomGenerator5) = Random.randomR (_minVelocityY arrivingDirection, _maxVelocityY arrivingDirection) randomGenerator4
-                                (rotationVelocity, _) = Random.randomR (-maxRotationVelocity, maxRotationVelocity) randomGenerator5
+                                (rotationVelocity, randomGenerator6) = Random.randomR (-maxRotationVelocity, maxRotationVelocity) randomGenerator5
+                                (spriteIndex, _) = Random.randomR (0, length imageDefs' - 1) randomGenerator6
                             in
-                                (Point { x = positionX, y = positionY }, Point { x = velocityX, y = velocityY }, rotationVelocity, arrivingDirection)
+                                (Point { x = positionX, y = positionY }, Point { x = velocityX, y = velocityY }, rotationVelocity, arrivingDirection, spriteIndex)
                         else
-                            (_position, _velocity, _rotationVelocity, _arrivingDirection)
+                            (_position, _velocity, _rotationVelocity, _arrivingDirection, _spriteIndex)
 
                     hasArrived' = _hasArrived || (_isInBounds arrivingDirection' $ position')
 
@@ -210,6 +213,7 @@ module Asteroid
                         , _isInitialized = True
                         , _arrivingDirection = arrivingDirection' 
                         , _hasArrived = hasArrived'
+                        , _spriteIndex = spriteIndex'
                         }
             else
                 asteroid
@@ -221,13 +225,15 @@ module Asteroid
             when _isInitialized $ Collidable.render asteroid resources
 
     instance Sprite Asteroid where
-        imageDef _ = imageDef'
+        imageDefs _ = imageDefs'
         position Asteroid{_position} = _position
         rotation Asteroid{_rotation} = _rotation
         isEnabled Asteroid{_isEnabled} = _isEnabled
         setEnabled asteroid enabled = asteroid{_isEnabled = enabled}
         isWrappingHorizontal Asteroid{_hasArrived, _arrivingDirection} = _hasArrived || _orientation _arrivingDirection == Vertical
         isWrappingVertical Asteroid{_hasArrived, _arrivingDirection} = _hasArrived || _orientation _arrivingDirection == Horizontal
+        spriteIndex Asteroid{_spriteIndex} = _spriteIndex
+        setSpriteIndex asteroid index = asteroid{_spriteIndex = index}
 
     instance Collidable Asteroid
 
