@@ -35,12 +35,16 @@ module Asteroids where
         in
             concat $ map (\(asteroid, bullets) -> map (\bullet -> (asteroid, bullet)) bullets) asteroidsAndBulletLists
 
-    receiveHits :: Asteroids -> [Asteroid] -> Asteroids
-    receiveHits asteroids@Asteroids{_asteroids} toReceiveHit =
+    receiveHits :: Asteroids -> [Asteroid] -> Input -> Asteroids
+    receiveHits asteroids@Asteroids{_asteroids} toReceiveHit input =
         let
             asteroids' = map (\asteroid -> if asteroid `elem` toReceiveHit then Asteroid.receiveHit asteroid else asteroid) _asteroids
+
+            disabledAsteroids = filter (not . Sprite.isEnabled) asteroids'
+            fragments = concat $ map (\asteroid -> Asteroid.break asteroid input) disabledAsteroids
+            asteroids'' = (asteroids' \\ disabledAsteroids) ++ fragments
         in
-            asteroids{_asteroids = asteroids'}
+            asteroids{_asteroids = asteroids''}
 
     update' :: Asteroids -> Input -> Asteroids
     update' asteroids@Asteroids{_asteroids} input =

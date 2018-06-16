@@ -79,7 +79,7 @@ module GameMode
 
                 collidedPairs = Asteroids.getGunCollisions asteroids'' gun'' resources
                 gun''' = Gun.removeBullets gun'' $ map snd collidedPairs
-                asteroids''' = Asteroids.receiveHits asteroids'' $ map fst collidedPairs
+                asteroids''' = Asteroids.receiveHits asteroids'' (map fst collidedPairs) input
 
                 !asteroidAmount'' = if (Sprite.isEnabled ship) && (not $ Asteroids.areAnyEnabled asteroids''') then asteroidAmount' + 1 else asteroidAmount'
             in
