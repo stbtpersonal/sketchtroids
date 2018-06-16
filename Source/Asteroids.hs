@@ -47,7 +47,8 @@ module Asteroids where
     update' asteroids@Asteroids{_asteroids, _isEnabled} input = if _isEnabled
         then
             let
-                asteroids' = map (\asteroid -> Asteroid.update' asteroid input) _asteroids
+                randomizedInputs = Input.randomize input
+                asteroids' = zipWith (\asteroid randomizedInput -> Asteroid.update' asteroid randomizedInput) _asteroids randomizedInputs
             in
                 asteroids {_asteroids = asteroids'}
         else

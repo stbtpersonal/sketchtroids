@@ -13,4 +13,4 @@ module Input where
     randomizeNext input@Input{randomGenerator} = input { randomGenerator = head $ Utils.splits randomGenerator }
 
     randomize :: Input -> [Input]
-    randomize input = input : randomize input
+    randomize input = input : randomize (randomizeNext input)

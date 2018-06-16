@@ -33,7 +33,7 @@ module GameMode
         { background = Background.new
         , ship = Ship.new
         , gun = Gun.new
-        , asteroids = Asteroids.new 1
+        , asteroids = Asteroids.new 5
         , fps = Fps.new
         , pressToStartText = PressToStartText.new
         }
@@ -58,7 +58,7 @@ module GameMode
                 shouldSpawn = ((not $ Sprite.isEnabled ship) || (Ship.hadExploded ship)) && (not $ Sprite.isEnabled pressToStartText'')
                 ship' = if shouldSpawn then Sprite.setEnabled Ship.new True else ship
                 gun' = if shouldSpawn then Sprite.setEnabled Gun.new True else gun
-                asteroids' = if shouldSpawn then Sprite.setEnabled (Asteroids.new 1) True else asteroids
+                asteroids' = if shouldSpawn then Sprite.setEnabled (Asteroids.new 5) True else asteroids
 
                 ship'' = Ship.update' ship' input
                 gun'' = Ship.updateGun gun' ship'' input
