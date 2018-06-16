@@ -37,11 +37,9 @@ module Asteroids where
     receiveHits :: Asteroids -> [Asteroid] -> Asteroids
     receiveHits asteroids@Asteroids{_asteroids} toReceiveHit =
         let
-            asteroids' = _asteroids \\ toReceiveHit
-            hitAsteroids = map Asteroid.receiveHit toReceiveHit
-            asteroids'' = asteroids' ++ hitAsteroids
+            asteroids' = map (\asteroid -> if asteroid `elem` toReceiveHit then Asteroid.receiveHit asteroid else asteroid) _asteroids
         in
-            asteroids{_asteroids = asteroids''}
+            asteroids{_asteroids = asteroids'}
 
     update' :: Asteroids -> Input -> Asteroids
     update' asteroids@Asteroids{_asteroids, _isEnabled} input = if _isEnabled
