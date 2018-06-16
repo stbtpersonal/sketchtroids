@@ -3,13 +3,14 @@
 module Asteroid
     ( Asteroid()
     , Asteroid.new
+    , Asteroid.imageDef'
     , Asteroid.update'
     , Asteroid.receiveHit
     ) where
 
     import Point (Point(Point, x, y))
     import Entity (EntityClass(load, update, render), Entity(Entity))
-    import Resources (Resources(Resources, images), ResourceKey(ResourceKey))
+    import Resources (Resources(Resources, images), ResourceKey(ResourceKey), ResourceDef)
     import Input (Input(Input, deltaTime, randomGenerator))
     import System.Random as Random (randomR)
     import Utils (wrap)
@@ -39,9 +40,12 @@ module Asteroid
         , _isInitialized = False
         , _arrivingDirection = fromLeft
         , _hasArrived = False
-        , _isEnabled = False
+        , _isEnabled = True
         , _timesHit = 0
         }
+
+    imageDef' :: Resources.ResourceDef
+    imageDef' = (ResourceKey "Asteroid", "Resources/Asteroid.png")
 
     minVelocity :: Double
     minVelocity = 0.05
@@ -217,7 +221,7 @@ module Asteroid
             when _isInitialized $ Collidable.render asteroid resources
 
     instance Sprite Asteroid where
-        imageDef _ = (ResourceKey "Asteroid", "Resources/Asteroid.png")
+        imageDef _ = imageDef'
         position Asteroid{_position} = _position
         rotation Asteroid{_rotation} = _rotation
         isEnabled Asteroid{_isEnabled} = _isEnabled
@@ -226,3 +230,7 @@ module Asteroid
         isWrappingVertical Asteroid{_hasArrived, _arrivingDirection} = _hasArrived || _orientation _arrivingDirection == Horizontal
 
     instance Collidable Asteroid
+
+    instance Eq Asteroid where
+        left@Asteroid{_position = positionLeft, _rotation = rotationLeft} == right@Asteroid{_position = positionRight, _rotation = rotationRight} =
+            positionLeft == positionRight && rotationLeft == rotationRight
