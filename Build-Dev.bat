@@ -1,3 +1,3 @@
 @echo off
 
-Build-Common.bat
+Build-Common.bat --pretty-print

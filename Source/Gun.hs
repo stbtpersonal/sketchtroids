@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Gun
     ( Gun()
@@ -60,7 +61,8 @@ module Gun
             timeCount' = _timeCount + deltaTime
             bullets' = Prelude.map (\bullet -> Bullet.update' bullet input) _bullets
 
-            isFiring = Keyboard.action keyboard && timeCount' - _lastFiredTime > intervalBetweenFiring && _isEnabled
+            !isTimeToFire = timeCount' - _lastFiredTime > intervalBetweenFiring
+            isFiring = Keyboard.action keyboard && isTimeToFire && _isEnabled
             lastFiredTime' = if isFiring then timeCount' else _lastFiredTime
 
             bullets'' = if isFiring
