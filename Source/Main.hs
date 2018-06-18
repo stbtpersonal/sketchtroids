@@ -13,6 +13,7 @@ module Main where
     import Keyboard
     import Data.IORef as IORef
     import System.Random as Random
+    import Debug
 
     main :: IO ()
     main = do
@@ -32,7 +33,8 @@ module Main where
         resources <- IORef.readIORef resourcesRef
         keyboard <- IORef.readIORef keyboardRef
         randomGenerator <- Random.newStdGen
-        let input = Input { deltaTime = deltaTime, resources = resources, keyboard = keyboard, randomGenerator = randomGenerator }
+        isDebugEnabled <- Debug.isDebugEnabled
+        let input = Input { deltaTime = deltaTime, resources = resources, keyboard = keyboard, randomGenerator = randomGenerator, isDebugEnabled = isDebugEnabled }
         let updatedMode = Entity.update mode input
 
         scale <- Renderer.resize canvas
