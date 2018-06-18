@@ -10,7 +10,6 @@ module Sprite where
     import Input(Input)
     import Renderer(doNothing)
     import Constants (nativeWidth, nativeHeight)
-    import Control.Monad (when)
 
     class Sprite a where
 
@@ -21,6 +20,8 @@ module Sprite where
         imageDefs a = [imageDef a]
 
         position :: a -> Point
+
+        setPosition :: a -> Point -> a
 
         rotation :: a -> Double
 
@@ -83,22 +84,43 @@ module Sprite where
         render = defaultRender
 
         defaultRender :: a -> Resources -> Canvas.Picture ()
-        defaultRender a resources = do
-            let (width, height) = dimensions a resources
-            let position'@Point{x, y} = position a
-            renderAtPosition a resources position'
+        defaultRender a resources = 
+            let
+                renderSprites = getRenderSprites a resources
+            in
+                mapM_ (\renderSprite -> renderAtPosition renderSprite resources) renderSprites
 
-            when (isWrappingHorizontal a) $ do
-                when (x < width / 2) (renderAtPosition a resources Point { x = Constants.nativeWidth + x, y = y })
-                when (x > Constants.nativeWidth - (width / 2)) (renderAtPosition a resources Point { x = x - Constants.nativeWidth, y = y })
-            when (isWrappingVertical a) $ do
-                when (y < height / 2) (renderAtPosition a resources Point { x = x, y = Constants.nativeHeight + y })
-                when (y > Constants.nativeHeight - (height / 2)) (renderAtPosition a resources Point { x = x, y = y - Constants.nativeHeight })
+        getRenderSprites :: a -> Resources -> [a]
+        getRenderSprites a resources =
+            let
+                notWrapped = [a]
 
-        renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
-        renderAtPosition a resources Point{x, y} = if isEnabled a
+                (width, height) = dimensions a resources
+                Point{x, y} = position a
+
+                wrappedLeft = if isWrappingHorizontal a && x < width / 2
+                    then [setPosition a Point { x = Constants.nativeWidth + x, y = y }]
+                    else []
+
+                wrappedRight = if isWrappingHorizontal a && x > Constants.nativeWidth - (width / 2)
+                    then [setPosition a Point { x = x - Constants.nativeWidth, y = y }]
+                    else []
+
+                wrappedTop = if isWrappingVertical a && y < height / 2
+                    then [setPosition a Point { x = x, y = Constants.nativeHeight + y }]
+                    else []
+
+                wrappedBottom = if isWrappingVertical a && y > Constants.nativeHeight - (height / 2)
+                    then [setPosition a Point { x = x, y = y - Constants.nativeHeight}]
+                    else []
+            in
+                notWrapped ++ wrappedLeft ++ wrappedRight ++ wrappedTop ++ wrappedBottom
+
+        renderAtPosition :: a -> Resources -> Canvas.Picture ()
+        renderAtPosition a resources = if isEnabled a
             then
                 let
+                    Point{x, y} = position a
                     BitmapData{_bitmap, _width, _height} = bitmapData a resources
                     drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
                     rotatedSprite = Canvas.rotate (rotation a) drawnSprite

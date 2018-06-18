@@ -6,7 +6,7 @@ module PressToStartText
     ) where
 
     import Entity (EntityClass(load, render, update), Entity(Entity))
-    import Sprite (Sprite(imageDef, position, rotation), render, defaultRender, update, isEnabled, setEnabled)
+    import Sprite (Sprite(imageDef, position, setPosition, rotation), render, defaultRender, update, isEnabled, setEnabled)
     import Resources (ResourceKey(ResourceKey))
     import Point (Point(Point, x, y))
     import Constants (nativeWidth, nativeHeight)
@@ -42,6 +42,7 @@ module PressToStartText
     instance Sprite PressToStartText where
         imageDef _ = (ResourceKey "PressToStartText", "Resources/PressToStartText.png")
         position _ = Point { x = Constants.nativeWidth / 2, y = Constants.nativeHeight / 2 }
+        setPosition text _ = text
         rotation _ = 0
 
         update text@PressToStartText{_alpha, _fadeDirection, _isStopping, _isStopped} Input{deltaTime, keyboard} = if Sprite.isEnabled text

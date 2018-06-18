@@ -7,7 +7,7 @@ module Collidable
     , Collidable.renderAtPosition
     ) where
 
-    import Sprite (Sprite, boundingBox, width, height, position, render, bitmapData, rotation, position, dimensions, isEnabled)
+    import Sprite (Sprite, boundingBox, width, height, position, render, bitmapData, rotation, position, dimensions, isEnabled, getRenderSprites)
     import Rectangle (left, right, top, bottom)
     import Resources (Resources, BitmapData(BitmapData, _collisionPolygon))
     import Point (Point(Point, x, y), normal, dot)
@@ -95,10 +95,16 @@ module Collidable
 
         haveCollided :: Collidable b => a -> b -> Resources -> Bool
         haveCollided a b resources = 
-            (Sprite.isEnabled a) &&
-            (Sprite.isEnabled b) &&
-            (haveCollidedCircle a b resources) &&
-            (haveCollidedPolygons a b resources)
+            let
+                checkSprite a' b' = 
+                    (Sprite.isEnabled a') &&
+                    (Sprite.isEnabled b') &&
+                    (haveCollidedCircle a' b' resources) &&
+                    (haveCollidedPolygons a' b' resources)
+                renderSpritesA = Sprite.getRenderSprites a resources
+                renderSpritesB = Sprite.getRenderSprites b resources
+            in
+                or $ concatMap (\renderSpriteA -> map (\renderSpriteB -> checkSprite renderSpriteA renderSpriteB) renderSpritesB) renderSpritesA
 
         render :: a -> Resources -> Canvas.Picture ()
         render = defaultRender
@@ -106,10 +112,11 @@ module Collidable
         defaultRender :: a -> Resources -> Canvas.Picture ()
         defaultRender a resources = do
             Sprite.render a resources
-            Collidable.renderAtPosition a resources $ position a
+            let renderSprites = Sprite.getRenderSprites a resources
+            mapM_ (\renderSprite -> Collidable.renderAtPosition renderSprite resources) renderSprites
 
-        renderAtPosition :: a -> Resources -> Point -> Canvas.Picture ()
-        renderAtPosition a resources point@Point{x, y} = if Sprite.isEnabled a
+        renderAtPosition :: a -> Resources -> Canvas.Picture ()
+        renderAtPosition a resources = if Sprite.isEnabled a
             then
                 do
                     renderCollisionCrosshair a

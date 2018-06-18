@@ -55,6 +55,7 @@ module Bullet
     instance Sprite Bullet where
         imageDef _ = imageDef'
         position Bullet{_position} = _position
+        setPosition bullet position = bullet{_position = position}
         rotation Bullet{_velocity} = Point.angle _velocity
 
     instance Collidable Bullet where

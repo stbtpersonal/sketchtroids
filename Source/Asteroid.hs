@@ -18,7 +18,7 @@ module Asteroid
     import Constants (nativeWidth, nativeHeight)
     import Control.Monad (when)
     import Collidable (Collidable, render)
-    import Sprite (Sprite(imageDef, imageDefs, position, rotation, render, renderAtPosition, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex))
+    import Sprite (Sprite(imageDef, imageDefs, position, setPosition, rotation, render, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex))
 
     data Asteroid = Asteroid
         { _position :: Point
@@ -308,6 +308,7 @@ module Asteroid
     instance Sprite Asteroid where
         imageDefs _ = imageDefs'
         position Asteroid{_position} = _position
+        setPosition asteroid position = asteroid{_position = position}
         rotation Asteroid{_rotation} = _rotation
         isEnabled Asteroid{_isEnabled} = _isEnabled
         setEnabled asteroid enabled = asteroid{_isEnabled = enabled}

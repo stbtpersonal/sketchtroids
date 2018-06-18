@@ -85,6 +85,7 @@ module Gun
     instance Sprite Gun where
         imageDef _ = Bullet.imageDef'
         position Gun{_position} = _position
+        setPosition gun position = gun{_position = position}
         rotation Gun{_rotation} = _rotation
         isEnabled Gun{_isEnabled} = _isEnabled
         setEnabled gun enabled = gun{_isEnabled = enabled}

@@ -18,7 +18,7 @@ module Ship
     import Keyboard (Keyboard(Keyboard, left, right, up, down))
     import Utils (clamp, lerp, wrap)
     import Gun (Gun, new, setCoordinates, update')
-    import Sprite (Sprite(imageDefs, position, rotation, isEnabled, height, renderAtPosition, dimensions, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex, setSpriteIndex))
+    import Sprite (Sprite(imageDefs, position, setPosition, rotation, isEnabled, height, dimensions, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex, setSpriteIndex))
     import Collidable (Collidable(render))
 
     data Ship = Ship
@@ -140,6 +140,7 @@ module Ship
     instance Sprite Ship where
         imageDefs _ = [(ResourceKey "Ship", "Resources/Ship.png"), (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")]
         position Ship{_position} = _position
+        setPosition ship position = ship{_position = position}
         rotation Ship{_rotation} = _rotation
         isEnabled Ship{_isEnabled} = _isEnabled
         setEnabled ship enabled = ship{_isEnabled = enabled}
