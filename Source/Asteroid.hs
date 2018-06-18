@@ -302,8 +302,7 @@ module Asteroid
     instance EntityClass Asteroid where
         load asteroid = Sprite.imageDefs asteroid
         update asteroid input = Entity $ update' asteroid input
-        render asteroid@Asteroid{_position, _isInitialized, _hasArrived, _arrivingDirection} resources@Resources{images} =
-            when _isInitialized $ Collidable.render asteroid resources
+        render asteroid@Asteroid{_position, _isInitialized, _hasArrived, _arrivingDirection} input = when _isInitialized $ Collidable.render asteroid input
 
     instance Sprite Asteroid where
         imageDefs _ = imageDefs'

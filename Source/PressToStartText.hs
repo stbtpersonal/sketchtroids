@@ -73,7 +73,7 @@ module PressToStartText
             else
                 text{_isEnabled = False}
 
-        render text@PressToStartText{_alpha} resorces = Canvas.opacity _alpha $ Sprite.defaultRender text resorces
+        render text@PressToStartText{_alpha} input = Canvas.opacity _alpha $ Sprite.defaultRender text input
 
         isEnabled PressToStartText{_isEnabled} = _isEnabled
 

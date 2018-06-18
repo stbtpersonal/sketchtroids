@@ -1,10 +1,12 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Fps where
     
     import Haste.Graphics.Canvas as Canvas
     import Entity
     import Input
+    import Renderer (doNothing)
 
     data Fps = Fps
         { timeCount :: Double
@@ -22,8 +24,8 @@ module Fps where
     update' :: Fps -> Input -> Fps
     update' fps@Fps{timeCount, frameCount, fpsToDisplay} input@Input{deltaTime} =
         let
-            timeCount' = timeCount + deltaTime
-            frameCount' = frameCount + 1
+            !timeCount' = timeCount + deltaTime
+            !frameCount' = frameCount + 1
             (timeCount'', frameCount'', fpsToDisplay')
                 | timeCount' < 1000 = (timeCount', frameCount', fpsToDisplay)
                 | otherwise         = (timeCount' - 1000, 1, show frameCount')
@@ -38,9 +40,12 @@ module Fps where
 
         update fps input = Entity $ update' fps input
 
-        render fps@Fps{fpsToDisplay} _ =
-            let
-                text = Canvas.text (5, 22.5) $ "FPS: " ++ fpsToDisplay
-                fonted = Canvas.font "20px sans-serif" text
-            in
-                fonted
+        render fps@Fps{fpsToDisplay} Input{isDebugEnabled} = if isDebugEnabled
+            then 
+                let
+                    text = Canvas.text (5, 22.5) $ "FPS: " ++ fpsToDisplay
+                    fonted = Canvas.font "20px sans-serif" text
+                in
+                    fonted
+            else
+                Renderer.doNothing

@@ -15,7 +15,7 @@ module Entity where
         update :: a -> Input -> Entity
         update a _ = Entity a
 
-        render :: a -> Resources -> Canvas.Picture ()
+        render :: a -> Input -> Canvas.Picture ()
         render _ _ = Renderer.doNothing
 
     data Entity = forall a . EntityClass a => Entity a
@@ -31,5 +31,5 @@ module Entity where
     updateAll :: [Entity] -> Input -> [Entity]
     updateAll entities input = zipWith ($) (map (\entity -> Entity.update entity) entities) (Input.randomize input)
 
-    renderAll :: [Entity] -> Resources -> Canvas.Picture ()
-    renderAll entities resources = mapM_ (\entity -> Entity.render entity resources) entities
+    renderAll :: [Entity] -> Input -> Canvas.Picture ()
+    renderAll entities input = mapM_ (\entity -> Entity.render entity input) entities

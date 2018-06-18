@@ -57,8 +57,9 @@ module Spinner(Spinner(Spinner, isStopped), new, stop, update') where
 
         update spinner input = Entity $ update' spinner input
 
-        render spinner@Spinner{rotation, Spinner.scale, isStopped} resources@Resources{images} = 
+        render spinner@Spinner{rotation, Spinner.scale, isStopped} Input{resources} = 
             let
+                Resources{images} = resources
                 BitmapData{_bitmap, _width, _height} = images ! (fst imageDef)
                 drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
                 rotatedSprite = Canvas.rotate rotation drawnSprite

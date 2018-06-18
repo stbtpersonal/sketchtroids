@@ -135,7 +135,7 @@ module Ship
     instance EntityClass Ship where
         load ship = imageDefs ship
         update ship input = Entity $ Ship.update' ship input
-        render ship resources = Collidable.render ship resources
+        render ship input = Collidable.render ship input
 
     instance Sprite Ship where
         imageDefs _ = [(ResourceKey "Ship", "Resources/Ship.png"), (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")]

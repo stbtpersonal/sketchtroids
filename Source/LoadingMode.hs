@@ -55,10 +55,10 @@ module LoadingMode(
                     then Entity GameMode.new
                     else Entity $ loadingMode { children = updatedChildren, spinner = updatedSpinner, finishElapsedTime = updatedFinishElapsedTime, finishAlpha = updatedFinishAlpha }
 
-        render LoadingMode{children, spinner, finishAlpha} resources = 
+        render LoadingMode{children, spinner, finishAlpha} input = 
             let
-                renderedChildren = Entity.renderAll children resources
-                renderedSpinner = Entity.render (Entity spinner) resources
+                renderedChildren = Entity.renderAll children input
+                renderedSpinner = Entity.render (Entity spinner) input
                 fadedSpinner = Canvas.opacity finishAlpha renderedSpinner
             in
                 renderedChildren >> fadedSpinner

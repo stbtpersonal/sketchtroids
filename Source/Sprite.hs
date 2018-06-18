@@ -10,6 +10,7 @@ module Sprite where
     import Input(Input)
     import Renderer(doNothing)
     import Constants (nativeWidth, nativeHeight)
+    import Input (Input(Input, resources))
 
     class Sprite a where
 
@@ -80,15 +81,18 @@ module Sprite where
         update :: a -> Input -> a
         update a _ = a
 
-        render :: a -> Resources -> Canvas.Picture ()
+        render :: a -> Input -> Canvas.Picture ()
         render = defaultRender
 
-        defaultRender :: a -> Resources -> Canvas.Picture ()
-        defaultRender a resources = 
-            let
-                renderSprites = getRenderSprites a resources
-            in
-                mapM_ (\renderSprite -> renderAtPosition renderSprite resources) renderSprites
+        defaultRender :: a -> Input -> Canvas.Picture ()
+        defaultRender a Input{resources} = if isEnabled a
+            then
+                let
+                    renderSprites = getRenderSprites a resources
+                in
+                    mapM_ (\renderSprite -> renderAtPosition renderSprite resources) renderSprites
+            else
+                Renderer.doNothing
 
         getRenderSprites :: a -> Resources -> [a]
         getRenderSprites a resources =
@@ -117,15 +121,12 @@ module Sprite where
                 notWrapped ++ wrappedLeft ++ wrappedRight ++ wrappedTop ++ wrappedBottom
 
         renderAtPosition :: a -> Resources -> Canvas.Picture ()
-        renderAtPosition a resources = if isEnabled a
-            then
-                let
-                    Point{x, y} = position a
-                    BitmapData{_bitmap, _width, _height} = bitmapData a resources
-                    drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
-                    rotatedSprite = Canvas.rotate (rotation a) drawnSprite
-                    translatedSprite = Canvas.translate (x, y) rotatedSprite
-                in
-                    translatedSprite
-            else
-                Renderer.doNothing
+        renderAtPosition a resources = 
+            let
+                Point{x, y} = position a
+                BitmapData{_bitmap, _width, _height} = bitmapData a resources
+                drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
+                rotatedSprite = Canvas.rotate (rotation a) drawnSprite
+                translatedSprite = Canvas.translate (x, y) rotatedSprite
+            in
+                translatedSprite

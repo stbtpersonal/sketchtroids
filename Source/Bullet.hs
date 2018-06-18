@@ -50,7 +50,7 @@ module Bullet
     instance EntityClass Bullet where
         load bullet = imageDefs bullet
         update bullet input = Entity $ update' bullet input
-        render bullet resources = Collidable.render bullet resources
+        render bullet input = Collidable.render bullet input
 
     instance Sprite Bullet where
         imageDef _ = imageDef'
