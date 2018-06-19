@@ -88,12 +88,13 @@ module GameMode
 
                 collidedPairs = Asteroids.getGunCollisions asteroids'' gun'' resources
                 gun''' = Gun.removeBullets gun'' $ map snd collidedPairs
-                asteroids''' = Asteroids.receiveHits asteroids'' (map fst collidedPairs) input
+                (asteroids''', asteroidExplosions) = Asteroids.receiveHits asteroids'' (map fst collidedPairs) input
+                explosions'' = explosions' ++ asteroidExplosions
 
                 !asteroidAmount'' = if (Sprite.isEnabled ship) && (not $ Asteroids.areAnyEnabled asteroids''') then asteroidAmount' + 1 else asteroidAmount'
 
-                explosions'' = map (\explosion -> Sprite.update explosion input) explosions'
-                explosions''' = filter (not . Explosion.isDone) explosions''
+                explosions''' = map (\explosion -> Sprite.update explosion input) explosions''
+                explosions'''' = filter (not . Explosion.isDone) explosions'''
             in
                 Entity $ gameMode
                     { ship = ship'''
@@ -102,7 +103,7 @@ module GameMode
                     , fps = fps'
                     , pressToStartText = pressToStartText''
                     , asteroidAmount = asteroidAmount''
-                    , explosions = explosions'''
+                    , explosions = explosions''''
                     }
 
         render gameMode resources = Entity.renderAll (children gameMode) resources

@@ -7,6 +7,7 @@ module Asteroid
     , Asteroid.update'
     , Asteroid.receiveHit
     , Asteroid.break
+    , Asteroid.explode
     ) where
 
     import Point (Point(Point, x, y))
@@ -19,6 +20,7 @@ module Asteroid
     import Control.Monad (when)
     import Collidable (Collidable, render)
     import Sprite (Sprite(imageDef, imageDefs, position, setPosition, rotation, render, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex))
+    import Explosion
 
     data Asteroid = Asteroid
         { _position :: Point
@@ -298,6 +300,15 @@ module Asteroid
             initializedFragments' = map (\fragment -> fragment{_position = _position, _hasArrived = True}) initializedFragments
         in
             initializedFragments'
+
+    explosionImageDef :: Resources.ResourceDef
+    explosionImageDef = (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")
+
+    explosionDuration :: Double
+    explosionDuration = 1000
+
+    explode :: Asteroid -> Explosion
+    explode Asteroid{_position} = Explosion.new _position explosionImageDef explosionDuration
 
     instance EntityClass Asteroid where
         load asteroid = Sprite.imageDefs asteroid

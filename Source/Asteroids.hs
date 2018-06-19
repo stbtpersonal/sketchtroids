@@ -12,6 +12,7 @@ module Asteroids where
     import Bullet
     import Data.List
     import Utils
+    import Explosion
 
     data Asteroids = Asteroids
         { _asteroids :: [Asteroid]
@@ -35,7 +36,7 @@ module Asteroids where
         in
             concat $ map (\(asteroid, bullets) -> map (\bullet -> (asteroid, bullet)) bullets) asteroidsAndBulletLists
 
-    receiveHits :: Asteroids -> [Asteroid] -> Input -> Asteroids
+    receiveHits :: Asteroids -> [Asteroid] -> Input -> (Asteroids, [Explosion])
     receiveHits asteroids@Asteroids{_asteroids} toReceiveHit input =
         let
             asteroids' = map (\asteroid -> if asteroid `elem` toReceiveHit then Asteroid.receiveHit asteroid else asteroid) _asteroids
@@ -44,7 +45,9 @@ module Asteroids where
             fragments = concat $ map (\asteroid -> Asteroid.break asteroid input) disabledAsteroids
             asteroids'' = (asteroids' \\ disabledAsteroids) ++ fragments
         in
-            asteroids{_asteroids = asteroids''}
+            ( asteroids{_asteroids = asteroids''}
+            , map Asteroid.explode disabledAsteroids
+            )
 
     update' :: Asteroids -> Input -> Asteroids
     update' asteroids@Asteroids{_asteroids} input =
