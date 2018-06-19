@@ -6,7 +6,6 @@ module Ship
     , Ship.new
     , Ship.update'
     , Ship.explode
-    , Ship.hadExploded
     , Ship.updateGun
     ) where
 
@@ -20,6 +19,8 @@ module Ship
     import Gun (Gun, new, setCoordinates, update')
     import Sprite (Sprite(imageDefs, position, setPosition, rotation, isEnabled, height, dimensions, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex, setSpriteIndex))
     import Collidable (Collidable(render))
+    import Explosion
+    import Resources
 
     data Ship = Ship
         { _position :: Point
@@ -27,9 +28,6 @@ module Ship
         , _rotation :: Double
         , _rotationVelocity :: Double
         , _isEnabled :: Bool
-        , _isExploding :: Bool
-        , _explosionTimeCount :: Double
-        , _spriteIndex :: Int
         }
 
     new :: Ship
@@ -39,9 +37,6 @@ module Ship
         , _rotation = 0
         , _rotationVelocity = 0
         , _isEnabled = False
-        , _isExploding = False
-        , _explosionTimeCount = 0
-        , _spriteIndex = 0
         }
 
     rotationAcceleration :: Double
@@ -69,13 +64,13 @@ module Ship
     getValue keyGetter keyboard deltaTime multiplier = if keyGetter keyboard then multiplier * deltaTime else 0
 
     update' :: Ship -> Input -> Ship
-    update' ship@Ship{_position, _velocity, _rotation, _rotationVelocity, _isExploding, _explosionTimeCount} input@Input{deltaTime, keyboard, resources} = if Sprite.isEnabled ship
+    update' ship@Ship{_position, _velocity, _rotation, _rotationVelocity} input@Input{deltaTime, keyboard, resources} = if Sprite.isEnabled ship
         then
             let
-                leftValue = if _isExploding then 0 else getValue Keyboard.left keyboard deltaTime rotationAcceleration
-                rightValue = if _isExploding then 0 else getValue Keyboard.right keyboard deltaTime rotationAcceleration
-                upValue = if _isExploding then 0 else getValue Keyboard.up keyboard deltaTime accelerationForward
-                downValue = if _isExploding then 0 else getValue Keyboard.down keyboard deltaTime accelerationBackward
+                leftValue = getValue Keyboard.left keyboard deltaTime rotationAcceleration
+                rightValue = getValue Keyboard.right keyboard deltaTime rotationAcceleration
+                upValue = getValue Keyboard.up keyboard deltaTime accelerationForward
+                downValue = getValue Keyboard.down keyboard deltaTime accelerationBackward
                 rotationValueDelta = rightValue - leftValue
                 positionValueDelta = downValue - upValue
 
@@ -90,23 +85,18 @@ module Ship
                 accelerationY = positionValueDelta * sin fowardAngle
                 nextVelocity = Point { x = (Point.x _velocity) + accelerationX, y = (Point.y _velocity) + accelerationY }
                 velocity' = Point.clamp maxVelocityBackward maxVelocityForward nextVelocity
-
-                explosionTimeCount' = if not _isExploding then 0 else _explosionTimeCount + deltaTime
-                spriteIndex' = if not _isExploding then 0 else 1
             in
                 ship
                     { _rotation = rotation'
                     , _rotationVelocity = rotationVelocity'
                     , _position = position'
                     , _velocity = velocity'
-                    , _explosionTimeCount = explosionTimeCount'
-                    , _spriteIndex = spriteIndex'
                     }
         else
             ship
 
     updateGun :: Gun -> Ship -> Input -> Gun
-    updateGun gun ship@Ship{_position, _rotation, _isExploding} input@Input{resources} = if Sprite.isEnabled ship
+    updateGun gun ship@Ship{_position, _rotation} input@Input{resources} = if Sprite.isEnabled ship
         then
             let
                 gunAngle = _rotation - (pi / 2)
@@ -117,20 +107,19 @@ module Ship
                 wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
                 !coordinatesSetGun = Gun.setCoordinates gun wrappedGunPosition gunAngle
                 gun' = Gun.update' coordinatesSetGun input
-                gun'' = if _isExploding then Sprite.setEnabled gun' False else gun'
             in
-                gun''
+                gun'
         else
             gun
 
+    explosionImageDef :: Resources.ResourceDef
+    explosionImageDef = (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")
+
     explosionDuration :: Double
-    explosionDuration = 2000
+    explosionDuration = 1000
 
-    explode :: Ship -> Ship
-    explode ship = ship{_isExploding = True}
-
-    hadExploded :: Ship -> Bool
-    hadExploded Ship{_explosionTimeCount} = _explosionTimeCount > explosionDuration
+    explode :: Ship -> Explosion
+    explode Ship{_position} = Explosion.new _position explosionImageDef explosionDuration
 
     instance EntityClass Ship where
         load ship = imageDefs ship
@@ -138,7 +127,7 @@ module Ship
         render ship input = Collidable.render ship input
 
     instance Sprite Ship where
-        imageDefs _ = [(ResourceKey "Ship", "Resources/Ship.png"), (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")]
+        imageDefs _ = [(ResourceKey "Ship", "Resources/Ship.png"), explosionImageDef]
         position Ship{_position} = _position
         setPosition ship position = ship{_position = position}
         rotation Ship{_rotation} = _rotation
@@ -146,7 +135,5 @@ module Ship
         setEnabled ship enabled = ship{_isEnabled = enabled}
         isWrappingHorizontal _ = True
         isWrappingVertical _ = True
-        spriteIndex Ship{_spriteIndex} = _spriteIndex
-        setSpriteIndex ship index = ship{_spriteIndex = index}
 
     instance Collidable Ship

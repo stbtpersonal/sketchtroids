@@ -20,6 +20,7 @@ module GameMode
     import Sprite (update, isEnabled, setEnabled)
     import Gun (Gun, new, getCollisions, removeBullets)
     import Utils
+    import Explosion
 
     data GameMode = GameMode
         { background :: Background
@@ -29,6 +30,7 @@ module GameMode
         , fps :: Fps
         , pressToStartText :: PressToStartText
         , asteroidAmount :: Int
+        , explosions :: [Explosion]
         }
 
     new :: GameMode
@@ -40,29 +42,35 @@ module GameMode
         , fps = Fps.new
         , pressToStartText = PressToStartText.new
         , asteroidAmount = initialAsteroidAmount
+        , explosions = []
         }
 
     initialAsteroidAmount :: Int
     initialAsteroidAmount = 3
 
     children :: GameMode -> [Entity]
-    children GameMode{background, ship, gun, asteroids, fps, pressToStartText} = [Entity background, Entity ship, Entity gun, Entity asteroids, Entity fps, Entity pressToStartText]
+    children GameMode{background, ship, gun, asteroids, fps, pressToStartText, explosions} =
+        let
+            discreteEntities = [Entity background, Entity ship, Entity gun, Entity asteroids, Entity fps, Entity pressToStartText]
+            explosionEntities = map Entity explosions
+        in
+            discreteEntities ++ explosionEntities
 
     imageDefs :: [Resources.ResourceDef]
     imageDefs = Entity.loadAll $ children GameMode.new
 
     instance EntityClass GameMode where
 
-        update gameMode@GameMode{ship, gun, asteroids, fps, pressToStartText, asteroidAmount} input@Input{resources} = 
+        update gameMode@GameMode{ship, gun, asteroids, fps, pressToStartText, asteroidAmount, explosions} input@Input{resources} = 
             let
                 fps' = Fps.update' fps input
 
-                pressToStartText' = if (not $ Sprite.isEnabled pressToStartText) && (Ship.hadExploded ship)
+                pressToStartText' = if (not $ Sprite.isEnabled pressToStartText) && (not $ Sprite.isEnabled ship)
                     then PressToStartText.new
                     else pressToStartText
 
                 pressToStartText'' = Sprite.update pressToStartText' input
-                shouldShipSpawn = ((not $ Sprite.isEnabled ship) || (Ship.hadExploded ship)) && (not $ Sprite.isEnabled pressToStartText'')
+                shouldShipSpawn = (not $ Sprite.isEnabled ship) && (not $ Sprite.isEnabled pressToStartText'')
                 ship' = if shouldShipSpawn then Sprite.setEnabled Ship.new True else ship
                 gun' = if shouldShipSpawn then Sprite.setEnabled Gun.new True else gun
                 asteroidAmount' = if shouldShipSpawn then initialAsteroidAmount else asteroidAmount
@@ -75,13 +83,17 @@ module GameMode
                 asteroids'' = Asteroids.update' asteroids' input
 
                 hasShipCollided = not $ null $ Asteroids.getCollisions asteroids'' ship'' resources
-                ship''' = if not hasShipCollided then ship'' else Ship.explode ship''
+                ship''' = if not hasShipCollided then ship'' else Sprite.setEnabled ship'' False
+                explosions' = explosions ++ if hasShipCollided then [Ship.explode ship'''] else []
 
                 collidedPairs = Asteroids.getGunCollisions asteroids'' gun'' resources
                 gun''' = Gun.removeBullets gun'' $ map snd collidedPairs
                 asteroids''' = Asteroids.receiveHits asteroids'' (map fst collidedPairs) input
 
                 !asteroidAmount'' = if (Sprite.isEnabled ship) && (not $ Asteroids.areAnyEnabled asteroids''') then asteroidAmount' + 1 else asteroidAmount'
+
+                explosions'' = map (\explosion -> Sprite.update explosion input) explosions'
+                explosions''' = filter (not . Explosion.isDone) explosions''
             in
                 Entity $ gameMode
                     { ship = ship'''
@@ -90,6 +102,7 @@ module GameMode
                     , fps = fps'
                     , pressToStartText = pressToStartText''
                     , asteroidAmount = asteroidAmount''
+                    , explosions = explosions'''
                     }
 
         render gameMode resources = Entity.renderAll (children gameMode) resources
