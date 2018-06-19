@@ -55,6 +55,8 @@ module Asteroid
         , (ResourceKey "Asteroid2", "Resources/Asteroid2.png")
         , (ResourceKey "Asteroid3", "Resources/Asteroid3.png")
         , (ResourceKey "AsteroidSmall", "Resources/AsteroidSmall.png")
+        , bigAsteroidExplosion
+        , smallAsteroidExplosion
         ]
 
     data AsteroidType = AsteroidType
@@ -100,6 +102,8 @@ module Asteroid
         , _arrivalVelocityMultiplier :: Double
         , _maxRotationVelocity :: Double
         , _maxTimesHit :: Integer
+        , _explosionImageDef :: Resources.ResourceDef
+        , _explosionDuration :: Double
         }
 
     bigAsteroidInfo :: AsteroidInfo
@@ -109,6 +113,8 @@ module Asteroid
         , _arrivalVelocityMultiplier = 0.5
         , _maxRotationVelocity = 0.001
         , _maxTimesHit = 5
+        , _explosionImageDef = bigAsteroidExplosion
+        , _explosionDuration = 2000
         }
 
     smallAsteroidInfo :: AsteroidInfo
@@ -118,7 +124,15 @@ module Asteroid
         , _arrivalVelocityMultiplier = 1
         , _maxRotationVelocity = 0.002
         , _maxTimesHit = 2
+        , _explosionImageDef = smallAsteroidExplosion
+        , _explosionDuration = 1000
         }
+
+    bigAsteroidExplosion :: Resources.ResourceDef
+    bigAsteroidExplosion = (ResourceKey "BigAsteroidExplosion", "Resources/BigAsteroidExplosion.png")
+
+    smallAsteroidExplosion :: Resources.ResourceDef
+    smallAsteroidExplosion = (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")
 
     arrivalMargin :: Double
     arrivalMargin = 200
@@ -301,14 +315,13 @@ module Asteroid
         in
             initializedFragments'
 
-    explosionImageDef :: Resources.ResourceDef
-    explosionImageDef = (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")
-
-    explosionDuration :: Double
-    explosionDuration = 1000
-
     explode :: Asteroid -> Explosion
-    explode Asteroid{_position} = Explosion.new _position explosionImageDef explosionDuration
+    explode Asteroid{_position, _asteroidType} = 
+        let
+            AsteroidType{_asteroidInfo} = _asteroidType
+            AsteroidInfo{_explosionImageDef, _explosionDuration} = _asteroidInfo
+        in
+            Explosion.new _position _explosionImageDef _explosionDuration
 
     instance EntityClass Asteroid where
         load asteroid = Sprite.imageDefs asteroid
