@@ -4,6 +4,7 @@ module NumberText
     ( NumberText()
     , NumberText.new
     , NumberText.setNumber
+    , NumberText.getNumber
     ) where
 
     import Point
@@ -22,11 +23,17 @@ module NumberText
     new position = NumberText
         { _position = position
         , _number = 0
-        , _digitTexts = []
+        , _digitTexts = [zeroDigit]
         }
+
+    zeroDigit :: DigitText
+    zeroDigit = DigitText.new Point.zero 0
 
     setNumber :: NumberText -> Integer -> NumberText
     setNumber numberText@NumberText{_position} number = numberText{_number = number, _digitTexts = buildDigitTexts _position number}
+
+    getNumber :: NumberText -> Integer
+    getNumber NumberText{_number} = _number
 
     digitOffset :: Double
     digitOffset = 50
@@ -46,5 +53,5 @@ module NumberText
             map (\(digit, index) -> DigitText.new (getOffset index) digit) digitsAndIndeces
 
     instance EntityClass NumberText where
-        load _ = Sprite.imageDefs $ DigitText.new Point.zero 0
+        load _ = Sprite.imageDefs zeroDigit
         render NumberText{_digitTexts} input = Entity.renderAll (map Entity _digitTexts) input

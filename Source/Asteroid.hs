@@ -8,6 +8,7 @@ module Asteroid
     , Asteroid.receiveHit
     , Asteroid.break
     , Asteroid.explode
+    , Asteroid.getScore
     ) where
 
     import Point (Point(Point, x, y))
@@ -104,6 +105,7 @@ module Asteroid
         , _maxTimesHit :: Integer
         , _explosionImageDef :: Resources.ResourceDef
         , _explosionDuration :: Double
+        , _score :: Integer
         }
 
     bigAsteroidInfo :: AsteroidInfo
@@ -115,6 +117,7 @@ module Asteroid
         , _maxTimesHit = 5
         , _explosionImageDef = bigAsteroidExplosion
         , _explosionDuration = 2000
+        , _score = 10
         }
 
     smallAsteroidInfo :: AsteroidInfo
@@ -126,6 +129,7 @@ module Asteroid
         , _maxTimesHit = 2
         , _explosionImageDef = smallAsteroidExplosion
         , _explosionDuration = 1000
+        , _score = 5
         }
 
     bigAsteroidExplosion :: Resources.ResourceDef
@@ -322,6 +326,14 @@ module Asteroid
             AsteroidInfo{_explosionImageDef, _explosionDuration} = _asteroidInfo
         in
             Explosion.new _position _explosionImageDef _explosionDuration
+
+    getScore :: Asteroid -> Integer
+    getScore Asteroid{_asteroidType} = 
+        let
+            AsteroidType{_asteroidInfo} = _asteroidType
+            AsteroidInfo{_score} = _asteroidInfo
+        in
+            _score
 
     instance EntityClass Asteroid where
         load asteroid = Sprite.imageDefs asteroid

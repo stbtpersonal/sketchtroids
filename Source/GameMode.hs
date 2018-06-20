@@ -14,6 +14,7 @@ module GameMode
     import Input
     import Resources
     import Ship
+    import Asteroid
     import Asteroids
     import Collidable
     import PressToStartText (PressToStartText, new)
@@ -45,7 +46,7 @@ module GameMode
         , pressToStartText = PressToStartText.new
         , asteroidAmount = initialAsteroidAmount
         , explosions = []
-        , score = Score.setScore Score.new 1234567890
+        , score = Score.new
         }
 
     initialAsteroidAmount :: Int
@@ -64,7 +65,7 @@ module GameMode
 
     instance EntityClass GameMode where
 
-        update gameMode@GameMode{ship, gun, asteroids, fps, pressToStartText, asteroidAmount, explosions} input@Input{resources} = 
+        update gameMode@GameMode{ship, gun, asteroids, fps, pressToStartText, asteroidAmount, explosions, score} input@Input{resources} = 
             let
                 fps' = Fps.update' fps input
 
@@ -77,6 +78,7 @@ module GameMode
                 ship' = if shouldShipSpawn then Sprite.setEnabled Ship.new True else ship
                 gun' = if shouldShipSpawn then Sprite.setEnabled Gun.new True else gun
                 asteroidAmount' = if shouldShipSpawn then initialAsteroidAmount else asteroidAmount
+                score' = if shouldShipSpawn then Score.new else score
 
                 shouldAsteroidsSpawn = shouldShipSpawn || ((Sprite.isEnabled ship) && (not $ Asteroids.areAnyEnabled asteroids))
                 asteroids' = if shouldAsteroidsSpawn then Asteroids.new asteroidAmount' else asteroids
@@ -91,8 +93,10 @@ module GameMode
 
                 collidedPairs = Asteroids.getGunCollisions asteroids'' gun'' resources
                 gun''' = Gun.removeBullets gun'' $ map snd collidedPairs
-                (asteroids''', asteroidExplosions) = Asteroids.receiveHits asteroids'' (map fst collidedPairs) input
-                explosions'' = explosions' ++ asteroidExplosions
+                (asteroids''', explodedAsteroids) = Asteroids.receiveHits asteroids'' (map fst collidedPairs) input
+                explosions'' = explosions' ++ map Asteroid.explode explodedAsteroids
+                scoreToAdd = foldl (\accumulator explodedAsteroid -> accumulator + Asteroid.getScore explodedAsteroid) 0 explodedAsteroids
+                score'' = Score.addScore score' scoreToAdd
 
                 !asteroidAmount'' = if (Sprite.isEnabled ship) && (not $ Asteroids.areAnyEnabled asteroids''') then asteroidAmount' + 1 else asteroidAmount'
 
@@ -107,6 +111,7 @@ module GameMode
                     , pressToStartText = pressToStartText''
                     , asteroidAmount = asteroidAmount''
                     , explosions = explosions''''
+                    , score = score''
                     }
 
         render gameMode resources = Entity.renderAll (children gameMode) resources

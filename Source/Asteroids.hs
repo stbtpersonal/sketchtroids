@@ -36,7 +36,7 @@ module Asteroids where
         in
             concat $ map (\(asteroid, bullets) -> map (\bullet -> (asteroid, bullet)) bullets) asteroidsAndBulletLists
 
-    receiveHits :: Asteroids -> [Asteroid] -> Input -> (Asteroids, [Explosion])
+    receiveHits :: Asteroids -> [Asteroid] -> Input -> (Asteroids, [Asteroid])
     receiveHits asteroids@Asteroids{_asteroids} toReceiveHit input =
         let
             asteroids' = map (\asteroid -> if asteroid `elem` toReceiveHit then Asteroid.receiveHit asteroid else asteroid) _asteroids
@@ -46,7 +46,7 @@ module Asteroids where
             asteroids'' = (asteroids' \\ disabledAsteroids) ++ fragments
         in
             ( asteroids{_asteroids = asteroids''}
-            , map Asteroid.explode disabledAsteroids
+            , disabledAsteroids
             )
 
     update' :: Asteroids -> Input -> Asteroids
