@@ -11,6 +11,7 @@ module Point
     , Point.subtract
     , Point.normal
     , Point.dot
+    , Point.zero
     ) where
 
     import Utils (clamp)
@@ -61,3 +62,6 @@ module Point
 
     dot :: Point -> Point -> Double
     dot Point{x = x0, y = y0} Point{x = x1, y = y1} = (x0 * x1) + (y0 * y1)
+
+    zero :: Point
+    zero = Point{ x = 0, y = 0 }

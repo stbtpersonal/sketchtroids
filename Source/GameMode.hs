@@ -21,6 +21,7 @@ module GameMode
     import Gun (Gun, new, getCollisions, removeBullets)
     import Utils
     import Explosion
+    import Score
 
     data GameMode = GameMode
         { background :: Background
@@ -31,6 +32,7 @@ module GameMode
         , pressToStartText :: PressToStartText
         , asteroidAmount :: Int
         , explosions :: [Explosion]
+        , score :: Score
         }
 
     new :: GameMode
@@ -43,15 +45,16 @@ module GameMode
         , pressToStartText = PressToStartText.new
         , asteroidAmount = initialAsteroidAmount
         , explosions = []
+        , score = Score.setScore Score.new 1234567890
         }
 
     initialAsteroidAmount :: Int
     initialAsteroidAmount = 3
 
     children :: GameMode -> [Entity]
-    children GameMode{background, ship, gun, asteroids, fps, pressToStartText, explosions} =
+    children GameMode{background, score, ship, gun, asteroids, fps, pressToStartText, explosions} =
         let
-            discreteEntities = [Entity background, Entity ship, Entity gun, Entity asteroids, Entity fps, Entity pressToStartText]
+            discreteEntities = [Entity background, Entity score, Entity ship, Entity gun, Entity asteroids, Entity fps, Entity pressToStartText]
             explosionEntities = map Entity explosions
         in
             discreteEntities ++ explosionEntities
