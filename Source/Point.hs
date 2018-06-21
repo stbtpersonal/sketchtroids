@@ -14,7 +14,7 @@ module Point
     , Point.zero
     ) where
 
-    import Utils (clamp)
+    import Utils
 
     data Point = Point
         { x :: Double

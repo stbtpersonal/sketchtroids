@@ -1,6 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Input where
+module Input
+    ( Input(Input, deltaTime, resources, keyboard, randomGenerator, isDebugEnabled)
+    , Input.randomizeNext
+    , Input.randomize
+    ) where
 
     import Resources
     import Keyboard

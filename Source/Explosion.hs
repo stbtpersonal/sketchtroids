@@ -1,9 +1,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Explosion
-    ( Explosion
-    , new
-    , isDone
+    ( Explosion()
+    , Explosion.new
+    , Explosion.isDone
     ) where
 
     import Entity

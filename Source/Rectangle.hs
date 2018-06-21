@@ -1,6 +1,14 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Rectangle where
+module Rectangle
+    ( Rectangle(Rectangle, topLeft, bottomRight)
+    , Rectangle.left
+    , Rectangle.right
+    , Rectangle.top
+    , Rectangle.bottom
+    , Rectangle.width
+    , Rectangle.height
+    ) where
 
     import Point
 

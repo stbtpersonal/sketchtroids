@@ -1,9 +1,11 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Debug where
+module Debug
+    ( Debug.isDebugEnabled
+    ) where
 
-    import Haste.Foreign as Foreign (ffi)
-    import Haste (toJSString)
+    import Haste.Foreign as Foreign
+    import Haste
 
     isDebugEnabled :: IO Bool
     isDebugEnabled = Foreign.ffi $ Haste.toJSString "DEBUG['isDebugEnabled']"

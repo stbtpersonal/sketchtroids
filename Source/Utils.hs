@@ -1,9 +1,16 @@
-module Utils where
+module Utils
+    ( Utils.clamp
+    , Utils.wrap
+    , Utils.lerp
+    , Utils.writeLog
+    , Utils.unsafeWriteLog
+    , Utils.splits
+    ) where
 
-    import Haste (toJSString)
-    import Haste.Foreign as Foreign (ffi)
-    import System.IO.Unsafe as Unsafe (unsafePerformIO)
-    import System.Random as Random (StdGen, split)
+    import Haste
+    import Haste.Foreign as Foreign
+    import System.IO.Unsafe as Unsafe
+    import System.Random as Random
 
     clamp :: (Ord a) => a -> a -> a -> a
     clamp from to = max from . min to

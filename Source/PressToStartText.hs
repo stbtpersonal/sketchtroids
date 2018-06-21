@@ -5,14 +5,14 @@ module PressToStartText
     , PressToStartText.new
     ) where
 
-    import Entity (EntityClass(load, render, update), Entity(Entity))
-    import Sprite (Sprite(imageDef, position, setPosition, rotation), render, defaultRender, update, isEnabled, setEnabled)
-    import Resources (ResourceKey(ResourceKey))
-    import Point (Point(Point, x, y))
-    import Constants (nativeWidth, nativeHeight)
-    import Input (Input(Input, deltaTime, keyboard))
-    import Haste.Graphics.Canvas as Canvas (opacity)
-    import Keyboard (action)
+    import Entity
+    import Sprite
+    import Resources
+    import Point
+    import Constants
+    import Input
+    import Haste.Graphics.Canvas as Canvas
+    import Keyboard
 
     data PressToStartText = PressToStartText
         { _alpha :: Double

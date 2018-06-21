@@ -1,12 +1,16 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE BangPatterns #-}
 
-module Fps where
+module Fps
+    ( Fps(Fps)
+    , Fps.new
+    , Fps.update'
+    ) where
     
     import Haste.Graphics.Canvas as Canvas
     import Entity
     import Input
-    import Renderer (doNothing)
+    import Renderer
 
     data Fps = Fps
         { timeCount :: Double
@@ -37,9 +41,7 @@ module Fps where
                 }
 
     instance EntityClass Fps where
-
         update fps input = Entity $ update' fps input
-
         render fps@Fps{fpsToDisplay} Input{isDebugEnabled} = if isDebugEnabled
             then 
                 let

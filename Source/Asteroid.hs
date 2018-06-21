@@ -11,16 +11,16 @@ module Asteroid
     , Asteroid.getScore
     ) where
 
-    import Point (Point(Point, x, y))
-    import Entity (EntityClass(load, update, render), Entity(Entity))
-    import Resources (Resources(Resources, images), ResourceKey(ResourceKey), ResourceDef)
-    import Input (Input(Input, deltaTime, randomGenerator), randomize, randomizeNext)
-    import System.Random as Random (randomR)
-    import Utils (wrap)
-    import Constants (nativeWidth, nativeHeight)
-    import Control.Monad (when)
-    import Collidable (Collidable, render)
-    import Sprite (Sprite(imageDef, imageDefs, position, setPosition, rotation, render, dimensions, isEnabled, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex))
+    import Point
+    import Entity
+    import Resources
+    import Input
+    import System.Random as Random
+    import Utils
+    import Constants
+    import Control.Monad
+    import Collidable
+    import Sprite
     import Explosion
 
     data Asteroid = Asteroid

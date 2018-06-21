@@ -1,6 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Main where
+module Main
+    ( Main.main
+    ) where
 
     import Haste.Graphics.AnimationFrame as AnimationFrame
     import Entity

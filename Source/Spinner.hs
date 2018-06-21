@@ -1,6 +1,11 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Spinner(Spinner(Spinner, isStopped), new, stop, update') where
+module Spinner
+    ( Spinner(Spinner, isStopped)
+    , Spinner.new
+    , Spinner.stop
+    , Spinner.update'
+    ) where
 
     import Resources
     import Input
@@ -12,10 +17,22 @@ module Spinner(Spinner(Spinner, isStopped), new, stop, update') where
     import Haste
     import Data.Fixed
 
-    data Spinner = Spinner { elapsedTime :: Double, rotation :: Double, scale :: Double, isStopping :: Bool, isStopped :: Bool }
+    data Spinner = Spinner
+        { elapsedTime :: Double
+        , rotation :: Double
+        , scale :: Double
+        , isStopping :: Bool
+        , isStopped :: Bool
+        }
 
     new :: Spinner
-    new = Spinner { elapsedTime = 0, rotation = 0, Spinner.scale = 1, isStopping = False, isStopped = False }
+    new = Spinner
+        { elapsedTime = 0
+        , rotation = 0
+        , Spinner.scale = 1
+        , isStopping = False
+        , isStopped = False
+        }
 
     imageDef :: Resources.ResourceDef
     imageDef = (ResourceKey "Spinner", "Resources/Spinner.png")

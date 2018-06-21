@@ -2,10 +2,10 @@
 
 module Bullet
     ( Bullet(Bullet)
-    , new
-    , update'
-    , isOutOfBounds
-    , imageDef'
+    , Bullet.new
+    , Bullet.update'
+    , Bullet.isOutOfBounds
+    , Bullet.imageDef'
     ) where
 
     import Point

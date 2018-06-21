@@ -1,9 +1,10 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module LoadingMode(
-    LoadingMode(LoadingMode),
-    LoadingMode.new,
-    LoadingMode.imageDefs) where
+module LoadingMode
+    ( LoadingMode(LoadingMode)
+    , LoadingMode.new
+    , LoadingMode.imageDefs
+    ) where
 
     import Entity
     import Resources
@@ -15,10 +16,20 @@ module LoadingMode(
     import Spinner as Spinner
     import Haste.Graphics.Canvas as Canvas
 
-    data LoadingMode = LoadingMode { children :: [Entity], spinner :: Spinner, finishElapsedTime :: Double, finishAlpha :: Double }
+    data LoadingMode = LoadingMode
+        { children :: [Entity]
+        , spinner :: Spinner
+        , finishElapsedTime :: Double
+        , finishAlpha :: Double
+        }
 
     new :: LoadingMode
-    new = LoadingMode { children = [Entity Background.new, Entity Fps.new], spinner = Spinner.new, finishElapsedTime = 0, finishAlpha = 1 }
+    new = LoadingMode
+        { children = [Entity Background.new, Entity Fps.new]
+        , spinner = Spinner.new
+        , finishElapsedTime = 0
+        , finishAlpha = 1
+        }
 
     imageDefs :: [Resources.ResourceDef]
     imageDefs =

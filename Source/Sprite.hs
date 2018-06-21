@@ -1,16 +1,38 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Sprite where
+module Sprite
+    ( Sprite.Sprite
+    , Sprite.imageDef
+    , Sprite.imageDefs
+    , Sprite.position
+    , Sprite.setPosition
+    , Sprite.rotation
+    , Sprite.isEnabled
+    , Sprite.setEnabled
+    , Sprite.isWrappingHorizontal
+    , Sprite.isWrappingVertical
+    , Sprite.spriteIndex
+    , Sprite.setSpriteIndex
+    , Sprite.bitmapData
+    , Sprite.bitmap
+    , Sprite.dimensions
+    , Sprite.width
+    , Sprite.height
+    , Sprite.boundingBox
+    , Sprite.update
+    , Sprite.render
+    , Sprite.defaultRender
+    , Sprite.getRenderSprites
+    ) where
 
-    import Resources (Resources(Resources, images), ResourceDef, BitmapData(BitmapData, _bitmap, _width, _height))
-    import Point (Point(Point, x, y))
-    import Data.Map ((!))
-    import Rectangle (Rectangle(Rectangle, topLeft, bottomRight))
-    import Haste.Graphics.Canvas as Canvas (Picture, Bitmap, draw, rotate, translate)
-    import Input(Input)
-    import Renderer(doNothing)
-    import Constants (nativeWidth, nativeHeight)
-    import Input (Input(Input, resources))
+    import Resources
+    import Point
+    import Data.Map
+    import Rectangle
+    import Haste.Graphics.Canvas as Canvas hiding (Point)
+    import Input
+    import Renderer
+    import Constants
 
     class Sprite a where
 

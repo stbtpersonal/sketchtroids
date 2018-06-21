@@ -1,4 +1,6 @@
-module FrameData where
+module FrameData
+    ( FrameData(FrameData, canvas, timestamp, resourcesRef, keyboardRef, mode)
+    ) where
 
     import Resources
     import Haste.Graphics.Canvas as Canvas

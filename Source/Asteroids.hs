@@ -1,6 +1,14 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Asteroids where
+module Asteroids
+    ( Asteroids()
+    , Asteroids.new
+    , Asteroids.areAnyEnabled
+    , Asteroids.getCollisions
+    , Asteroids.getGunCollisions
+    , Asteroids.receiveHits
+    , Asteroids.update'
+    ) where
 
     import Asteroid
     import Entity

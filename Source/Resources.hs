@@ -1,12 +1,12 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Resources
-    ( ResourceKey(ResourceKey)
-    , ResourceDef
-    , BitmapData(BitmapData, _bitmap, _width, _height, _collisionPolygon)
-    , Resources(Resources, images)
-    , initialize
-    , loadImages
+    ( Resources(Resources, images)
+    , Resources.ResourceDef
+    , Resources.BitmapData(BitmapData, _bitmap, _width, _height, _collisionPolygon)
+    , Resources.ResourceKey(ResourceKey)
+    , Resources.initialize
+    , Resources.loadImages
     ) where
 
     import Data.Map as Map

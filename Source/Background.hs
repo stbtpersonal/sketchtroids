@@ -5,9 +5,9 @@ module Background
     , Background.new
     ) where
 
-    import Entity (EntityClass(render))
-    import Haste.Graphics.Canvas as Canvas (rect, fill, color, Color(RGB))
-    import Constants (nativeWidth, nativeHeight)
+    import Entity
+    import Haste.Graphics.Canvas as Canvas
+    import Constants
 
     data Background = Background
         { _width :: Double

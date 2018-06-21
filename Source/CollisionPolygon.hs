@@ -1,11 +1,14 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module CollisionPolygon where
+module CollisionPolygon
+    ( CollisionPolygon(CollisionPolygon, points)
+    , CollisionPolygon.build
+    ) where
 
-    import Point (Point(Point, x, y))
-    import Haste.Graphics.Canvas as Canvas (Bitmap)
-    import Haste.Foreign as Foreign (ffi)
-    import Haste (toJSString)
+    import Point
+    import Haste.Graphics.Canvas as Canvas hiding (Point)
+    import Haste.Foreign as Foreign
+    import Haste
 
     data CollisionPolygon = CollisionPolygon { points :: [Point] }
 

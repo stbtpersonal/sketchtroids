@@ -1,4 +1,9 @@
-module Renderer (initialize, Renderer.render, doNothing, resize) where
+module Renderer
+    ( Renderer.initialize
+    , Renderer.render
+    , Renderer.doNothing
+    , Renderer.resize
+    ) where
 
     import Haste
     import Haste.DOM as DOM

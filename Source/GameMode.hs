@@ -2,9 +2,9 @@
 {-# LANGUAGE BangPatterns #-}
 
 module GameMode
-    ( imageDefs
-    , GameMode(GameMode)
+    ( GameMode(GameMode)
     , GameMode.new
+    , GameMode.imageDefs
     ) where
 
     import Entity
@@ -17,9 +17,9 @@ module GameMode
     import Asteroid
     import Asteroids
     import Collidable
-    import PressToStartText (PressToStartText, new)
-    import Sprite (update, isEnabled, setEnabled)
-    import Gun (Gun, new, getCollisions, removeBullets)
+    import PressToStartText
+    import Sprite
+    import Gun
     import Utils
     import Explosion
     import Score

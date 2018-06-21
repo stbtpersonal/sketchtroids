@@ -1,6 +1,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module PreloadingMode where
+module PreloadingMode
+    ( PreloadingMode()
+    , PreloadingMode.new
+    ) where
 
     import Entity
     import Resources

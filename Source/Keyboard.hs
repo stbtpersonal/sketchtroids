@@ -1,6 +1,9 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down, action)) where
+module Keyboard
+    ( Keyboard(Keyboard, left, right, up, down, action) 
+    , Keyboard.initialize
+    ) where
 
     import Data.IORef as IORef
     import Haste.DOM as DOM
@@ -8,7 +11,14 @@ module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down, action)) 
     import Haste
     import Data.Set as Set
 
-    data Keyboard = Keyboard { left :: Bool, right :: Bool, up :: Bool, down :: Bool, action :: Bool, keysDown :: Set Int }
+    data Keyboard = Keyboard
+        { left :: Bool
+        , right :: Bool
+        , up :: Bool
+        , down :: Bool
+        , action :: Bool
+        , keysDown :: Set Int
+        }
 
     keyA = 65
     arrowLeft = 37
@@ -80,4 +90,11 @@ module Keyboard (initialize, Keyboard(Keyboard, left, right, up, down, action)) 
             updatedDown = isKeyDown downKeys
             updatedAction = isKeyDown actionKeys
         in
-            Keyboard { left = updatedLeft, right = updatedRight, up = updatedUp, down = updatedDown, action = updatedAction, keysDown = updatedKeysDown }
+            Keyboard
+                { left = updatedLeft
+                , right = updatedRight
+                , up = updatedUp
+                , down = updatedDown
+                , action = updatedAction
+                , keysDown = updatedKeysDown
+                }

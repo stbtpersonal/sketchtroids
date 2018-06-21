@@ -1,6 +1,15 @@
 {-# LANGUAGE ExistentialQuantification #-}
 
-module Entity where
+module Entity
+    ( Entity(Entity)
+    , Entity.EntityClass
+    , Entity.load
+    , Entity.update
+    , Entity.render
+    , Entity.loadAll
+    , Entity.updateAll
+    , Entity.renderAll
+    ) where
 
     import Resources
     import Input

@@ -9,16 +9,16 @@ module Ship
     , Ship.updateGun
     ) where
 
-    import Point (Point(Point, x, y), fromAngle, clamp)
-    import Constants (nativeWidth, nativeHeight)
-    import Entity (EntityClass(load, update, render), Entity(Entity))
-    import Resources (Resources(Resources, images), ResourceKey(ResourceKey))
-    import Input (Input(Input, deltaTime, keyboard, resources))
-    import Keyboard (Keyboard(Keyboard, left, right, up, down))
-    import Utils (clamp, lerp, wrap)
-    import Gun (Gun, new, setCoordinates, update')
-    import Sprite (Sprite(imageDefs, position, setPosition, rotation, isEnabled, height, dimensions, setEnabled, isWrappingHorizontal, isWrappingVertical, spriteIndex, setSpriteIndex))
-    import Collidable (Collidable(render))
+    import Point
+    import Constants
+    import Entity
+    import Resources
+    import Input
+    import Keyboard
+    import Utils
+    import Gun
+    import Sprite
+    import Collidable
     import Explosion
     import Resources
 

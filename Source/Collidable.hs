@@ -4,18 +4,18 @@ module Collidable
     ( Collidable
     , Collidable.haveCollided
     , Collidable.render
-    , Collidable.renderAtPosition
+    , Collidable.defaultRender
     ) where
 
-    import Sprite (Sprite, boundingBox, width, height, position, render, bitmapData, rotation, position, dimensions, isEnabled, getRenderSprites)
-    import Rectangle (left, right, top, bottom)
-    import Resources (Resources, BitmapData(BitmapData, _collisionPolygon))
-    import Point (Point(Point, x, y), normal, dot)
-    import Haste.Graphics.Canvas as Canvas (Picture, circle, stroke, color, Color(RGB), line, Shape, path, rotate, translate)
-    import CollisionPolygon (CollisionPolygon(CollisionPolygon, points))
-    import Renderer(doNothing)
-    import Input(Input(Input, resources, isDebugEnabled))
-    import Control.Monad (when)
+    import Sprite
+    import Rectangle
+    import Resources
+    import Point
+    import Haste.Graphics.Canvas as Canvas hiding (Point)
+    import CollisionPolygon
+    import Renderer
+    import Input
+    import Control.Monad
 
     debugColor :: Color
     debugColor = RGB 0 255 0
@@ -109,7 +109,7 @@ module Collidable
                 or $ concatMap (\renderSpriteA -> map (\renderSpriteB -> checkSprite renderSpriteA renderSpriteB) renderSpritesB) renderSpritesA
 
         render :: a -> Input -> Canvas.Picture ()
-        render = defaultRender
+        render = Collidable.defaultRender
 
         defaultRender :: a -> Input -> Canvas.Picture ()
         defaultRender a input@Input{resources, isDebugEnabled} = do

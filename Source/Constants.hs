@@ -1,4 +1,7 @@
-module Constants where
+module Constants
+    ( Constants.nativeWidth
+    , Constants.nativeHeight
+    ) where
 
     nativeWidth :: Double
     nativeWidth = 2560
