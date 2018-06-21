@@ -23,6 +23,7 @@ module GameMode
     import Utils
     import Explosion
     import Score
+    import Wave
 
     data GameMode = GameMode
         { background :: Background
@@ -34,6 +35,7 @@ module GameMode
         , asteroidAmount :: Int
         , explosions :: [Explosion]
         , score :: Score
+        , wave :: Wave
         }
 
     new :: GameMode
@@ -47,15 +49,16 @@ module GameMode
         , asteroidAmount = initialAsteroidAmount
         , explosions = []
         , score = Sprite.setEnabled Score.new False
+        , wave = Sprite.setEnabled Wave.new False
         }
 
     initialAsteroidAmount :: Int
     initialAsteroidAmount = 3
 
     children :: GameMode -> [Entity]
-    children GameMode{background, score, ship, gun, asteroids, fps, pressToStartText, explosions} =
+    children GameMode{background, score, wave, ship, gun, asteroids, fps, pressToStartText, explosions} =
         let
-            discreteEntities = [Entity background, Entity score, Entity ship, Entity gun, Entity asteroids, Entity fps, Entity pressToStartText]
+            discreteEntities = [Entity background, Entity score, Entity wave, Entity ship, Entity gun, Entity asteroids, Entity fps, Entity pressToStartText]
             explosionEntities = map Entity explosions
         in
             discreteEntities ++ explosionEntities
@@ -65,7 +68,7 @@ module GameMode
 
     instance EntityClass GameMode where
 
-        update gameMode@GameMode{ship, gun, asteroids, fps, pressToStartText, asteroidAmount, explosions, score} input@Input{resources} = 
+        update gameMode@GameMode{ship, gun, asteroids, fps, pressToStartText, asteroidAmount, explosions, score, wave} input@Input{resources} = 
             let
                 fps' = Fps.update' fps input
 
@@ -79,9 +82,11 @@ module GameMode
                 gun' = if shouldShipSpawn then Sprite.setEnabled Gun.new True else gun
                 asteroidAmount' = if shouldShipSpawn then initialAsteroidAmount else asteroidAmount
                 score' = if shouldShipSpawn then Score.new else score
+                wave' = if shouldShipSpawn then Wave.new else wave
 
                 shouldAsteroidsSpawn = shouldShipSpawn || ((Sprite.isEnabled ship) && (not $ Asteroids.areAnyEnabled asteroids))
                 asteroids' = if shouldAsteroidsSpawn then Asteroids.new asteroidAmount' else asteroids
+                wave'' = if shouldAsteroidsSpawn then Wave.incrementWave wave' else wave'
 
                 ship'' = Ship.update' ship' input
                 gun'' = Ship.updateGun gun' ship'' input
@@ -112,6 +117,7 @@ module GameMode
                     , asteroidAmount = asteroidAmount''
                     , explosions = explosions''''
                     , score = score''
+                    , wave = wave''
                     }
 
         render gameMode resources = Entity.renderAll (children gameMode) resources
