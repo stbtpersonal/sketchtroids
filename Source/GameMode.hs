@@ -46,7 +46,7 @@ module GameMode
         , pressToStartText = PressToStartText.new
         , asteroidAmount = initialAsteroidAmount
         , explosions = []
-        , score = Score.new
+        , score = Sprite.setEnabled Score.new False
         }
 
     initialAsteroidAmount :: Int

@@ -13,14 +13,17 @@ module Score
     import Point
     import Resources
     import Constants
+    import Renderer
 
     data Score = Score
         { _numberText :: NumberText
+        , _isEnabled :: Bool
         }
 
     new :: Score
     new = Score
         { _numberText = NumberText.new Point { x = (Point.x screenPosition) + 175, y = Point.y screenPosition }
+        , _isEnabled = True
         }
 
     setScore :: Score -> Integer -> Score
@@ -34,12 +37,18 @@ module Score
 
     instance EntityClass Score where
         load score@Score{_numberText} = Entity.load _numberText ++ Sprite.imageDefs score
-        render score@Score{_numberText} input = do
-            Entity.render _numberText input
-            Sprite.render score input
+        render score@Score{_numberText, _isEnabled} input = if _isEnabled
+            then
+                do
+                    Entity.render _numberText input
+                    Sprite.render score input
+            else
+                Renderer.doNothing
 
     instance Sprite Score where
         imageDef _ = (ResourceKey "ScoreText", "Resources/ScoreText.png")
         position _ = screenPosition
         setPosition score _ = score
         rotation _ = 0
+        isEnabled Score{_isEnabled} = _isEnabled
+        setEnabled score enabled = score{_isEnabled = enabled}
