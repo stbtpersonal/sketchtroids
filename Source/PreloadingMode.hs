@@ -22,15 +22,14 @@ module PreloadingMode
 
     instance EntityClass PreloadingMode where
 
-        load _ = LoadingMode.imageDefs
+        load _ = LoadingMode.resourceDefs
 
         update preloadingMode input@Input{resources} =
             let
-                images = Resources.images resources
-                loadedImageKeys = Map.keys images
-                requiredImageKeys = Prelude.map fst LoadingMode.imageDefs
+                Resources{loadedKeys} = resources
+                requiredKeys = Prelude.map (\(key, _, _) -> key) LoadingMode.resourceDefs
             in
-                if and $ Prelude.map (\key -> elem key loadedImageKeys) requiredImageKeys
+                if and $ Prelude.map (\key -> elem key loadedKeys) requiredKeys
                     then Entity $ LoadingMode.new
                     else Entity $ preloadingMode
 

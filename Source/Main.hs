@@ -30,7 +30,7 @@ module Main
     mainLoop frameData@FrameData{..} nextTimestamp = do
         let deltaTime = nextTimestamp - timestamp
 
-        Resources.loadImages resourcesRef $ Entity.load mode
+        Resources.loadResources resourcesRef $ Entity.load mode
 
         resources <- IORef.readIORef resourcesRef
         keyboard <- IORef.readIORef keyboardRef

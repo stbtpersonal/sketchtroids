@@ -4,7 +4,7 @@
 module GameMode
     ( GameMode(GameMode)
     , GameMode.new
-    , GameMode.imageDefs
+    , GameMode.resourceDefs
     ) where
 
     import Entity
@@ -63,8 +63,8 @@ module GameMode
         in
             discreteEntities ++ explosionEntities
 
-    imageDefs :: [Resources.ResourceDef]
-    imageDefs = Entity.loadAll $ children GameMode.new
+    resourceDefs :: [Resources.ResourceDef]
+    resourceDefs = Entity.loadAll $ children GameMode.new
 
     instance EntityClass GameMode where
 

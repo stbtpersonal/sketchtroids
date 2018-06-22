@@ -46,7 +46,7 @@ module Wave
                 Renderer.doNothing
 
     instance Sprite Wave where
-        imageDef _ = (ResourceKey "WaveText", "Resources/WaveText.png")
+        imageDef _ = (ResourceKey "WaveText", Image, "Resources/WaveText.png")
         position _ = screenPosition
         setPosition wave _ = wave
         rotation _ = 0

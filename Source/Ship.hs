@@ -113,7 +113,7 @@ module Ship
             gun
 
     explosionImageDef :: Resources.ResourceDef
-    explosionImageDef = (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")
+    explosionImageDef = (ResourceKey "ShipExplosion", Image, "Resources/ShipExplosion.png")
 
     explosionDuration :: Double
     explosionDuration = 1000
@@ -122,12 +122,12 @@ module Ship
     explode Ship{_position} = Explosion.new _position explosionImageDef explosionDuration
 
     instance EntityClass Ship where
-        load ship = imageDefs ship
+        load ship = Sprite.imageDefs ship ++ Collidable.collisionDefs ship ++ [explosionImageDef]
         update ship input = Entity $ Ship.update' ship input
         render ship input = Collidable.render ship input
 
     instance Sprite Ship where
-        imageDefs _ = [(ResourceKey "Ship", "Resources/Ship.png"), explosionImageDef]
+        imageDefs _ = [(ResourceKey "Ship", Image, "Resources/Ship.png")]
         position Ship{_position} = _position
         setPosition ship position = ship{_position = position}
         rotation Ship{_rotation} = _rotation
@@ -136,4 +136,5 @@ module Ship
         isWrappingHorizontal _ = True
         isWrappingVertical _ = True
 
-    instance Collidable Ship
+    instance Collidable Ship where
+        collisionDef _ = (ResourceKey "ShipCollision", Collision, "Resources/ShipCollision.png")

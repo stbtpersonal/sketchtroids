@@ -46,7 +46,7 @@ module Score
                 Renderer.doNothing
 
     instance Sprite Score where
-        imageDef _ = (ResourceKey "ScoreText", "Resources/ScoreText.png")
+        imageDef _ = (ResourceKey "ScoreText", Image, "Resources/ScoreText.png")
         position _ = screenPosition
         setPosition score _ = score
         rotation _ = 0

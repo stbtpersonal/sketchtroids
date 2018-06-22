@@ -35,7 +35,7 @@ module Spinner
         }
 
     imageDef :: Resources.ResourceDef
-    imageDef = (ResourceKey "Spinner", "Resources/Spinner.png")
+    imageDef = (ResourceKey "Spinner", Image, "Resources/Spinner.png")
 
     rotationStartTime :: Double
     rotationStartTime = 200
@@ -77,7 +77,8 @@ module Spinner
         render spinner@Spinner{rotation, Spinner.scale, isStopped} Input{resources} = 
             let
                 Resources{images} = resources
-                BitmapData{_bitmap, _width, _height} = images ! (fst imageDef)
+                (resourceKey, _, _) = imageDef
+                BitmapData{_bitmap, _width, _height} = images ! resourceKey
                 drawnSprite = Canvas.draw _bitmap (-(_width / 2), -(_height / 2))
                 rotatedSprite = Canvas.rotate rotation drawnSprite
                 scaledSprite = Canvas.scale (scale, scale) rotatedSprite

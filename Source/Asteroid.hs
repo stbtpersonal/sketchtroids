@@ -4,6 +4,7 @@ module Asteroid
     ( Asteroid()
     , Asteroid.new
     , Asteroid.imageDefs'
+    , Asteroid.collisionDefs'
     , Asteroid.update'
     , Asteroid.receiveHit
     , Asteroid.break
@@ -52,13 +53,27 @@ module Asteroid
 
     imageDefs' :: [Resources.ResourceDef]
     imageDefs' =
-        [ (ResourceKey "Asteroid", "Resources/Asteroid.png")
-        , (ResourceKey "Asteroid2", "Resources/Asteroid2.png")
-        , (ResourceKey "Asteroid3", "Resources/Asteroid3.png")
-        , (ResourceKey "AsteroidSmall", "Resources/AsteroidSmall.png")
+        [ (ResourceKey "Asteroid", Image, "Resources/Asteroid.png")
+        , (ResourceKey "Asteroid2", Image, "Resources/Asteroid2.png")
+        , (ResourceKey "Asteroid3", Image, "Resources/Asteroid3.png")
+        , (ResourceKey "AsteroidSmall", Image, "Resources/AsteroidSmall.png")
         , bigAsteroidExplosion
         , smallAsteroidExplosion
         ]
+
+    collisionDefs' :: [Resources.ResourceDef]
+    collisionDefs' =
+        [ bigAsteroidCollision
+        , bigAsteroidCollision
+        , bigAsteroidCollision
+        , smallAsteroidCollision
+        ]
+
+    bigAsteroidCollision :: Resources.ResourceDef
+    bigAsteroidCollision = (ResourceKey "AsteroidBigCollision", Collision, "Resources/AsteroidBigCollision.png")
+
+    smallAsteroidCollision :: Resources.ResourceDef
+    smallAsteroidCollision = (ResourceKey "AsteroidSmallCollision", Collision, "Resources/AsteroidSmallCollision.png")
 
     data AsteroidType = AsteroidType
         { _spriteIndex :: Int
@@ -133,10 +148,10 @@ module Asteroid
         }
 
     bigAsteroidExplosion :: Resources.ResourceDef
-    bigAsteroidExplosion = (ResourceKey "BigAsteroidExplosion", "Resources/BigAsteroidExplosion.png")
+    bigAsteroidExplosion = (ResourceKey "BigAsteroidExplosion", Image, "Resources/BigAsteroidExplosion.png")
 
     smallAsteroidExplosion :: Resources.ResourceDef
-    smallAsteroidExplosion = (ResourceKey "ShipExplosion", "Resources/ShipExplosion.png")
+    smallAsteroidExplosion = (ResourceKey "ShipExplosion", Image, "Resources/ShipExplosion.png")
 
     arrivalMargin :: Double
     arrivalMargin = 200
@@ -336,7 +351,7 @@ module Asteroid
             _score
 
     instance EntityClass Asteroid where
-        load asteroid = Sprite.imageDefs asteroid
+        load asteroid = Sprite.imageDefs asteroid ++ Collidable.collisionDefs asteroid
         update asteroid input = Entity $ update' asteroid input
         render asteroid@Asteroid{_position, _isInitialized, _hasArrived, _arrivingDirection} input = when _isInitialized $ Collidable.render asteroid input
 
@@ -351,7 +366,8 @@ module Asteroid
         isWrappingVertical Asteroid{_hasArrived, _arrivingDirection} = _hasArrived || _orientation _arrivingDirection == Horizontal
         spriteIndex Asteroid{_asteroidType} = _spriteIndex _asteroidType
 
-    instance Collidable Asteroid
+    instance Collidable Asteroid where
+        collisionDefs _ = collisionDefs'
 
     instance Eq Asteroid where
         left@Asteroid{_position = positionLeft, _rotation = rotationLeft} == right@Asteroid{_position = positionRight, _rotation = rotationRight} =

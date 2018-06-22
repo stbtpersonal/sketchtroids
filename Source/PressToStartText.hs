@@ -40,7 +40,7 @@ module PressToStartText
         update text input = Entity $ Sprite.update text input
 
     instance Sprite PressToStartText where
-        imageDef _ = (ResourceKey "PressToStartText", "Resources/PressToStartText.png")
+        imageDef _ = (ResourceKey "PressToStartText", Image, "Resources/PressToStartText.png")
         position _ = Point { x = Constants.nativeWidth / 2, y = Constants.nativeHeight / 2 }
         setPosition text _ = text
         rotation _ = 0

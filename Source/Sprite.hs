@@ -67,7 +67,11 @@ module Sprite
         setSpriteIndex a _ = a
 
         bitmapData :: a -> Resources -> Resources.BitmapData
-        bitmapData a Resources{images} = images ! (fst $ imageDef a)
+        bitmapData a Resources{images} = 
+            let
+                (key, _, _) = imageDef a
+            in
+                images ! key
 
         bitmap :: a -> Resources -> Canvas.Bitmap
         bitmap a resources = 

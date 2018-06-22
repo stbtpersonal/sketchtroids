@@ -6,6 +6,7 @@ module Bullet
     , Bullet.update'
     , Bullet.isOutOfBounds
     , Bullet.imageDef'
+    , Bullet.collisionDef'
     ) where
 
     import Point
@@ -30,7 +31,10 @@ module Bullet
         }
     
     imageDef' :: Resources.ResourceDef
-    imageDef' = (ResourceKey "Bullet", "Resources/Bullet.png")
+    imageDef' = (ResourceKey "Bullet", Image, "Resources/Bullet.png")
+    
+    collisionDef' :: Resources.ResourceDef
+    collisionDef' = (ResourceKey "BulletCollision", Collision, "Resources/BulletCollision.png")
 
     update' :: Bullet -> Input -> Bullet
     update' bullet@Bullet{_position, _velocity} input@Input{deltaTime} = 
@@ -59,3 +63,4 @@ module Bullet
         rotation Bullet{_velocity} = Point.angle _velocity
 
     instance Collidable Bullet where
+        collisionDef _ = collisionDef'

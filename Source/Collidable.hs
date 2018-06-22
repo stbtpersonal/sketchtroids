@@ -2,6 +2,8 @@
 
 module Collidable
     ( Collidable
+    , Collidable.collisionDef
+    , Collidable.collisionDefs
     , Collidable.haveCollided
     , Collidable.render
     , Collidable.defaultRender
@@ -16,6 +18,7 @@ module Collidable
     import Renderer
     import Input
     import Control.Monad
+    import Data.Map ((!))
 
     debugColor :: Color
     debugColor = RGB 0 255 0
@@ -41,6 +44,19 @@ module Collidable
     overlap (fromA, toA) (fromB, toB) = toA >= fromB && toB >= fromA
 
     class Sprite a => Collidable a where
+
+        collisionDef :: a -> Resources.ResourceDef
+        collisionDef a = (collisionDefs a) !! (Sprite.spriteIndex a)
+
+        collisionDefs :: a -> [Resources.ResourceDef]
+        collisionDefs a = [collisionDef a]
+
+        collisionData :: a -> Resources -> Resources.CollisionData
+        collisionData a Resources{collisions} = 
+            let 
+                (key, _, _ ) = collisionDef a
+            in
+                collisions ! key
 
         radius :: a -> Resources -> Double
         radius a resources = sqrt ((Sprite.width a resources ** 2) + (Sprite.height a resources ** 2)) / 2
@@ -156,6 +172,6 @@ module Collidable
         collisionPolygon :: a -> Resources -> CollisionPolygon
         collisionPolygon a resources = 
             let
-                BitmapData{_collisionPolygon} = Sprite.bitmapData a resources
+                CollisionData{_collisionPolygon} = Collidable.collisionData a resources
             in
                 _collisionPolygon

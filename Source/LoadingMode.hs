@@ -3,7 +3,7 @@
 module LoadingMode
     ( LoadingMode(LoadingMode)
     , LoadingMode.new
-    , LoadingMode.imageDefs
+    , LoadingMode.resourceDefs
     ) where
 
     import Entity
@@ -31,8 +31,8 @@ module LoadingMode
         , finishAlpha = 1
         }
 
-    imageDefs :: [Resources.ResourceDef]
-    imageDefs =
+    resourceDefs :: [Resources.ResourceDef]
+    resourceDefs =
         let
             loadingMode@LoadingMode{children, spinner} = LoadingMode.new
         in
@@ -43,14 +43,13 @@ module LoadingMode
 
     instance EntityClass LoadingMode where
 
-        load loadingMode@LoadingMode{children} = GameMode.imageDefs
+        load loadingMode@LoadingMode{children} = GameMode.resourceDefs
 
         update loadingMode@LoadingMode{children, spinner, finishElapsedTime} input@Input{resources, deltaTime} =
             let
-                images = Resources.images resources
-                loadedImageKeys = Map.keys images
-                requiredImageKeys = Prelude.map fst GameMode.imageDefs
-                areAllImagesLoaded = and $ Prelude.map (\key -> elem key loadedImageKeys) requiredImageKeys
+                Resources{loadedKeys} = resources
+                requiredKeys = Prelude.map (\(key, _, _) -> key) GameMode.resourceDefs
+                areAllImagesLoaded = and $ Prelude.map (\key -> elem key loadedKeys) requiredKeys
 
                 isSpinnerStopped = Spinner.isStopped spinner
 

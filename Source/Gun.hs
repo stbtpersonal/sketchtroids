@@ -78,7 +78,7 @@ module Gun
                 }
 
     instance EntityClass Gun where
-        load gun = Sprite.imageDefs gun
+        load gun = Sprite.imageDefs gun ++ [Bullet.collisionDef']
         update gun input = Entity $ Gun.update' gun input
         render Gun{_bullets} input = Entity.renderAll (Prelude.map Entity _bullets) input
 
