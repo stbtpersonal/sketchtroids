@@ -94,12 +94,12 @@ module GameMode
 
                 hasShipCollided = not $ null $ Asteroids.getCollisions asteroids'' ship'' resources
                 ship''' = if not hasShipCollided then ship'' else Sprite.setEnabled ship'' False
-                explosions' = explosions ++ if hasShipCollided then [Ship.explode ship'''] else []
+                explosions' = explosions ++ if hasShipCollided then [Ship.explode ship''' input] else []
 
                 collidedPairs = Asteroids.getGunCollisions asteroids'' gun'' resources
                 gun''' = Gun.removeBullets gun'' $ map snd collidedPairs
                 (asteroids''', explodedAsteroids) = Asteroids.receiveHits asteroids'' (map fst collidedPairs) input
-                explosions'' = explosions' ++ map Asteroid.explode explodedAsteroids
+                explosions'' = explosions' ++ map (\explodedAsteroid -> Asteroid.explode explodedAsteroid input) explodedAsteroids
                 scoreToAdd = foldl (\accumulator explodedAsteroid -> accumulator + Asteroid.getScore explodedAsteroid) 0 explodedAsteroids
                 score'' = Score.addScore score' scoreToAdd
 

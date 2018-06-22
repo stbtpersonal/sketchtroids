@@ -334,13 +334,13 @@ module Asteroid
         in
             initializedFragments'
 
-    explode :: Asteroid -> Explosion
-    explode Asteroid{_position, _asteroidType} = 
+    explode :: Asteroid -> Input -> Explosion
+    explode Asteroid{_position, _asteroidType} input = 
         let
             AsteroidType{_asteroidInfo} = _asteroidType
             AsteroidInfo{_explosionImageDef, _explosionDuration} = _asteroidInfo
         in
-            Explosion.new _position _explosionImageDef _explosionDuration
+            Explosion.new _position _explosionImageDef _explosionDuration input
 
     getScore :: Asteroid -> Integer
     getScore Asteroid{_asteroidType} = 

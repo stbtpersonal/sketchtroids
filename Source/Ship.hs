@@ -116,8 +116,8 @@ module Ship
     explosionDuration :: Double
     explosionDuration = 2000
 
-    explode :: Ship -> Explosion
-    explode Ship{_position} = Explosion.new _position explosionImageDef explosionDuration
+    explode :: Ship -> Input -> Explosion
+    explode Ship{_position} input = Explosion.new _position explosionImageDef explosionDuration input
 
     instance EntityClass Ship where
         load ship = Sprite.imageDefs ship ++ Collidable.collisionDefs ship ++ [explosionImageDef]
