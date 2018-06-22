@@ -33,7 +33,7 @@ module Wave
     incrementWave wave@Wave{_numberText} = setWave wave (1 + NumberText.getNumber _numberText)
 
     screenPosition :: Point
-    screenPosition = Point { x = 175, y = Constants.nativeHeight - 175 }
+    screenPosition = Point { x = 175, y = Constants.nativeHeight - 215 }
 
     instance EntityClass Wave where
         load wave@Wave{_numberText} = Entity.load _numberText ++ Sprite.imageDefs wave
