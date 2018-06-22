@@ -96,21 +96,19 @@ module Ship
             ship
 
     updateGun :: Gun -> Ship -> Input -> Gun
-    updateGun gun ship@Ship{_position, _rotation} input@Input{resources} = if Sprite.isEnabled ship
-        then
-            let
-                gunAngle = _rotation - (pi / 2)
-                height = Sprite.height ship resources
-                gunUnitVector = Point.fromAngle gunAngle
-                gunVector = Point { x = (Point.x gunUnitVector) * (height / 2), y = (Point.y gunUnitVector) * (height / 2) }
-                gunPosition = Point { x = (Point.x _position) + (Point.x gunVector), y = (Point.y _position) + (Point.y gunVector) }
-                wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
-                !coordinatesSetGun = Gun.setCoordinates gun wrappedGunPosition gunAngle
-                gun' = Gun.update' coordinatesSetGun input
-            in
-                gun'
-        else
-            gun
+    updateGun gun ship@Ship{_position, _rotation, _isEnabled} input@Input{resources} =
+        let
+            gunAngle = _rotation - (pi / 2)
+            height = Sprite.height ship resources
+            gunUnitVector = Point.fromAngle gunAngle
+            gunVector = Point { x = (Point.x gunUnitVector) * (height / 2), y = (Point.y gunUnitVector) * (height / 2) }
+            gunPosition = Point { x = (Point.x _position) + (Point.x gunVector), y = (Point.y _position) + (Point.y gunVector) }
+            wrappedGunPosition = Point { x = Utils.wrap 0 Constants.nativeWidth (Point.x gunPosition), y = Utils.wrap 0 Constants.nativeHeight (Point.y gunPosition) }
+            !coordinatesSetGun = Gun.setCoordinates gun wrappedGunPosition gunAngle
+            gun' = Gun.update' coordinatesSetGun input
+            gun'' = Sprite.setEnabled gun' _isEnabled
+        in
+            gun''
 
     explosionImageDef :: Resources.ResourceDef
     explosionImageDef = (ResourceKey "ShipExplosion", Image, "Resources/ShipExplosion.png")
