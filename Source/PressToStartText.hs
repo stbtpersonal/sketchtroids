@@ -20,6 +20,7 @@ module PressToStartText
         , _isStopping :: Bool
         , _isStopped :: Bool
         , _isEnabled :: Bool
+        , _hadSeenActionUp :: Bool
         }
 
     new :: PressToStartText
@@ -29,6 +30,7 @@ module PressToStartText
         , _isStopping = False
         , _isStopped = False
         , _isEnabled = True
+        , _hadSeenActionUp = False
         }
 
     fadeDuration :: Double
@@ -45,7 +47,7 @@ module PressToStartText
         setPosition text _ = text
         rotation _ = 0
 
-        update text@PressToStartText{_alpha, _fadeDirection, _isStopping, _isStopped} Input{deltaTime, keyboard} = if Sprite.isEnabled text
+        update text@PressToStartText{_alpha, _fadeDirection, _isStopping, _isStopped, _hadSeenActionUp} Input{deltaTime, keyboard} = if Sprite.isEnabled text
             then
                 let
                     isEnabled' = not _isStopped
@@ -60,7 +62,10 @@ module PressToStartText
                         | alpha' > 1 = 2 - alpha'
                         | otherwise  = alpha'   
 
-                    isStopping' = _isStopping || Keyboard.action keyboard
+                    isActionKeyDown = Keyboard.action keyboard
+                    hadSeenActionUp' = _hadSeenActionUp || (not isActionKeyDown)
+
+                    isStopping' = _isStopping || (hadSeenActionUp' && isActionKeyDown)
                     isStopped' = _isStopped || (isStopping' && alpha' <= 0)
                 in
                     text
@@ -69,6 +74,7 @@ module PressToStartText
                         , _isStopping = isStopping'
                         , _isStopped = isStopped'
                         , _isEnabled = isEnabled'
+                        , _hadSeenActionUp = hadSeenActionUp'
                         }
             else
                 text{_isEnabled = False}
