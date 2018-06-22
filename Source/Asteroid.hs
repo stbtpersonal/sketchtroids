@@ -56,7 +56,13 @@ module Asteroid
         [ (ResourceKey "Asteroid", Image, "Resources/Asteroid.png")
         , (ResourceKey "Asteroid2", Image, "Resources/Asteroid2.png")
         , (ResourceKey "Asteroid3", Image, "Resources/Asteroid3.png")
+        , (ResourceKey "AsteroidCircle", Image, "Resources/AsteroidCircle.png")
+        , (ResourceKey "AsteroidRectangle", Image, "Resources/AsteroidRectangle.png")
+        , (ResourceKey "AsteroidSlice", Image, "Resources/AsteroidSlice.png")
         , (ResourceKey "AsteroidSquare", Image, "Resources/AsteroidSquare.png")
+        , (ResourceKey "AsteroidTriangleAcute", Image, "Resources/AsteroidTriangleAcute.png")
+        , (ResourceKey "AsteroidTriangleObtuse", Image, "Resources/AsteroidTriangleObtuse.png")
+        , (ResourceKey "AsteroidTriangleRight", Image, "Resources/AsteroidTriangleRight.png")
         , bigAsteroidExplosion
         , smallAsteroidExplosion
         ]
@@ -66,7 +72,13 @@ module Asteroid
         [ bigAsteroidCollision
         , bigAsteroidCollision
         , bigAsteroidCollision
+        , (ResourceKey "AsteroidCircleCollision", Collision, "Resources/AsteroidCircleCollision.png")
+        , (ResourceKey "AsteroidRectangleCollision", Collision, "Resources/AsteroidRectangleCollision.png")
+        , (ResourceKey "AsteroidSliceCollision", Collision, "Resources/AsteroidSliceCollision.png")
         , (ResourceKey "AsteroidSquareCollision", Collision, "Resources/AsteroidSquareCollision.png")
+        , (ResourceKey "AsteroidTriangleAcuteCollision", Collision, "Resources/AsteroidTriangleAcuteCollision.png")
+        , (ResourceKey "AsteroidTriangleObtuseCollision", Collision, "Resources/AsteroidTriangleObtuseCollision.png")
+        , (ResourceKey "AsteroidTriangleRightCollision", Collision, "Resources/AsteroidTriangleRightCollision.png")
         ]
 
     bigAsteroidCollision :: Resources.ResourceDef
@@ -82,26 +94,68 @@ module Asteroid
     bigAsteroid1 = AsteroidType
         { _spriteIndex = 0
         , _asteroidInfo = bigAsteroidInfo
-        , _breaksInto = [smallAsteroid1, smallAsteroid1, smallAsteroid1]
+        , _breaksInto = [asteroidCircle, asteroidRectangle, asteroidSlice, asteroidSquare, asteroidTriangleAcute, asteroidTriangleObtuse, asteroidTriangleRight]
         }
 
     bigAsteroid2 :: AsteroidType
     bigAsteroid2 = AsteroidType
         { _spriteIndex = 1
         , _asteroidInfo = bigAsteroidInfo
-        , _breaksInto = [smallAsteroid1, smallAsteroid1]
+        , _breaksInto = [asteroidCircle, asteroidRectangle, asteroidSlice, asteroidSquare, asteroidTriangleAcute, asteroidTriangleObtuse, asteroidTriangleRight]
         }
 
     bigAsteroid3 :: AsteroidType
     bigAsteroid3 = AsteroidType
         { _spriteIndex = 2
         , _asteroidInfo = bigAsteroidInfo
-        , _breaksInto = [smallAsteroid1]
+        , _breaksInto = [asteroidCircle, asteroidRectangle, asteroidSlice, asteroidSquare, asteroidTriangleAcute, asteroidTriangleObtuse, asteroidTriangleRight]
         }
 
-    smallAsteroid1 :: AsteroidType
-    smallAsteroid1 = AsteroidType
+    asteroidCircle :: AsteroidType
+    asteroidCircle = AsteroidType
         { _spriteIndex = 3
+        , _asteroidInfo = smallAsteroidInfo
+        , _breaksInto = []
+        }
+
+    asteroidRectangle :: AsteroidType
+    asteroidRectangle = AsteroidType
+        { _spriteIndex = 4
+        , _asteroidInfo = smallAsteroidInfo
+        , _breaksInto = []
+        }
+
+    asteroidSlice :: AsteroidType
+    asteroidSlice = AsteroidType
+        { _spriteIndex = 5
+        , _asteroidInfo = smallAsteroidInfo
+        , _breaksInto = []
+        }
+
+    asteroidSquare :: AsteroidType
+    asteroidSquare = AsteroidType
+        { _spriteIndex = 6
+        , _asteroidInfo = smallAsteroidInfo
+        , _breaksInto = []
+        }
+
+    asteroidTriangleAcute :: AsteroidType
+    asteroidTriangleAcute = AsteroidType
+        { _spriteIndex = 7
+        , _asteroidInfo = smallAsteroidInfo
+        , _breaksInto = []
+        }
+
+    asteroidTriangleObtuse :: AsteroidType
+    asteroidTriangleObtuse = AsteroidType
+        { _spriteIndex = 8
+        , _asteroidInfo = smallAsteroidInfo
+        , _breaksInto = []
+        }
+
+    asteroidTriangleRight :: AsteroidType
+    asteroidTriangleRight = AsteroidType
+        { _spriteIndex = 9
         , _asteroidInfo = smallAsteroidInfo
         , _breaksInto = []
         }
