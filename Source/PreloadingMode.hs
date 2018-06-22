@@ -10,11 +10,15 @@ module PreloadingMode
     import LoadingMode
     import Data.Map as Map
     import Input
+    import PleaseWaitText
 
     data PreloadingMode = PreloadingMode
 
     new :: PreloadingMode
     new = PreloadingMode
+
+    pleaseWaitText :: PleaseWaitText
+    pleaseWaitText = PleaseWaitText.new
 
     instance EntityClass PreloadingMode where
 
@@ -29,3 +33,5 @@ module PreloadingMode
                 if and $ Prelude.map (\key -> elem key loadedImageKeys) requiredImageKeys
                     then Entity $ LoadingMode.new
                     else Entity $ preloadingMode
+
+        render _ input = Entity.render (Entity pleaseWaitText) input

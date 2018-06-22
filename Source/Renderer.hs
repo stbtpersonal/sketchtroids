@@ -3,6 +3,7 @@ module Renderer
     , Renderer.render
     , Renderer.doNothing
     , Renderer.resize
+    , Renderer.measureText
     ) where
 
     import Haste
@@ -10,6 +11,8 @@ module Renderer
     import Haste.Graphics.Canvas as Canvas
     import Constants
     import Control.Monad
+    import Haste.Foreign as Foreign
+    import Utils
 
     initialize :: IO Canvas
     initialize = do
@@ -59,3 +62,12 @@ module Renderer
             DOM.setProp canvasElement "height" $ show resolvedHeight
 
         return smallestScale
+
+    measureText :: String -> String -> Canvas.Picture (Double, Double)
+    measureText text font = Canvas.withContext $ \context -> do
+        width <- jsMeasureTextWidth context text font
+        height <- jsMeasureTextWidth context "M" font
+        return (width, height)
+
+    jsMeasureTextWidth :: Canvas.Ctx -> String -> String -> IO Double
+    jsMeasureTextWidth = Foreign.ffi $ Haste.toJSString "RENDERER['measureTextWidth']"
