@@ -6,26 +6,22 @@ module Background
     ) where
 
     import Entity
-    import Haste.Graphics.Canvas as Canvas
+    import Sprite
     import Constants
+    import Resources
+    import Point
 
     data Background = Background
-        { _width :: Double
-        , _height :: Double
-        }
 
     new :: Background
     new = Background
-        { _width = Constants.nativeWidth
-        , _height = Constants.nativeHeight
-        }
 
     instance EntityClass Background where
+        load background = imageDefs background
+        render background input = Sprite.render background input
 
-        render Background{_width, _height} _ = 
-            let
-                shape = Canvas.rect (0, 0) (_width, _height)
-                filled = Canvas.fill shape
-                colored = Canvas.color (Canvas.RGB 255 255 255) filled
-            in
-                colored
+    instance Sprite Background where
+        imageDef _ = (ResourceKey "Background", "Resources/Background.jpg")
+        position _ = Point { x = Constants.nativeWidth / 2, y = Constants.nativeHeight / 2 }
+        setPosition background _ = background
+        rotation _ = 0
