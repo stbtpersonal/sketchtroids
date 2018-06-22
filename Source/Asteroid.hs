@@ -48,14 +48,17 @@ module Asteroid
         , _hasArrived = False
         , _isEnabled = True
         , _timesHit = 0
-        , _asteroidType = bigAsteroid1
+        , _asteroidType = asteroidSquare
         }
 
     imageDefs' :: [Resources.ResourceDef]
     imageDefs' =
-        [ (ResourceKey "Asteroid", Image, "Resources/Asteroid.png")
-        , (ResourceKey "Asteroid2", Image, "Resources/Asteroid2.png")
-        , (ResourceKey "Asteroid3", Image, "Resources/Asteroid3.png")
+        [ (ResourceKey "AsteroidCone", Image, "Resources/AsteroidCone.png")
+        , (ResourceKey "AsteroidCube", Image, "Resources/AsteroidCube.png")
+        , (ResourceKey "AsteroidCylinder", Image, "Resources/AsteroidCylinder.png")
+        , (ResourceKey "AsteroidSquarePyramid", Image, "Resources/AsteroidSquarePyramid.png")
+        , (ResourceKey "AsteroidTetrahedron", Image, "Resources/AsteroidTetrahedron.png")
+        , (ResourceKey "AsteroidTriangularPrism", Image, "Resources/AsteroidTriangularPrism.png")
         , (ResourceKey "AsteroidCircle", Image, "Resources/AsteroidCircle.png")
         , (ResourceKey "AsteroidRectangle", Image, "Resources/AsteroidRectangle.png")
         , (ResourceKey "AsteroidSlice", Image, "Resources/AsteroidSlice.png")
@@ -69,9 +72,12 @@ module Asteroid
 
     collisionDefs' :: [Resources.ResourceDef]
     collisionDefs' =
-        [ bigAsteroidCollision
-        , bigAsteroidCollision
-        , bigAsteroidCollision
+        [ (ResourceKey "AsteroidConeCollision", Collision, "Resources/AsteroidConeCollision.png")
+        , (ResourceKey "AsteroidCubeCollision", Collision, "Resources/AsteroidCubeCollision.png")
+        , (ResourceKey "AsteroidCylinderCollision", Collision, "Resources/AsteroidCylinderCollision.png")
+        , (ResourceKey "AsteroidSquarePyramidCollision", Collision, "Resources/AsteroidSquarePyramidCollision.png")
+        , (ResourceKey "AsteroidTetrahedronCollision", Collision, "Resources/AsteroidTetrahedronCollision.png")
+        , (ResourceKey "AsteroidTriangularPrismCollision", Collision, "Resources/AsteroidTriangularPrismCollision.png")
         , (ResourceKey "AsteroidCircleCollision", Collision, "Resources/AsteroidCircleCollision.png")
         , (ResourceKey "AsteroidRectangleCollision", Collision, "Resources/AsteroidRectangleCollision.png")
         , (ResourceKey "AsteroidSliceCollision", Collision, "Resources/AsteroidSliceCollision.png")
@@ -81,87 +87,105 @@ module Asteroid
         , (ResourceKey "AsteroidTriangleRightCollision", Collision, "Resources/AsteroidTriangleRightCollision.png")
         ]
 
-    bigAsteroidCollision :: Resources.ResourceDef
-    bigAsteroidCollision = (ResourceKey "AsteroidBigCollision", Collision, "Resources/AsteroidBigCollision.png")
-
     data AsteroidType = AsteroidType
         { _spriteIndex :: Int
         , _asteroidInfo :: AsteroidInfo
         , _breaksInto :: [AsteroidType]
         }
 
-    bigAsteroid1 :: AsteroidType
-    bigAsteroid1 = AsteroidType
+    asteroidCone :: AsteroidType
+    asteroidCone = AsteroidType
         { _spriteIndex = 0
         , _asteroidInfo = bigAsteroidInfo
-        , _breaksInto = [asteroidCircle, asteroidRectangle, asteroidSlice, asteroidSquare, asteroidTriangleAcute, asteroidTriangleObtuse, asteroidTriangleRight]
+        , _breaksInto = [asteroidCircle, asteroidSlice]
         }
 
-    bigAsteroid2 :: AsteroidType
-    bigAsteroid2 = AsteroidType
+    asteroidCube :: AsteroidType
+    asteroidCube = AsteroidType
         { _spriteIndex = 1
         , _asteroidInfo = bigAsteroidInfo
-        , _breaksInto = [asteroidCircle, asteroidRectangle, asteroidSlice, asteroidSquare, asteroidTriangleAcute, asteroidTriangleObtuse, asteroidTriangleRight]
+        , _breaksInto = [asteroidSquare, asteroidSquare, asteroidRectangle, asteroidRectangle]
         }
 
-    bigAsteroid3 :: AsteroidType
-    bigAsteroid3 = AsteroidType
+    asteroidCylinder :: AsteroidType
+    asteroidCylinder = AsteroidType
         { _spriteIndex = 2
         , _asteroidInfo = bigAsteroidInfo
-        , _breaksInto = [asteroidCircle, asteroidRectangle, asteroidSlice, asteroidSquare, asteroidTriangleAcute, asteroidTriangleObtuse, asteroidTriangleRight]
+        , _breaksInto = [asteroidCircle, asteroidCircle, asteroidRectangle]
+        }
+
+    asteroidSquarePyramid :: AsteroidType
+    asteroidSquarePyramid = AsteroidType
+        { _spriteIndex = 3
+        , _asteroidInfo = bigAsteroidInfo
+        , _breaksInto = [asteroidSquare, asteroidTriangleAcute, asteroidTriangleAcute, asteroidTriangleAcute, asteroidTriangleAcute]
+        }
+
+    asteroidTetrahedron :: AsteroidType
+    asteroidTetrahedron = AsteroidType
+        { _spriteIndex = 4
+        , _asteroidInfo = bigAsteroidInfo
+        , _breaksInto = [asteroidTriangleAcute, asteroidTriangleAcute, asteroidTriangleAcute, asteroidTriangleAcute]
+        }
+
+    asteroidTriangularPrism :: AsteroidType
+    asteroidTriangularPrism = AsteroidType
+        { _spriteIndex = 5
+        , _asteroidInfo = bigAsteroidInfo
+        , _breaksInto = [asteroidTriangleAcute, asteroidTriangleAcute, asteroidSquare, asteroidSquare, asteroidSquare]
         }
 
     asteroidCircle :: AsteroidType
     asteroidCircle = AsteroidType
-        { _spriteIndex = 3
+        { _spriteIndex = 6
         , _asteroidInfo = smallAsteroidInfo
         , _breaksInto = []
         }
 
     asteroidRectangle :: AsteroidType
     asteroidRectangle = AsteroidType
-        { _spriteIndex = 4
+        { _spriteIndex = 7
         , _asteroidInfo = smallAsteroidInfo
         , _breaksInto = []
         }
 
     asteroidSlice :: AsteroidType
     asteroidSlice = AsteroidType
-        { _spriteIndex = 5
+        { _spriteIndex = 8
         , _asteroidInfo = smallAsteroidInfo
         , _breaksInto = []
         }
 
     asteroidSquare :: AsteroidType
     asteroidSquare = AsteroidType
-        { _spriteIndex = 6
+        { _spriteIndex = 9
         , _asteroidInfo = smallAsteroidInfo
-        , _breaksInto = []
+        , _breaksInto = [asteroidTriangleRight, asteroidTriangleRight]
         }
 
     asteroidTriangleAcute :: AsteroidType
     asteroidTriangleAcute = AsteroidType
-        { _spriteIndex = 7
+        { _spriteIndex = 10
         , _asteroidInfo = smallAsteroidInfo
         , _breaksInto = []
         }
 
     asteroidTriangleObtuse :: AsteroidType
     asteroidTriangleObtuse = AsteroidType
-        { _spriteIndex = 8
+        { _spriteIndex = 11
         , _asteroidInfo = smallAsteroidInfo
         , _breaksInto = []
         }
 
     asteroidTriangleRight :: AsteroidType
     asteroidTriangleRight = AsteroidType
-        { _spriteIndex = 9
+        { _spriteIndex = 12
         , _asteroidInfo = smallAsteroidInfo
-        , _breaksInto = []
+        , _breaksInto = [asteroidTriangleObtuse, asteroidTriangleObtuse, asteroidTriangleAcute]
         }
 
-    bigAsteroidTypes :: [AsteroidType]
-    bigAsteroidTypes = [bigAsteroid1, bigAsteroid2, bigAsteroid3]
+    spawningAsteroidTypes :: [AsteroidType]
+    spawningAsteroidTypes = [asteroidCone, asteroidCube, asteroidCylinder, asteroidSquarePyramid, asteroidTetrahedron, asteroidTriangularPrism]
 
     data AsteroidInfo = AsteroidInfo
         { _minVelocity :: Double
@@ -346,8 +370,8 @@ module Asteroid
     initializeRandomAsteroid :: Asteroid -> Input -> Asteroid
     initializeRandomAsteroid asteroid input@Input{randomGenerator} =
         let
-            (bigAsteroidTypeIndex, randomGenerator1) = Random.randomR (0, length bigAsteroidTypes - 1) randomGenerator
-            asteroidType@AsteroidType{_asteroidInfo} = bigAsteroidTypes !! bigAsteroidTypeIndex
+            (spawningAsteroidTypeIndex, randomGenerator1) = Random.randomR (0, length spawningAsteroidTypes - 1) randomGenerator
+            asteroidType@AsteroidType{_asteroidInfo} = spawningAsteroidTypes !! spawningAsteroidTypeIndex
         in
             initializeAsteroid asteroid asteroidType $ Input.randomizeNext input
 
