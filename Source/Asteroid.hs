@@ -56,7 +56,7 @@ module Asteroid
         [ (ResourceKey "Asteroid", Image, "Resources/Asteroid.png")
         , (ResourceKey "Asteroid2", Image, "Resources/Asteroid2.png")
         , (ResourceKey "Asteroid3", Image, "Resources/Asteroid3.png")
-        , (ResourceKey "AsteroidSmall", Image, "Resources/AsteroidSmall.png")
+        , (ResourceKey "AsteroidSquare", Image, "Resources/AsteroidSquare.png")
         , bigAsteroidExplosion
         , smallAsteroidExplosion
         ]
@@ -66,14 +66,11 @@ module Asteroid
         [ bigAsteroidCollision
         , bigAsteroidCollision
         , bigAsteroidCollision
-        , smallAsteroidCollision
+        , (ResourceKey "AsteroidSquareCollision", Collision, "Resources/AsteroidSquareCollision.png")
         ]
 
     bigAsteroidCollision :: Resources.ResourceDef
     bigAsteroidCollision = (ResourceKey "AsteroidBigCollision", Collision, "Resources/AsteroidBigCollision.png")
-
-    smallAsteroidCollision :: Resources.ResourceDef
-    smallAsteroidCollision = (ResourceKey "AsteroidSmallCollision", Collision, "Resources/AsteroidSmallCollision.png")
 
     data AsteroidType = AsteroidType
         { _spriteIndex :: Int
