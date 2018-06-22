@@ -111,10 +111,10 @@ module Ship
             gun''
 
     explosionImageDef :: Resources.ResourceDef
-    explosionImageDef = (ResourceKey "ShipExplosion", Image, "Resources/ShipExplosion.png")
+    explosionImageDef = (ResourceKey "ExplosionBig", Image, "Resources/ExplosionBig.png")
 
     explosionDuration :: Double
-    explosionDuration = 1000
+    explosionDuration = 2000
 
     explode :: Ship -> Explosion
     explode Ship{_position} = Explosion.new _position explosionImageDef explosionDuration

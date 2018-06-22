@@ -131,7 +131,7 @@ module Asteroid
         , _maxRotationVelocity = 0.001
         , _maxTimesHit = 5
         , _explosionImageDef = bigAsteroidExplosion
-        , _explosionDuration = 2000
+        , _explosionDuration = 1000
         , _score = 10
         }
 
@@ -148,10 +148,10 @@ module Asteroid
         }
 
     bigAsteroidExplosion :: Resources.ResourceDef
-    bigAsteroidExplosion = (ResourceKey "BigAsteroidExplosion", Image, "Resources/BigAsteroidExplosion.png")
+    bigAsteroidExplosion = (ResourceKey "ExplosionBig", Image, "Resources/ExplosionBig.png")
 
     smallAsteroidExplosion :: Resources.ResourceDef
-    smallAsteroidExplosion = (ResourceKey "ShipExplosion", Image, "Resources/ShipExplosion.png")
+    smallAsteroidExplosion = (ResourceKey "ExplosionSmall", Image, "Resources/ExplosionSmall.png")
 
     arrivalMargin :: Double
     arrivalMargin = 200
