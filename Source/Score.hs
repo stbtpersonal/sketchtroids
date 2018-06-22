@@ -22,7 +22,7 @@ module Score
 
     new :: Score
     new = Score
-        { _numberText = NumberText.new Point { x = (Point.x screenPosition) + 175, y = Point.y screenPosition }
+        { _numberText = NumberText.new Point { x = (Point.x screenPosition) + 225, y = Point.y screenPosition }
         , _isEnabled = True
         }
 

@@ -36,7 +36,7 @@ module NumberText
     getNumber NumberText{_number} = _number
 
     digitOffset :: Double
-    digitOffset = 50
+    digitOffset = 65
 
     buildDigitTexts :: Point -> Integer -> [DigitText]
     buildDigitTexts basePosition number =
